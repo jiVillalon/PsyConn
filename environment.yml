@@ -1,0 +1,19 @@
+name: neuroenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - plotly
+  - networkx
+  - nibabel
+  - nilearn
+  - jupyterlab
+  - ipykernel
+  - datalad
+  - openneuro-py
