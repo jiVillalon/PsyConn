@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>tedana report</title>
+    <meta
+      name="viewport"
+      content="width = device-width, initial-scale = 1"
+      charset="UTF-8"
+    />
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <!-- and it's easy to individually load additional languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <!-- CSS for the report -->
+    <style type="text/css">
+      body {
+        padding: 10px 20px 10px 20px;
+      }
+    </style>
+  </head>
+
+  <nav>
+    <div class="pure-menu pure-menu-horizontal">
+      <a
+        href="https://github.com/ME-ICA/tedana"
+        class="pure-menu-heading pure-menu-link"
+        >tedana 26.0.3</a
+      >
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+          <a href="https://tedana.readthedocs.io" class="pure-menu-link"
+            >Reporting documentation</a
+          >
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <body>
+    <style type="text/css">
+  .brainplot {
+    width: 50%;
+    height: auto;
+  }
+
+  .report {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .about {
+    position: relative;
+    top: -50px;
+    margin-left: 5%;
+    margin-right: 5%;
+    white-space: pre-line;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: larger;
+    float: left;
+    width: 80%;
+  }
+
+  .references ul {
+    line-height: 150%;
+  }
+
+  .carpet-wrapper {
+    margin-top: 30px;
+  }
+
+  .carpet-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  .carpet-buttons {
+    height: 40px;
+    padding-bottom: 5px;
+  }
+
+  .carpet-image {
+    margin-top: 20px;
+  }
+
+  .info {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .tsne-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  button {
+    margin-right: 15px;
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    float: left;
+    font-size: 18px;
+    font-weight: 700;
+    height: 40px;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+
+  button:active {
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    margin-top: 3px;
+    float: left;
+  }
+
+  .blue {
+    background: #8caef9;
+    border-bottom: #6684c6 3px solid;
+    border-left: #6684c6 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .blue:active {
+    background: #7fa5f8;
+    border-bottom: #6684c6 1px solid;
+    border-left: #6684c8 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .red {
+    background: #ec5e57;
+    border-bottom: #bb3d36 3px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .red:active {
+    background: #ea4c44;
+    border-bottom: #bb3d36 1px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .green {
+    background: #74ca74;
+    border-bottom: #509d51 3px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .green:active {
+    background: #64c465;
+    border-bottom: #509d51 1px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .yellow {
+    background: #f7ce5f;
+    border-bottom: #c5a13e 3px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  .yellow:active {
+    background: #f6c94d;
+    border-bottom: #c5a13e 1px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  td {
+    padding: 0.3rem 1.5rem;
+  }
+
+  pre {
+    width: 60%;
+    white-space: pre-wrap; /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+  }
+
+  .code_block {
+    padding: 2em !important;
+    border-radius: 5px;
+  }
+
+  /* Rica button styles */
+  .rica-button-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .rica-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    opacity: 1;
+  }
+
+  .rica-button:active {
+    transform: translateY(0);
+    float: none;
+    margin-top: 0;
+  }
+
+  /* Rica modal styles */
+  .rica-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .rica-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .rica-modal h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 24px;
+  }
+
+  .rica-modal p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .rica-modal code {
+    background: #f4f4f4;
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+    margin: 15px 0;
+  }
+
+  .rica-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    float: none;
+  }
+
+  .rica-modal-close:hover {
+    color: #333;
+    opacity: 1;
+  }
+
+  .rica-modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .rica-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-modal-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+  }
+
+  .rica-modal-btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+</style>
+
+<!-- Rica Button -->
+<div class="rica-button-container">
+  <button type="button" class="rica-button" onclick="openRicaModal()" aria-haspopup="dialog">
+    🔍 Open in Rica
+  </button>
+</div>
+
+<!-- Rica Modal -->
+<div class="rica-modal-overlay" id="ricaModal" role="dialog" aria-modal="true" aria-labelledby="ricaModalTitle">
+  <div class="rica-modal">
+    <button type="button" class="rica-modal-close" onclick="closeRicaModal()" aria-label="Close modal">×</button>
+    <h2 id="ricaModalTitle">Open in Rica</h2>
+    <p>
+      <strong>Rica</strong> is an interactive web-based tool for exploring ICA components
+      with 3D brain visualization and
+      can be used to manually change component classifications.
+    </p>
+    <p>
+      To view these results in Rica locally, run this command in your output directory:
+    </p>
+    <code>python open_rica_report.py</code>
+    <p style="font-size: 13px; color: #777;">
+      This will download Rica (if needed), start a local server, and open your browser.
+    </p>
+    <div class="rica-modal-buttons">
+      <button type="button" class="rica-modal-btn rica-modal-btn-secondary" onclick="closeRicaModal()">
+        Close
+      </button>
+      <button type="button" class="rica-modal-btn rica-modal-btn-primary" onclick="openRicaWebsite()">
+        Learn more about Rica →
+      </button>
+    </div>
+  </div>
+</div>
+<div class="content">
+  <h1>ICA components</h1>
+  <div id="f2ae712c-462f-4610-948b-2342fac7135e" data-root-id="p1206" style="display: contents;"></div>
+</div>
+<div></div>
+<div class="carpet-plots">
+  <h1>Carpet plots</h1>
+  <div class="carpet-wrapper">
+    <div class="carpet-buttons"><button
+  class="blue"
+  type="button"
+  onClick="updateCarpetPlot('optcom_nogsr')"
+  style="display:none"
+>
+  Optimally combined with global signal
+</button>
+<button class="blue" type="button" onClick="updateCarpetPlot('optcom')">
+  Optimally combined 
+</button>
+<button class="yellow" type="button" onClick="updateCarpetPlot('denoised')">
+  Denoised 
+</button>
+<button
+  class="yellow"
+  type="button"
+  onClick="updateCarpetPlot('denoised_mir')"
+  style="display:none"
+>
+  Denoised after MIR
+</button>
+<button class="green" type="button" onClick="updateCarpetPlot('accepted')">
+  Accepted 
+</button>
+<button
+  class="green"
+  type="button"
+  onClick="updateCarpetPlot('accepted_mir')"
+  style="display:none"
+>
+  Accepted after MIR
+</button>
+<button class="red" type="button" onClick="updateCarpetPlot('rejected')">
+  Rejected
+</button></div>
+    <div class="carpet-plots-image">
+      <img
+        id="imgCarpetPlot"
+        src="./figures/carpet_optcom.svg"
+        style="width: 95%; max-width: 1200px; height: auto"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="carpet-plots">
+  <h1>Adaptive mask</h1>
+  <img
+    id="adaptiveMask"
+    src="./figures/adaptive_mask.svg"
+    style="width: 95%; max-width: 1200px; height: auto"
+  />
+</div>
+
+<div class="carpet-plots">
+  
+  <h2>T2*</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starBrainPlot"
+      src="./figures/t2star_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starHistogram"
+      src="./figures/t2star_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>S0</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="s0BrainPlot"
+      src="./figures/s0_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="s0Histogram"
+      src="./figures/s0_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>
+    T2* and S0 model fit (RMSE). (Scaled between 2nd and 98th percentiles)
+  </h2>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseBrainPlot"
+      src="./figures/rmse_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseTimeseries"
+      src="./figures/rmse_timeseries.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  
+</div>
+
+
+
+
+<div class="info">
+  <h1>Info</h1>
+  <div>
+  <p>
+    <span class="title">Tedana command used:</span>
+  <pre class="language-python">
+      <code class="code_block">
+        tedana -d D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_echo-1_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_echo-2_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_echo-3_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_echo-4_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_echo-5_part-mag_desc-preproc_bold.nii.gz -e 0.0142 0.03893 0.06366 0.08839 0.11312 --out-dir D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/tedana/t2\sub-P1\ses-6\BOLDREST1\run-1 --mask D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P1\ses-6\func\sub-P1_ses-6_task-BOLDREST1_dir-AP_run-1_part-mag_desc-brain_mask.nii.gz --fittype curvefit --tedpca kic --tree minimal --convention bids --prefix  --overwrite
+      </code>
+    </pre>
+  </p>
+  <table>
+    <tr>
+      <td class="title">System:</td>
+      <td>Windows</td>
+    </tr>
+    <tr>
+      <td class="title">Node:</td>
+      <td>DESKTOP-533QSJ9</td>
+    </tr>
+    <tr>
+      <td class="title">Release:</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td class="title">System version:</td>
+      <td>10.0.19045</td>
+    </tr>
+    <tr>
+      <td class="title">Machine:</td>
+      <td>AMD64</td>
+    </tr>
+    <tr>
+      <td class="title">Processor:</td>
+      <td>Intel64 Family 6 Model 165 Stepping 3, GenuineIntel</td>
+    </tr>
+    <tr>
+      <td class="title">Python:</td>
+      <td>3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:39:58) [MSC v.1943 64 bit (AMD64)]</td>
+    </tr>
+    <tr>
+      <td class="title">Tedana version:</td>
+      <td>26.0.3</td>
+    </tr>
+    <tr>
+      <td class="title">Other library versions:</td>
+      <td>{'bokeh': '3.9.0', 'mapca': '0.0.7', 'matplotlib': '3.10.6', 'nibabel': '5.3.2', 'nilearn': '0.12.1', 'numpy': '2.4.4', 'pandas': '2.3.3', 'robustica': '0.1.4', 'scikit-learn': '1.7.2', 'scipy': '1.17.1', 'threadpoolctl': '3.6.0', 'tqdm': '4.67.1'}</td>
+    </tr>
+  </table>
+</div>
+</div>
+<div class="about">
+  <h1>About tedana</h1>
+  The minimal decision tree (tedana community et al. 2024) is a simplified version of the MEICA decision tree (Kundu et al. 2013, DuPre et al. 2021) without many criteria that do not rely on kappa and rho thresholds. TE-dependence analysis was performed on input data using the tedana workflow (DuPre et al. 2021). A user-defined mask was applied to the data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. A two-stage masking procedure was applied, in which a liberal mask (including voxels with good data in at least the first echo) was used for optimal combination, T2*/S0 estimation, and denoising, while a more conservative mask (restricted to voxels with good data in at least the first three echoes) was used for the component classification procedure. A monoexponential model was fit to the data at each voxel using nonlinear model fitting in order to estimate T2* and S0 maps, using T2*/S0 estimates from a log-linear fit as initial values. For each voxel, the value from the adaptive mask was used to determine which echoes would be used to estimate T2* and S0. In cases of model fit failure, T2*/S0 estimates from the log-linear fit were retained instead. Multi-echo data were then optimally combined using the T2* combination method (Posse et al. 1999). Principal component analysis based on the PCA component estimation with a Moving Average(stationary Gaussian) process (Li et al. 2007) was applied to the optimally combined data for dimensionality reduction. The following metrics were calculated: kappa, rho, countnoise, countsigFT2, countsigFS0, dice_FT2, dice_FS0, signal-noise_t, variance explained, normalized variance explained, d_table_score. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise. The number of significant voxels not from clusters was calculated for each component. Independent component analysis was then used to decompose the dimensionally reduced dataset. The following metrics were calculated: countsigFS0, countsigFT2, dice_FS0, dice_FT2, kappa, normalized variance explained, rho, signal-noise_t, variance explained. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise.
+
+ Next, component selection was performed to identify BOLD (TE-dependent) and non-BOLD (TE-independent) components using a decision tree.
+
+ This workflow used numpy (Van Der Walt et al. 2011), scipy (Virtanen et al. 2020), pandas (McKinney et al. 2010, pandas development team et al. 2020), scikit-learn (Pedregosa et al. 2011), nilearn, bokeh (Team et al. 2018), matplotlib (Hunter et al. 2007), and nibabel (Brett et al. 2019). This workflow also used the Dice similarity index (Dice et al. 1945, Sorensen et al. 1948).
+</div>
+<div class="content references">
+  <h1>References</h1>
+  <ul>
+    <li>Brett, M., Markiewicz, C.&nbsp;J., Hanke, M., Côté, M.-A., Cipollini, B., McCarthy, P., … freec84 (2019 , May).
+<em>nipy/nibabel: 2.4.1</em>.</li><li>Dice, L.&nbsp;R.
+(1945).
+Measures of the amount of ecologic association between species.
+<em>Ecology</em>, <em>26</em>(3), 297–302.
+URL: <a href="https://doi.org/10.2307/1932409">https://doi.org/10.2307/1932409</a>, <a href="https://doi.org/10.2307/1932409">doi:10.2307/1932409</a></li><li>DuPre, E., Salo, T., Ahmed, Z., Bandettini, P.&nbsp;A., Bottenhorn, K.&nbsp;L., Caballero-Gaudes, C., … others.
+(2021).
+Te-dependent analysis of multi-echo fmri with* tedana.
+<em>Journal of Open Source Software</em>, <em>6</em>(66), 3669.
+URL: <a href="https://doi.org/10.21105/joss.03669">https://doi.org/10.21105/joss.03669</a>, <a href="https://doi.org/10.21105/joss.03669">doi:10.21105/joss.03669</a></li><li>Hunter, J.&nbsp;D.
+(2007).
+Matplotlib: a 2d graphics environment.
+<em>Computing in Science &amp; Engineering</em>, <em>9</em>(3), 90–95.
+<a href="https://doi.org/10.1109/MCSE.2007.55">doi:10.1109/MCSE.2007.55</a></li><li>Kundu, P., Brenowitz, N.&nbsp;D., Voon, V., Worbe, Y., V<span class="bibtex-protected">é</span>rtes, P.&nbsp;E., Inati, S.&nbsp;J., … Bullmore, E.&nbsp;T.
+(2013).
+Integrated strategy for improving functional connectivity mapping using multiecho fmri.
+<em>Proceedings of the National Academy of Sciences</em>, <em>110</em>(40), 16187–16192.
+URL: <a href="https://doi.org/10.1073/pnas.1301725110">https://doi.org/10.1073/pnas.1301725110</a>, <a href="https://doi.org/10.1073/pnas.1301725110">doi:10.1073/pnas.1301725110</a></li><li>Li, Y.-O., Adal<span class="bibtex-protected">ı</span>, T., &amp; Calhoun, V.&nbsp;D.
+(2007).
+Estimating the number of independent components for functional magnetic resonance imaging data.
+<em>Human brain mapping</em>, <em>28</em>(11), 1251–1266.
+URL: <a href="https://doi.org/10.1002/hbm.20359">https://doi.org/10.1002/hbm.20359</a>, <a href="https://doi.org/10.1002/hbm.20359">doi:10.1002/hbm.20359</a></li><li>McKinney, W., &amp; others. (2010).
+Data structures for statistical computing in python.
+<em>Proceedings of the 9th Python in Science Conference</em> (pp.&nbsp;51–56).
+URL: <a href="https://doi.org/10.25080/Majora-92bf1922-00a">https://doi.org/10.25080/Majora-92bf1922-00a</a>, <a href="https://doi.org/10.25080/Majora-92bf1922-00a">doi:10.25080/Majora-92bf1922-00a</a></li><li>pandas&nbsp;development team, T. (2020 , February).
+<em>pandas-dev/pandas: Pandas</em>.</li><li>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others.
+(2011).
+Scikit-learn: machine learning in python.
+<em>the Journal of machine Learning research</em>, <em>12</em>, 2825–2830.
+URL: <a href="http://jmlr.org/papers/v12/pedregosa11a.html">http://jmlr.org/papers/v12/pedregosa11a.html</a></li><li>Posse, S., Wiese, S., Gembris, D., Mathiak, K., Kessler, C., Grosse-Ruyken, M.-L., … Kiselev, V.&nbsp;G.
+(1999).
+Enhancement of bold-contrast sensitivity by single-shot multi-echo functional mr imaging.
+<em>Magnetic Resonance in Medicine: An Official Journal of the International Society for Magnetic Resonance in Medicine</em>, <em>42</em>(1), 87–97.
+URL: <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">https://doi.org/10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a>, <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">doi:10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a></li><li>Sorensen, T.&nbsp;A.
+(1948).
+A method of establishing groups of equal amplitude in plant sociology based on similarity of species content and its application to analyses of the vegetation on danish commons.
+<em>Biol. Skar.</em>, <em>5</em>, 1–34.</li><li>Team, B.&nbsp;D. (2018).
+<em>Bokeh: Python library for interactive visualization</em>.
+URL: <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></li><li>tedana community.
+(2024).
+Component selection decision trees in tedana.
+<em>figshare</em>.
+<a href="https://doi.org/10.6084/m9.figshare.25251433.v2">doi:10.6084/m9.figshare.25251433.v2</a></li><li>Van Der&nbsp;Walt, S., Colbert, S.&nbsp;C., &amp; Varoquaux, G.
+(2011).
+The numpy array: a structure for efficient numerical computation.
+<em>Computing in science &amp; engineering</em>, <em>13</em>(2), 22–30.
+URL: <a href="https://doi.org/10.1109/MCSE.2011.37">https://doi.org/10.1109/MCSE.2011.37</a>, <a href="https://doi.org/10.1109/MCSE.2011.37">doi:10.1109/MCSE.2011.37</a></li><li>Virtanen, P., Gommers, R., Oliphant, T.&nbsp;E., Haberland, M., Reddy, T., Cournapeau, D., … others.
+(2020).
+Scipy 1.0: fundamental algorithms for scientific computing in python.
+<em>Nature methods</em>, <em>17</em>(3), 261–272.
+URL: <a href="https://doi.org/10.1038/s41592-019-0686-2">https://doi.org/10.1038/s41592-019-0686-2</a>, <a href="https://doi.org/10.1038/s41592-019-0686-2">doi:10.1038/s41592-019-0686-2</a></li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+  function updateCarpetPlot(name) {
+    // Create variable to hold the image source
+    let carpetPlot = "./figures/";
+
+    if (name == "optcom") {
+      carpetPlot += "carpet_optcom.svg";
+    } else if (name == "denoised") {
+      carpetPlot += "carpet_denoised.svg";
+    } else if (name == "accepted") {
+      carpetPlot += "carpet_accepted.svg";
+    } else if (name == "rejected") {
+      carpetPlot += "carpet_rejected.svg";
+    } else if (name == "denoised_mir") {
+      carpetPlot += "carpet_denoised_mir.svg";
+    } else if (name == "accepted_mir") {
+      carpetPlot += "carpet_accepted_mir.svg";
+    } else if (name == "optcom_nogsr") {
+      carpetPlot += "carpet_optcom_nogsr.svg";
+    }
+
+    // Update the image source
+    document.getElementById("imgCarpetPlot").src = carpetPlot;
+  }
+
+  // Rica modal functions with accessibility support
+  var ricaModalTrigger = null;
+
+  function openRicaModal() {
+    ricaModalTrigger = document.activeElement;
+    var modal = document.getElementById("ricaModal");
+    modal.style.display = "flex";
+    // Focus the close button when modal opens
+    var closeBtn = modal.querySelector(".rica-modal-close");
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeRicaModal() {
+    document.getElementById("ricaModal").style.display = "none";
+    // Return focus to the element that opened the modal
+    if (ricaModalTrigger) {
+      ricaModalTrigger.focus();
+      ricaModalTrigger = null;
+    }
+  }
+
+  function openRicaWebsite() {
+    window.open("https://github.com/ME-ICA/rica", "_blank");
+  }
+
+  // Close modal when clicking outside
+  document.getElementById("ricaModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+      closeRicaModal();
+    }
+  });
+
+  // Close modal with Escape key and trap focus within modal
+  document.addEventListener("keydown", function(event) {
+    var modal = document.getElementById("ricaModal");
+    if (modal.style.display !== "flex") return;
+
+    if (event.key === "Escape") {
+      closeRicaModal();
+      return;
+    }
+
+    // Trap focus within modal
+    if (event.key === "Tab") {
+      var focusable = modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+      if (!focusable || focusable.length === 0) {
+        return;
+      }
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+</script>
+
+<script>
+(function() {
+  const fn = function() {
+    Bokeh.safely(function() {
+      (function(root) {
+        function embed_document(root) {
+        const docs_json = '{"3d6fbc3b-6466-4979-9941-53e97cb9855b":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1208","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1209"}}},"roots":[{"type":"object","name":"GridPlot","id":"p1206","attributes":{"rows":null,"cols":null,"toolbar":{"type":"object","name":"Toolbar","id":"p1205","attributes":{"tools":[{"type":"object","name":"ToolProxy","id":"p1198","attributes":{"tools":[{"type":"object","name":"TapTool","id":"p1053","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1010","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1147","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1100","attributes":{"renderers":"auto","mode":"replace"}}]}},{"type":"object","name":"ToolProxy","id":"p1199","attributes":{"tools":[{"type":"object","name":"HoverTool","id":"p1052","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1009","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1146","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1099","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}}]}},{"type":"object","name":"ToolProxy","id":"p1200","attributes":{"tools":[{"type":"object","name":"WheelZoomTool","id":"p1076","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1033","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1123","attributes":{"renderers":"auto"}}]}},{"type":"object","name":"ToolProxy","id":"p1201","attributes":{"tools":[{"type":"object","name":"ResetTool","id":"p1077"},{"type":"object","name":"ResetTool","id":"p1034"},{"type":"object","name":"ResetTool","id":"p1124"}]}},{"type":"object","name":"ToolProxy","id":"p1202","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1078"},{"type":"object","name":"PanTool","id":"p1035"},{"type":"object","name":"PanTool","id":"p1125"}]}},{"type":"object","name":"ToolProxy","id":"p1203","attributes":{"tools":[{"type":"object","name":"CrosshairTool","id":"p1079"},{"type":"object","name":"CrosshairTool","id":"p1036"},{"type":"object","name":"CrosshairTool","id":"p1126"}]}},{"type":"object","name":"SaveTool","id":"p1204"}],"logo":null}},"toolbar_location":"left","children":[[{"type":"object","name":"Row","id":"p1197","attributes":{"children":[{"type":"object","name":"Column","id":"p1195","attributes":{"children":[{"type":"object","name":"Row","id":"p1193","attributes":{"children":[{"type":"object","name":"Figure","id":"p1011","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1189","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"type":"object","name":"ColumnDataSource","id":"p1006","attributes":{"selected":{"type":"object","name":"Selection","id":"p1007","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:indices",[{"id":"p1189"},{"type":"object","name":"CustomJS","id":"p1190","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"type":"object","name":"Div","id":"p1188","attributes":{"width":500,"height":750,"height_policy":"fixed"}}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P1\\\\ses-6\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1191","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P1\\\\ses-6\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1192","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P1\\\\ses-6\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1008"},"data":{"type":"map","entries":[["kappa",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}],["rho",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}],["varexp",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}],["varexprej",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/3t+WIuJd6G1wxnFPXvXf3ZwWHfzaXZpkLuDUdD714/3ujp07GhZ6//QxcEoPWiCkaCbw8uYD/1TLnk4nJsb86Dqp7eDNtf9G0cnujhc+/bs31lJR4fmzXWcDw1cHISbLh876OzsMNn7lufpSfYOzhd6cpZnuTg8v3xE0VPVw+Fl5d7nsj9cHOqOXGRM5PJ3kD8ze4bDpEAHDb8dOiqeAQ4scTkT18QHOczWNPPhCvBx2MVy6WmIZ5DDRpXnKrOuBjh87rzCMXlZoEPhgZcWInODHLw/9kgs/xboMNE+X9X6e4ADj7pn6ymlEIeoa4F1AdUhDt0H/3vVNAU7uES0vVB4FeyQvfinxp2HwQ6JTIcf8x8McJi9L2+Fr3ywg9uZXH2vZ0EOl0PDPe0Fgx1Ctv6aX3Yx0IEBDH7Uj9Kj4TCaDkbzwWg5MFoO0LIcAADt1Sw8mAcAAA=="},"shape":[243],"dtype":"float64","order":"little"}],["kappa_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWTR26QQQyFvWTJIgsWLEYIRQghRBIInTiFNFroHYbQ6xl8lDmKjzJH4AgUf+/fPM2M7ff87N/s7xcb/g/MzoIOngHPgUvgVfAKeBRcBE+Cx8EF0MAj4O81+/+1Oge8sc/7MngMXCFuF9zmHoybnNd43+RMvOl8mfd13i+A58EN8AZI3faBvK/c/wJ/FPrPwvGd+4+F81thvi9s5PdPxL0tDOLmF+6pMw85vyjsxAW8g3MnLqib1Gni0Zm6ST9dPIqTXvQPePJN8Sdxgz4a7wb/lB/Ud+Jdut9VncH9lA7yOjqTOJcf8AU+Bvpcfst/+fCqeJrqfEY/6PhuL4mDx/F5EBfEDfhSc0JHik+4V/XidWGHP+Wz6nZ4OQ/NB54unfQ9tH+qQ36XrqdVb+CDiYdzyFfykrpOH6Z5odvQ3cl3zvaweCbnRr7jd+JXV3+aO77GFvn04dov8ZDnz/GRvQv688f0SVwQl0/q3oXyRfup/ebdtEc7zOEQ5L+e0qP//AF67sGDrq69xD9Dp92tuCkdz8ijTpN+9s/Wqa891f2dujf2yui/aa7yQ3OgD4Mv8d3uU0d7id7Ev07+0P8C/6S/ZO6JfkO/nabudfQ/KuzyDZ+cfNO8DvADNHxNdCb7ZKeoT93QfNXPJd4vwq++6TPxx6jnvNsq8ehy5ha3uEdXwmvX0CsdmssJ4uWL8pm/7aOPPYvbnIX8D6F+DvwPqL1UepgHAAA="},"shape":[243],"dtype":"float64","order":"little"}],["rho_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWUR45QQQxEa8mSBQsWLFoIIYQQIg0ZxhMJAww5hx5yPoOP0kfpo/wjcARAfvU3Jbtd1bbb39K/r/+I/6D+s3D5Bn4vHJwLHJzrZZ3rF3HwE9RvdLAb/AQb/gFfNyq+cW/ulB1fuWcVfI3/UWF+wE9e8x1+zpfPZU/i5qeyO3Y8Q+8FvG30dsEt+O8LB3qJzsDf9zj/WBjgfFP28gUd6mnEJ3H5EN7zQrkO7E59DZ3gPOjHRC98z1vywW7kO+nLpO5O/nKfOjzyTPQ7fqEn8hb3NL+D9eE1eEHcQh5BfFr3MX2yn/u74zlPdETe+bR4+QC+/a7b/eUd5pOKk9+feZvwg7lN50NfJ+8wsBd0B/kl93b0wvPhvvC+kzkTOiKvcB2eC8/fq8o33Ed0FvfNPNfh+eP/nPeLP+E18hT1hPWdB/cP9PMO/fL88L8mfUz43f8pGNwT9HUyv4M8RV7iPDkPdDvzuPh/8f/t/cD8N+8Z8grvp3uVd7JXdJc+eP+g35mT5H/QCvVugmfgMQ/aQNf6roO9keTRvdduE38LHe9H1+k94X26VnGdusLv5/+TfutqxS3ez+jLc+E5O00d7FNdwD4LngR55+AereM/Vxiux3ue/uTNOk/qDOdzHP51+PCm98c+eNTdPD9+h2PwT4CHwVbYnM8RdNjTyfvoEPHkp4PYR8H9oOdpvezp/ynQZW50Cdt9vQb/AHgRvALC1yl4vKvOc34Zv/st/H9W/wLAyK8cmAcAAA=="},"shape":[243],"dtype":"float64","order":"little"}],["varexp_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zXUN67QQBQF0FdSUlBQUIwQQgghRM7h8Ykf+OQch5xZw1uKl+KlzBJYAiAfuzm6M76Wqxvx78lX+Z+oF4vxfHF+Iq8+dv6IDxfzgfc4319yMdZ8z3t3uMVN71+TVzecX3K+ekY+zWM8zIPcx73cw93cyR3czm0M/rkY/5/+e8nJxuD4tdzPnFjsTDYGx099Tix2JhuD44c+JxY7k43B8V2fE4udycbg+KbPicXOZGNwfNXnxGJnsjE4vuhzYrEz2Rgcn/U5sdiZbAyOT/qcWOxMNgbHR31OLHYmG4Pjgz4nFjuTjcHxXp8Ti53JxuB4p8+Jxc5kY3B0fU4sdiYbY+29XfrFZHB+457J4PzaPZPBed1JBueXekwGZ7ua675ytrPFXHf3me8xGZyfumcy1nN7nZztdjHXbMeTwVp3ncHZvhfTrs92Pdd9Z91d/jNYdr+2/P9t96xbMuumzNrUu+GcdV1mXZVZV2TWZZm14bvpfPWifIHneY5neYoneYLHeZRHeIgHuJ+Nu/Iva+xa9pgHAAA="},"shape":[243],"dtype":"float64","order":"little"}],["component",["185","7","172","60","53","169","77","197","156","206","111","0","233","23","40","231","26","123","24","58","82","59","196","92","73","218","27","146","44","68","42","148","131","215","240","64","16","104","28","113","222","130","118","69","83","134","112","139","183","144","101","110","191","99","3","15","25","38","166","85","32","232","33","14","147","20","55","78","204","241","136","202","153","31","201","132","198","120","177","43","95","122","170","81","129","10","114","22","182","94","17","102","230","209","149","208","203","190","96","127","35","97","61","223","21","141","151","236","140","178","36","119","103","4","227","220","128","229","125","225","216","84","89","137","57","164","159","154","66","74","41","228","155","19","116","238","188","165","239","180","160","108","221","143","1","161","211","174","162","194","135","8","100","205","199","179","34","176","93","75","5","138","71","62","126","195","214","145","51","67","47","45","237","90","242","54","186","219","105","167","50","91","30","213","235","72","49","37","98","79","52","175","39","187","2","200","212","13","207","184","173","189","157","224","142","210","163","181","11","226","65","80","106","70","46","12","88","124","87","9","29","63","76","6","117","152","150","18","158","171","192","168","234","193","48","121","56","107","133","109","115","86","217"]],["color",{"type":"ndarray","array":["#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c"],"shape":[243],"dtype":"object","order":"little"}],["size",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}],["classif",{"type":"ndarray","array":["accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected"],"shape":[243],"dtype":"object","order":"little"}],["classtag",{"type":"ndarray","array":["Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD"],"shape":[243],"dtype":"object","order":"little"}],["angle",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}]]}}}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P1\\\\ses-6\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1012"},"y_range":{"type":"object","name":"DataRange1d","id":"p1013"},"x_scale":{"type":"object","name":"LinearScale","id":"p1021"},"y_scale":{"type":"object","name":"LinearScale","id":"p1022"},"title":{"type":"object","name":"Title","id":"p1014","attributes":{"text":"Kappa / Rho Plot"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1042","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1043","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1044"}}},"glyph":{"type":"object","name":"Scatter","id":"p1039","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.5},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.5},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.5}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1040","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1041","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1020","attributes":{"tools":[{"id":"p1010"},{"id":"p1009"},{"id":"p1033"},{"id":"p1034"},{"id":"p1035"},{"id":"p1036"},{"type":"object","name":"SaveTool","id":"p1037"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1028","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1029","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1030"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1031"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1023","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1024","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1025"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1026"}}}],"center":[{"type":"object","name":"Grid","id":"p1027","attributes":{"axis":{"id":"p1023"}}},{"type":"object","name":"Grid","id":"p1032","attributes":{"dimension":1,"axis":{"id":"p1028"}}},{"type":"object","name":"Slope","id":"p1038","attributes":{"gradient":1,"y_intercept":0,"line_color":"#D3D3D3"}},{"type":"object","name":"Legend","id":"p1045","attributes":{"orientation":"horizontal","border_line_alpha":0,"background_fill_alpha":0.5,"items":[{"type":"object","name":"LegendItem","id":"p1046","attributes":{"label":{"type":"value","value":"accepted"},"renderers":[{"id":"p1042"}],"index":0}},{"type":"object","name":"LegendItem","id":"p1047","attributes":{"label":{"type":"value","value":"rejected"},"renderers":[{"id":"p1042"}],"index":37}}]}},{"type":"object","name":"Span","id":"p1048","attributes":{"name":"rho elbow","location":24.13934380356591,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1049","attributes":{"text":"rho elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":300,"y":24.62213067963723,"x_units":"screen"}},{"type":"object","name":"Span","id":"p1050","attributes":{"name":"kappa elbow","location":9.17509650351564,"dimension":"height","line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1051","attributes":{"text":"kappa elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":9.358598433585954,"y":300,"y_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1148","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1187","attributes":{"args":{"type":"map","entries":[["source",{"id":"p1006"}]]},"code":"\\n        if (window._tedana_key_handler_added) {\\n            return;\\n        }\\n        window._tedana_key_handler_added = true;\\n\\n        document.addEventListener(&#x27;keydown&#x27;, function(e) {\\n            const key = e.key;\\n            const N = source.get_length();\\n            if (!N) return;\\n\\n            let idx = 0;\\n            if (source.selected.indices.length &gt; 0) {\\n                idx = source.selected.indices[0];\\n            }\\n\\n            if (key === \\"ArrowLeft\\") {\\n                idx = (idx + 1) % N;\\n            } else if (key === \\"ArrowRight\\") {\\n                idx = (idx - 1 + N) % N;\\n            } else {\\n                return;\\n            }\\n\\n            source.selected.indices = [idx];\\n            source.change.emit();\\n        });\\n    "}},{"id":"p1192"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1149"},"y_range":{"type":"object","name":"DataRange1d","id":"p1150"},"x_scale":{"type":"object","name":"LinearScale","id":"p1158"},"y_scale":{"type":"object","name":"LinearScale","id":"p1159"},"title":{"type":"object","name":"Title","id":"p1151","attributes":{"text":"Variance Explained View"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1176","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1177","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1178"}}},"glyph":{"type":"object","name":"Wedge","id":"p1173","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1171","attributes":{"field":"angle","include_zero":true}}},"end_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1172","attributes":{"field":"angle"}}},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Wedge","id":"p1174","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Wedge","id":"p1175","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_alpha":{"type":"value","value":0.2}}}}},{"type":"object","name":"GlyphRenderer","id":"p1183","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1180","attributes":{"selected":{"type":"object","name":"Selection","id":"p1181","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1182"},"data":{"type":"map"}}},"view":{"type":"object","name":"CDSView","id":"p1184","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1185"}}},"glyph":{"type":"object","name":"Scatter","id":"p1179","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"size":{"type":"value","value":150},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"value","value":"white"}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1157","attributes":{"tools":[{"id":"p1146"},{"id":"p1147"},{"type":"object","name":"SaveTool","id":"p1170"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1165","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1166","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1167"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1168"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1160","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1161","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1162"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1163"}}}],"center":[{"type":"object","name":"Grid","id":"p1164","attributes":{"visible":false,"axis":{"id":"p1160"}}},{"type":"object","name":"Grid","id":"p1169","attributes":{"visible":false,"dimension":1,"axis":{"id":"p1165"}}},{"type":"object","name":"Label","id":"p1186","attributes":{"text":"Total: 243\\nAccept: 37/81.9%\\nReject: 206/18.1%","text_font_size":"12pt","text_align":"center","text_baseline":"middle","x":0,"y":1}}]}}]}},{"type":"object","name":"Row","id":"p1194","attributes":{"children":[{"type":"object","name":"Figure","id":"p1101","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1191"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1143","attributes":{"start":-1,"end":244}},"y_range":{"type":"object","name":"DataRange1d","id":"p1103"},"x_scale":{"type":"object","name":"LinearScale","id":"p1111"},"y_scale":{"type":"object","name":"LinearScale","id":"p1112"},"title":{"type":"object","name":"Title","id":"p1104","attributes":{"text":"Rho Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1134","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1128","attributes":{"selected":{"type":"object","name":"Selection","id":"p1129","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1130"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DA3cWAAAAwC/bdmvZtmst27ZtYwtr2bZt27Ztu/5Ad+9dlEAgENVoRjeGMY1lbOMY13jGN4EJTWRik5jUZCY3hSlNZWrTmNZ0pjeDGc1kZoPMYrBZzWZ2c5jTXOY2j3nNZ34LWNBCFraIRS1mcUtY0lKWtoxlLWd5K1jRSla2ilUNsZqhVreGNa1lbetY13rWt4ENbWRjm9jUZja3hS1tZWvb2NZ2treDHe1kZ7vY1W52t4c97WVv+9jXfvZ3gAMd5GCHONRhDneEIx3laMc41nGOd4JhhjvRSU52ihFONdJpTneGM53lbOc413nOd4ELXeRil7jUZS53hStd5WrXuNZ1rneDG93kZre41W1ud4c73eVu97jXfe73gAc95GGPeNRjHveEJz3lac941nOe94IXveRlr3jVa173hje95W3veNd73veBD33kY5/41Gc+94UvfeVr3/jWd773gx/95Ge/+NVvfveHP/3lb//413/+B7WcZcvMAwAA"},"shape":[243],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1135","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1136"}}},"glyph":{"type":"object","name":"Line","id":"p1131","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1132","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1133","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1140","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1141","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1142"}}},"glyph":{"type":"object","name":"Scatter","id":"p1137","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1138","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1139","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1110","attributes":{"tools":[{"id":"p1100"},{"id":"p1099"},{"id":"p1123"},{"id":"p1124"},{"id":"p1125"},{"id":"p1126"},{"type":"object","name":"SaveTool","id":"p1127"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1118","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1119","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1120"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1121"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1113","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1114","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1115"},"axis_label":"Components sorted by Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1116"}}}],"center":[{"type":"object","name":"Grid","id":"p1117","attributes":{"axis":{"id":"p1113"}}},{"type":"object","name":"Grid","id":"p1122","attributes":{"dimension":1,"axis":{"id":"p1118"}}},{"type":"object","name":"Span","id":"p1144","attributes":{"name":"elbow","location":24.13934380356591,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1145","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":24.62213067963723,"x_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1054","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1190"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1096","attributes":{"start":-1,"end":244}},"y_range":{"type":"object","name":"DataRange1d","id":"p1056"},"x_scale":{"type":"object","name":"LinearScale","id":"p1064"},"y_scale":{"type":"object","name":"LinearScale","id":"p1065"},"title":{"type":"object","name":"Title","id":"p1057","attributes":{"text":"Kappa Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1087","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1081","attributes":{"selected":{"type":"object","name":"Selection","id":"p1082","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1083"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DA3cWAAAAwC/bdmvZtmst27ZtYwtr2bZt27Ztu/5Ad+9dlEAgENVoRjeGMY1lbOMY13jGN4EJTWRik5jUZCY3hSlNZWrTmNZ0pjeDGc1kZoPMYrBZzWZ2c5jTXOY2j3nNZ34LWNBCFraIRS1mcUtY0lKWtoxlLWd5K1jRSla2ilUNsZqhVreGNa1lbetY13rWt4ENbWRjm9jUZja3hS1tZWvb2NZ2treDHe1kZ7vY1W52t4c97WVv+9jXfvZ3gAMd5GCHONRhDneEIx3laMc41nGOd4JhhjvRSU52ihFONdJpTneGM53lbOc413nOd4ELXeRil7jUZS53hStd5WrXuNZ1rneDG93kZre41W1ud4c73eVu97jXfe73gAc95GGPeNRjHveEJz3lac941nOe94IXveRlr3jVa173hje95W3veNd73veBD33kY5/41Gc+94UvfeVr3/jWd773gx/95Ge/+NVvfveHP/3lb//413/+B7WcZcvMAwAA"},"shape":[243],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"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"},"shape":[243],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1088","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1089"}}},"glyph":{"type":"object","name":"Line","id":"p1084","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1085","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1086","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1093","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1094","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1095"}}},"glyph":{"type":"object","name":"Scatter","id":"p1090","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1091","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1092","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1063","attributes":{"tools":[{"id":"p1053"},{"id":"p1052"},{"id":"p1076"},{"id":"p1077"},{"id":"p1078"},{"id":"p1079"},{"type":"object","name":"SaveTool","id":"p1080"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1071","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1072","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1073"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1074"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1066","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1067","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1068"},"axis_label":"Components sorted by Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1069"}}}],"center":[{"type":"object","name":"Grid","id":"p1070","attributes":{"axis":{"id":"p1066"}}},{"type":"object","name":"Grid","id":"p1075","attributes":{"dimension":1,"axis":{"id":"p1071"}}},{"type":"object","name":"Span","id":"p1097","attributes":{"name":"elbow","location":9.17509650351564,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1098","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":9.358598433585954,"x_units":"screen"}}]}}]}}]}},{"type":"object","name":"Column","id":"p1196","attributes":{"children":[{"id":"p1188"}]}}]}},0,0]]}}]}}';
+        const render_items = [{"docid":"3d6fbc3b-6466-4979-9941-53e97cb9855b","roots":{"p1206":"f2ae712c-462f-4610-948b-2342fac7135e"},"root_ids":["p1206"]}];
+        root.Bokeh.embed.embed_items(docs_json, render_items);
+        }
+        if (root.Bokeh !== undefined) {
+          embed_document(root);
+        } else {
+          let attempts = 0;
+          const timer = setInterval(function(root) {
+            if (root.Bokeh !== undefined) {
+              clearInterval(timer);
+              embed_document(root);
+            } else {
+              attempts++;
+              if (attempts > 100) {
+                clearInterval(timer);
+                console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+              }
+            }
+          }, 10, root)
+        }
+      })(window);
+    });
+  };
+  if (document.readyState != "loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+})();
+</script>
+
+  </body>
+</html>

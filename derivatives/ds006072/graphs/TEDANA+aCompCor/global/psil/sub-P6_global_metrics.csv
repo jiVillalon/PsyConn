@@ -1,0 +1,2 @@
+"mean_strength","global_efficiency","char_path_length","density","mean_degree","clustering","modularity","n_communities","min_module_size","median_module_size","n_singletons","assortativity","small_worldness","threshold_used","Q_sd","Q_range","cons_iterations","cons_converged"
+89.4094307118266,0.422766704231428,2.94414562668022,0.198574414091655,45.8706896551724,0.724214971644572,0.374382265286228,33,1,1,29,0.200113617995199,2.24317177848649,0.2,0.00281961855982919,0.0139412255600607,2,TRUE

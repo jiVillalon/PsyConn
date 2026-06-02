@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>tedana report</title>
+    <meta
+      name="viewport"
+      content="width = device-width, initial-scale = 1"
+      charset="UTF-8"
+    />
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <!-- and it's easy to individually load additional languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <!-- CSS for the report -->
+    <style type="text/css">
+      body {
+        padding: 10px 20px 10px 20px;
+      }
+    </style>
+  </head>
+
+  <nav>
+    <div class="pure-menu pure-menu-horizontal">
+      <a
+        href="https://github.com/ME-ICA/tedana"
+        class="pure-menu-heading pure-menu-link"
+        >tedana 26.0.3</a
+      >
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+          <a href="https://tedana.readthedocs.io" class="pure-menu-link"
+            >Reporting documentation</a
+          >
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <body>
+    <style type="text/css">
+  .brainplot {
+    width: 50%;
+    height: auto;
+  }
+
+  .report {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .about {
+    position: relative;
+    top: -50px;
+    margin-left: 5%;
+    margin-right: 5%;
+    white-space: pre-line;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: larger;
+    float: left;
+    width: 80%;
+  }
+
+  .references ul {
+    line-height: 150%;
+  }
+
+  .carpet-wrapper {
+    margin-top: 30px;
+  }
+
+  .carpet-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  .carpet-buttons {
+    height: 40px;
+    padding-bottom: 5px;
+  }
+
+  .carpet-image {
+    margin-top: 20px;
+  }
+
+  .info {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .tsne-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  button {
+    margin-right: 15px;
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    float: left;
+    font-size: 18px;
+    font-weight: 700;
+    height: 40px;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+
+  button:active {
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    margin-top: 3px;
+    float: left;
+  }
+
+  .blue {
+    background: #8caef9;
+    border-bottom: #6684c6 3px solid;
+    border-left: #6684c6 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .blue:active {
+    background: #7fa5f8;
+    border-bottom: #6684c6 1px solid;
+    border-left: #6684c8 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .red {
+    background: #ec5e57;
+    border-bottom: #bb3d36 3px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .red:active {
+    background: #ea4c44;
+    border-bottom: #bb3d36 1px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .green {
+    background: #74ca74;
+    border-bottom: #509d51 3px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .green:active {
+    background: #64c465;
+    border-bottom: #509d51 1px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .yellow {
+    background: #f7ce5f;
+    border-bottom: #c5a13e 3px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  .yellow:active {
+    background: #f6c94d;
+    border-bottom: #c5a13e 1px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  td {
+    padding: 0.3rem 1.5rem;
+  }
+
+  pre {
+    width: 60%;
+    white-space: pre-wrap; /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+  }
+
+  .code_block {
+    padding: 2em !important;
+    border-radius: 5px;
+  }
+
+  /* Rica button styles */
+  .rica-button-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .rica-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    opacity: 1;
+  }
+
+  .rica-button:active {
+    transform: translateY(0);
+    float: none;
+    margin-top: 0;
+  }
+
+  /* Rica modal styles */
+  .rica-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .rica-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .rica-modal h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 24px;
+  }
+
+  .rica-modal p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .rica-modal code {
+    background: #f4f4f4;
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+    margin: 15px 0;
+  }
+
+  .rica-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    float: none;
+  }
+
+  .rica-modal-close:hover {
+    color: #333;
+    opacity: 1;
+  }
+
+  .rica-modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .rica-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-modal-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+  }
+
+  .rica-modal-btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+</style>
+
+<!-- Rica Button -->
+<div class="rica-button-container">
+  <button type="button" class="rica-button" onclick="openRicaModal()" aria-haspopup="dialog">
+    🔍 Open in Rica
+  </button>
+</div>
+
+<!-- Rica Modal -->
+<div class="rica-modal-overlay" id="ricaModal" role="dialog" aria-modal="true" aria-labelledby="ricaModalTitle">
+  <div class="rica-modal">
+    <button type="button" class="rica-modal-close" onclick="closeRicaModal()" aria-label="Close modal">×</button>
+    <h2 id="ricaModalTitle">Open in Rica</h2>
+    <p>
+      <strong>Rica</strong> is an interactive web-based tool for exploring ICA components
+      with 3D brain visualization and
+      can be used to manually change component classifications.
+    </p>
+    <p>
+      To view these results in Rica locally, run this command in your output directory:
+    </p>
+    <code>python open_rica_report.py</code>
+    <p style="font-size: 13px; color: #777;">
+      This will download Rica (if needed), start a local server, and open your browser.
+    </p>
+    <div class="rica-modal-buttons">
+      <button type="button" class="rica-modal-btn rica-modal-btn-secondary" onclick="closeRicaModal()">
+        Close
+      </button>
+      <button type="button" class="rica-modal-btn rica-modal-btn-primary" onclick="openRicaWebsite()">
+        Learn more about Rica →
+      </button>
+    </div>
+  </div>
+</div>
+<div class="content">
+  <h1>ICA components</h1>
+  <div id="b57e16d3-99f8-42f9-961d-e05395a4bc5c" data-root-id="p1206" style="display: contents;"></div>
+</div>
+<div></div>
+<div class="carpet-plots">
+  <h1>Carpet plots</h1>
+  <div class="carpet-wrapper">
+    <div class="carpet-buttons"><button
+  class="blue"
+  type="button"
+  onClick="updateCarpetPlot('optcom_nogsr')"
+  style="display:none"
+>
+  Optimally combined with global signal
+</button>
+<button class="blue" type="button" onClick="updateCarpetPlot('optcom')">
+  Optimally combined 
+</button>
+<button class="yellow" type="button" onClick="updateCarpetPlot('denoised')">
+  Denoised 
+</button>
+<button
+  class="yellow"
+  type="button"
+  onClick="updateCarpetPlot('denoised_mir')"
+  style="display:none"
+>
+  Denoised after MIR
+</button>
+<button class="green" type="button" onClick="updateCarpetPlot('accepted')">
+  Accepted 
+</button>
+<button
+  class="green"
+  type="button"
+  onClick="updateCarpetPlot('accepted_mir')"
+  style="display:none"
+>
+  Accepted after MIR
+</button>
+<button class="red" type="button" onClick="updateCarpetPlot('rejected')">
+  Rejected
+</button></div>
+    <div class="carpet-plots-image">
+      <img
+        id="imgCarpetPlot"
+        src="./figures/carpet_optcom.svg"
+        style="width: 95%; max-width: 1200px; height: auto"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="carpet-plots">
+  <h1>Adaptive mask</h1>
+  <img
+    id="adaptiveMask"
+    src="./figures/adaptive_mask.svg"
+    style="width: 95%; max-width: 1200px; height: auto"
+  />
+</div>
+
+<div class="carpet-plots">
+  
+  <h2>T2*</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starBrainPlot"
+      src="./figures/t2star_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starHistogram"
+      src="./figures/t2star_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>S0</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="s0BrainPlot"
+      src="./figures/s0_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="s0Histogram"
+      src="./figures/s0_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>
+    T2* and S0 model fit (RMSE). (Scaled between 2nd and 98th percentiles)
+  </h2>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseBrainPlot"
+      src="./figures/rmse_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseTimeseries"
+      src="./figures/rmse_timeseries.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  
+</div>
+
+
+
+
+<div class="info">
+  <h1>Info</h1>
+  <div>
+  <p>
+    <span class="title">Tedana command used:</span>
+  <pre class="language-python">
+      <code class="code_block">
+        tedana -d D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_echo-1_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_echo-2_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_echo-3_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_echo-4_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_echo-5_part-mag_desc-preproc_bold.nii.gz -e 0.0142 0.03893 0.06366 0.08839 0.11312 --out-dir D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/tedana/minimal\sub-P7\ses-7\BOLDREST1\run-1 --mask D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t1\sub-P7\ses-7\func\sub-P7_ses-7_task-BOLDREST1_dir-PA_run-1_part-mag_desc-brain_mask.nii.gz --fittype curvefit --tedpca kic --tree minimal --convention bids --prefix  --overwrite
+      </code>
+    </pre>
+  </p>
+  <table>
+    <tr>
+      <td class="title">System:</td>
+      <td>Windows</td>
+    </tr>
+    <tr>
+      <td class="title">Node:</td>
+      <td>DESKTOP-533QSJ9</td>
+    </tr>
+    <tr>
+      <td class="title">Release:</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td class="title">System version:</td>
+      <td>10.0.19045</td>
+    </tr>
+    <tr>
+      <td class="title">Machine:</td>
+      <td>AMD64</td>
+    </tr>
+    <tr>
+      <td class="title">Processor:</td>
+      <td>Intel64 Family 6 Model 165 Stepping 3, GenuineIntel</td>
+    </tr>
+    <tr>
+      <td class="title">Python:</td>
+      <td>3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:39:58) [MSC v.1943 64 bit (AMD64)]</td>
+    </tr>
+    <tr>
+      <td class="title">Tedana version:</td>
+      <td>26.0.3</td>
+    </tr>
+    <tr>
+      <td class="title">Other library versions:</td>
+      <td>{'bokeh': '3.9.0', 'mapca': '0.0.7', 'matplotlib': '3.10.6', 'nibabel': '5.3.2', 'nilearn': '0.12.1', 'numpy': '2.4.4', 'pandas': '2.3.3', 'robustica': '0.1.4', 'scikit-learn': '1.7.2', 'scipy': '1.17.1', 'threadpoolctl': '3.6.0', 'tqdm': '4.67.1'}</td>
+    </tr>
+  </table>
+</div>
+</div>
+<div class="about">
+  <h1>About tedana</h1>
+  The minimal decision tree (tedana community et al. 2024) is a simplified version of the MEICA decision tree (Kundu et al. 2013, DuPre et al. 2021) without many criteria that do not rely on kappa and rho thresholds. TE-dependence analysis was performed on input data using the tedana workflow (DuPre et al. 2021). A user-defined mask was applied to the data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. A two-stage masking procedure was applied, in which a liberal mask (including voxels with good data in at least the first echo) was used for optimal combination, T2*/S0 estimation, and denoising, while a more conservative mask (restricted to voxels with good data in at least the first three echoes) was used for the component classification procedure. A monoexponential model was fit to the data at each voxel using nonlinear model fitting in order to estimate T2* and S0 maps, using T2*/S0 estimates from a log-linear fit as initial values. For each voxel, the value from the adaptive mask was used to determine which echoes would be used to estimate T2* and S0. In cases of model fit failure, T2*/S0 estimates from the log-linear fit were retained instead. Multi-echo data were then optimally combined using the T2* combination method (Posse et al. 1999). Principal component analysis based on the PCA component estimation with a Moving Average(stationary Gaussian) process (Li et al. 2007) was applied to the optimally combined data for dimensionality reduction. The following metrics were calculated: kappa, rho, countnoise, countsigFT2, countsigFS0, dice_FT2, dice_FS0, signal-noise_t, variance explained, normalized variance explained, d_table_score. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise. The number of significant voxels not from clusters was calculated for each component. Independent component analysis was then used to decompose the dimensionally reduced dataset. The following metrics were calculated: countsigFS0, countsigFT2, dice_FS0, dice_FT2, kappa, normalized variance explained, rho, signal-noise_t, variance explained. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise.
+
+ Next, component selection was performed to identify BOLD (TE-dependent) and non-BOLD (TE-independent) components using a decision tree.
+
+ This workflow used numpy (Van Der Walt et al. 2011), scipy (Virtanen et al. 2020), pandas (McKinney et al. 2010, pandas development team et al. 2020), scikit-learn (Pedregosa et al. 2011), nilearn, bokeh (Team et al. 2018), matplotlib (Hunter et al. 2007), and nibabel (Brett et al. 2019). This workflow also used the Dice similarity index (Dice et al. 1945, Sorensen et al. 1948).
+</div>
+<div class="content references">
+  <h1>References</h1>
+  <ul>
+    <li>Brett, M., Markiewicz, C.&nbsp;J., Hanke, M., Côté, M.-A., Cipollini, B., McCarthy, P., … freec84 (2019 , May).
+<em>nipy/nibabel: 2.4.1</em>.</li><li>Dice, L.&nbsp;R.
+(1945).
+Measures of the amount of ecologic association between species.
+<em>Ecology</em>, <em>26</em>(3), 297–302.
+URL: <a href="https://doi.org/10.2307/1932409">https://doi.org/10.2307/1932409</a>, <a href="https://doi.org/10.2307/1932409">doi:10.2307/1932409</a></li><li>DuPre, E., Salo, T., Ahmed, Z., Bandettini, P.&nbsp;A., Bottenhorn, K.&nbsp;L., Caballero-Gaudes, C., … others.
+(2021).
+Te-dependent analysis of multi-echo fmri with* tedana.
+<em>Journal of Open Source Software</em>, <em>6</em>(66), 3669.
+URL: <a href="https://doi.org/10.21105/joss.03669">https://doi.org/10.21105/joss.03669</a>, <a href="https://doi.org/10.21105/joss.03669">doi:10.21105/joss.03669</a></li><li>Hunter, J.&nbsp;D.
+(2007).
+Matplotlib: a 2d graphics environment.
+<em>Computing in Science &amp; Engineering</em>, <em>9</em>(3), 90–95.
+<a href="https://doi.org/10.1109/MCSE.2007.55">doi:10.1109/MCSE.2007.55</a></li><li>Kundu, P., Brenowitz, N.&nbsp;D., Voon, V., Worbe, Y., V<span class="bibtex-protected">é</span>rtes, P.&nbsp;E., Inati, S.&nbsp;J., … Bullmore, E.&nbsp;T.
+(2013).
+Integrated strategy for improving functional connectivity mapping using multiecho fmri.
+<em>Proceedings of the National Academy of Sciences</em>, <em>110</em>(40), 16187–16192.
+URL: <a href="https://doi.org/10.1073/pnas.1301725110">https://doi.org/10.1073/pnas.1301725110</a>, <a href="https://doi.org/10.1073/pnas.1301725110">doi:10.1073/pnas.1301725110</a></li><li>Li, Y.-O., Adal<span class="bibtex-protected">ı</span>, T., &amp; Calhoun, V.&nbsp;D.
+(2007).
+Estimating the number of independent components for functional magnetic resonance imaging data.
+<em>Human brain mapping</em>, <em>28</em>(11), 1251–1266.
+URL: <a href="https://doi.org/10.1002/hbm.20359">https://doi.org/10.1002/hbm.20359</a>, <a href="https://doi.org/10.1002/hbm.20359">doi:10.1002/hbm.20359</a></li><li>McKinney, W., &amp; others. (2010).
+Data structures for statistical computing in python.
+<em>Proceedings of the 9th Python in Science Conference</em> (pp.&nbsp;51–56).
+URL: <a href="https://doi.org/10.25080/Majora-92bf1922-00a">https://doi.org/10.25080/Majora-92bf1922-00a</a>, <a href="https://doi.org/10.25080/Majora-92bf1922-00a">doi:10.25080/Majora-92bf1922-00a</a></li><li>pandas&nbsp;development team, T. (2020 , February).
+<em>pandas-dev/pandas: Pandas</em>.</li><li>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others.
+(2011).
+Scikit-learn: machine learning in python.
+<em>the Journal of machine Learning research</em>, <em>12</em>, 2825–2830.
+URL: <a href="http://jmlr.org/papers/v12/pedregosa11a.html">http://jmlr.org/papers/v12/pedregosa11a.html</a></li><li>Posse, S., Wiese, S., Gembris, D., Mathiak, K., Kessler, C., Grosse-Ruyken, M.-L., … Kiselev, V.&nbsp;G.
+(1999).
+Enhancement of bold-contrast sensitivity by single-shot multi-echo functional mr imaging.
+<em>Magnetic Resonance in Medicine: An Official Journal of the International Society for Magnetic Resonance in Medicine</em>, <em>42</em>(1), 87–97.
+URL: <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">https://doi.org/10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a>, <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">doi:10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a></li><li>Sorensen, T.&nbsp;A.
+(1948).
+A method of establishing groups of equal amplitude in plant sociology based on similarity of species content and its application to analyses of the vegetation on danish commons.
+<em>Biol. Skar.</em>, <em>5</em>, 1–34.</li><li>Team, B.&nbsp;D. (2018).
+<em>Bokeh: Python library for interactive visualization</em>.
+URL: <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></li><li>tedana community.
+(2024).
+Component selection decision trees in tedana.
+<em>figshare</em>.
+<a href="https://doi.org/10.6084/m9.figshare.25251433.v2">doi:10.6084/m9.figshare.25251433.v2</a></li><li>Van Der&nbsp;Walt, S., Colbert, S.&nbsp;C., &amp; Varoquaux, G.
+(2011).
+The numpy array: a structure for efficient numerical computation.
+<em>Computing in science &amp; engineering</em>, <em>13</em>(2), 22–30.
+URL: <a href="https://doi.org/10.1109/MCSE.2011.37">https://doi.org/10.1109/MCSE.2011.37</a>, <a href="https://doi.org/10.1109/MCSE.2011.37">doi:10.1109/MCSE.2011.37</a></li><li>Virtanen, P., Gommers, R., Oliphant, T.&nbsp;E., Haberland, M., Reddy, T., Cournapeau, D., … others.
+(2020).
+Scipy 1.0: fundamental algorithms for scientific computing in python.
+<em>Nature methods</em>, <em>17</em>(3), 261–272.
+URL: <a href="https://doi.org/10.1038/s41592-019-0686-2">https://doi.org/10.1038/s41592-019-0686-2</a>, <a href="https://doi.org/10.1038/s41592-019-0686-2">doi:10.1038/s41592-019-0686-2</a></li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+  function updateCarpetPlot(name) {
+    // Create variable to hold the image source
+    let carpetPlot = "./figures/";
+
+    if (name == "optcom") {
+      carpetPlot += "carpet_optcom.svg";
+    } else if (name == "denoised") {
+      carpetPlot += "carpet_denoised.svg";
+    } else if (name == "accepted") {
+      carpetPlot += "carpet_accepted.svg";
+    } else if (name == "rejected") {
+      carpetPlot += "carpet_rejected.svg";
+    } else if (name == "denoised_mir") {
+      carpetPlot += "carpet_denoised_mir.svg";
+    } else if (name == "accepted_mir") {
+      carpetPlot += "carpet_accepted_mir.svg";
+    } else if (name == "optcom_nogsr") {
+      carpetPlot += "carpet_optcom_nogsr.svg";
+    }
+
+    // Update the image source
+    document.getElementById("imgCarpetPlot").src = carpetPlot;
+  }
+
+  // Rica modal functions with accessibility support
+  var ricaModalTrigger = null;
+
+  function openRicaModal() {
+    ricaModalTrigger = document.activeElement;
+    var modal = document.getElementById("ricaModal");
+    modal.style.display = "flex";
+    // Focus the close button when modal opens
+    var closeBtn = modal.querySelector(".rica-modal-close");
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeRicaModal() {
+    document.getElementById("ricaModal").style.display = "none";
+    // Return focus to the element that opened the modal
+    if (ricaModalTrigger) {
+      ricaModalTrigger.focus();
+      ricaModalTrigger = null;
+    }
+  }
+
+  function openRicaWebsite() {
+    window.open("https://github.com/ME-ICA/rica", "_blank");
+  }
+
+  // Close modal when clicking outside
+  document.getElementById("ricaModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+      closeRicaModal();
+    }
+  });
+
+  // Close modal with Escape key and trap focus within modal
+  document.addEventListener("keydown", function(event) {
+    var modal = document.getElementById("ricaModal");
+    if (modal.style.display !== "flex") return;
+
+    if (event.key === "Escape") {
+      closeRicaModal();
+      return;
+    }
+
+    // Trap focus within modal
+    if (event.key === "Tab") {
+      var focusable = modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+      if (!focusable || focusable.length === 0) {
+        return;
+      }
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+</script>
+
+<script>
+(function() {
+  const fn = function() {
+    Bokeh.safely(function() {
+      (function(root) {
+        function embed_document(root) {
+        const docs_json = '{"37d63854-a010-4e1b-94b5-062614fc5347":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1208","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1209"}}},"roots":[{"type":"object","name":"GridPlot","id":"p1206","attributes":{"rows":null,"cols":null,"toolbar":{"type":"object","name":"Toolbar","id":"p1205","attributes":{"tools":[{"type":"object","name":"ToolProxy","id":"p1198","attributes":{"tools":[{"type":"object","name":"HoverTool","id":"p1146","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1052","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1009","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1099","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}}]}},{"type":"object","name":"ToolProxy","id":"p1199","attributes":{"tools":[{"type":"object","name":"TapTool","id":"p1147","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1053","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1010","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1100","attributes":{"renderers":"auto","mode":"replace"}}]}},{"type":"object","name":"SaveTool","id":"p1200"},{"type":"object","name":"ToolProxy","id":"p1201","attributes":{"tools":[{"type":"object","name":"WheelZoomTool","id":"p1076","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1033","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1123","attributes":{"renderers":"auto"}}]}},{"type":"object","name":"ToolProxy","id":"p1202","attributes":{"tools":[{"type":"object","name":"ResetTool","id":"p1077"},{"type":"object","name":"ResetTool","id":"p1034"},{"type":"object","name":"ResetTool","id":"p1124"}]}},{"type":"object","name":"ToolProxy","id":"p1203","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1078"},{"type":"object","name":"PanTool","id":"p1035"},{"type":"object","name":"PanTool","id":"p1125"}]}},{"type":"object","name":"ToolProxy","id":"p1204","attributes":{"tools":[{"type":"object","name":"CrosshairTool","id":"p1079"},{"type":"object","name":"CrosshairTool","id":"p1036"},{"type":"object","name":"CrosshairTool","id":"p1126"}]}}],"logo":null}},"toolbar_location":"left","children":[[{"type":"object","name":"Row","id":"p1197","attributes":{"children":[{"type":"object","name":"Column","id":"p1195","attributes":{"children":[{"type":"object","name":"Row","id":"p1193","attributes":{"children":[{"type":"object","name":"Figure","id":"p1011","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1189","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"type":"object","name":"ColumnDataSource","id":"p1006","attributes":{"selected":{"type":"object","name":"Selection","id":"p1007","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:indices",[{"id":"p1189"},{"type":"object","name":"CustomJS","id":"p1190","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"type":"object","name":"Div","id":"p1188","attributes":{"width":500,"height":750,"height_policy":"fixed"}}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\minimal\\\\sub-P7\\\\ses-7\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1191","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\minimal\\\\sub-P7\\\\ses-7\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1192","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\minimal\\\\sub-P7\\\\ses-7\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1008"},"data":{"type":"map","entries":[["kappa",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w2RfTzUBwCHOQ2TKBGjc7/fvbg7HHfdOe/uK8K8VKI3aSsXCxFr8rpCkZCKmTp8xJgWRYoi5aVilaIw8tJqLUSU6kIrzV/fP7/P83lyE7WKUzhM0MqH/NJjWZhreDTqVMTAoU85Dq3jJCjzYeyC2yyMjFanu9mzYS6fspwNZ4Ow9JdLNzLh6POkc4+eETa+tbt+xYGLzLT2j3WKbKwIESy76cvAN3XuoSr36ZBS3P13z3KRrC/aXllkhKT5MLUaOxLZ/WU6X3RIRB/j7Fd6R0BN3Fs6HWMMV0r5+6h3AmxV/XLKp0eCSUvvOJ6/EwKmhYFcRTFy2tyGi1LtYHOm1smv1gHqSn//1pInQEGm/7RMkQ/igEXBJY4HeGmfFJwbXGExuqsxLIONYO+E0PkcESYPTtYt/poPwYCXcmSJJWZWd7dec3DD6pj4QOZeG+Rl9CwRloiwgvI6i5DzsWZQopWSIoDTmHqkjbkYvtmvXOmnbGGxeM6r9rUYQ5UumZHlEuhOVMc9mREh36T4zi/KjjhSmNCZQ66Gu29ju6mxLbyzz9pFPgDiuEcvTsRLIBvgWO5odcL6/NO04Ds0hK9oKCstpqG6NmjdhVwC/xQekNlrEnDMCc/ZNEegfZtSKKeEit6vBK9OdBNQvxf5/tEhAso6usmeMhp+VF1efoc0xNj1kyodLlQ8u5It3buegN6Oigfe4QR4ATfSAloIhGntSniRQYXaqqLLdvEk5LP1Y1MTNJDBI9EDOQSERTmJI/0EPAaZR9IoJDrHj1cYe5F4FPt0m2oDgUMZicq1DgRezrrHWd0yBM/D80xnrw4+6jyOHy0hsfNDCnPRQld7FX2RiEVHxkgSX+0+AcsguVZ/NIGq/fyIwp8MYOVwKmbTQ0NEsGJ9OctJaLh0KmDB2++77NKQMQIHa6zFHeW66Bo1NTFQpkPDVDtTe04Hz0+bdatEkhDWT5Zey12JDOt0W5/XVNC5Hj07VfVxy6hqePcCzw2KTOzaROCtj1Q14AQJzbvsxnMqJDryXlwypdNRoKZZ9msaAwk7JKn0WV3wfmhaf+4qAabUx5QyRcW0hr5skQ2JXUPaeVcX+HiB1PgALoER287hV71UxDi3V49yFjgMK8puHCPwOLIh+nYJHWYvB0Nyu0jceiovHVr4UT/5+0mimoRjunPs2UISV6/4xRdzGXCXB27JWkKHiZ1kSUumAUJW7ks87kxHuIPulNsfJPo/MLt6UgWIyu9eStvAgVGblEXZQMdwzZSfzZ8s6J5P8tU6x0CQ9ZoJhWQm3PbVd9LvMbE8NX5eFkKDi4/dmP9WU4weXqbQ9JzEmdIRvuRfJibOJ/m9m2EhaOvnu30cIwRzeWuJNQScB2Y2CQ+zwPmLub1jloGoylm30HV8UFr7PJ5ZG6LJpNn7TR4L+0j20/kuI1y4LPDzWli17yltVGM2JEKJ0kaGCR63adZXjjPwMMqKUi0xg5Ke+lqpORfung324VlCdFlKC9ojOHhhvvnitnpj1Ch6JaoFGqPYsCs1840RbjZ7qA2Oi2Fx92D40m4+Uvh7DDbkr4JGwsR/2nIzPKReNq/PNsJS2aLNQl9bOKhW1X8rEkP3fYEzssW4VlAV8dmWvdDFvVk/io6faRWNxQwbePY+M+cJuEh4ENSt6CjGTv2AlPoYERSeHEVlkAgtWUnN95xXoaAvc3BLnRD05Dy9vpVWqEONZ1WlLf4HL73hFjAFAAA="},"shape":[166],"dtype":"float64","order":"little"}],["rho",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w2TeTzUCQDFI2VLoppypPldM8Y5rsnYifXWVqSWFErbbiFHVkW5QkKOSZIckRG1oUJapPJZHa7kqFBrSkX6EEJsaak2dv59n/fHe9/Pe7zWKEd2mha+CrYkVtUQSI+sW7RBlcCDDcfTtu0ioObWoOH/PRuzZIZN1lUSk3zd2JJNBIyay7YkB7Hh6Zft29NHwlJ5o4rdw1WY2LWnc/QbG90m1PvxfAJsVdZOrzwtjNJNn21cZbpmLW95PRtpl91ss6ZJaMit6fVJJXG6t0Q1V0IiOSN94YE+ArYj7d9x95JoGapILdZnUHvtQ9EtIwpW0S+U8+bTYGcbzUjEFER/HhDN0WGgZ+0QEFavA6OJcJeabAoHtQLO8ioZeJXaa8YaMKB79rsXDxMofef59nYSib7d+Uo2J0jcSfrqP5lCwJu68rx5igspoe2y1phCgaOigpwGjdJgcZuaJYVz29MXOMZz8U/g+NaGKgZ8r7qYfHMu1n5ycL13icSjG+L2ohkOOlUG70p/0gHvWOTYUQ1thN6ym54bykGDZ73WtwIKLfFeF9pceEjdlNmUcIuDdoXieVSjNvK68izeOlPYvzJ2bkoShd/PFwqVdtKQC8+T73pFo66tzkXRisHeqfR/H01zEOVcbrlimYzHkviw2M00qi8+fdI9h8Q5H2kcdyMPpjnFGfxoBsZRCwv5GhRGJWT7o40UdKmA3eoSCjaBC+pTYrTRwH81PO5IQy1ZPuzNFIXgTxXHpfNIGNyeH9SlSCGkfdTUtJXCvs85ZSZiAi8dvA9xOBTOfJwKyY2i4K0gPXTOmUGyccsdn0gdeISoR0tSZX6LvnbJcwrViveJXm8KvpPq5klbaYwEx55JVKZwf2A0qPwYhemr7oGPJ2jkeIj5OEthcefH3zKFJBa/ZpWc9WXw3kIhNdtXF/GLqjcXL6XxJPDFFYe/dGBnNpSVKMv3Nnff4WcZBC5J9VvN6wj8bPmLzTpDHTzNVRYty9KFFufzt/PhJAbapKGtqhSyfDawOeU0Fhv0mjAyDnetxMN2LArdK4s+rc7kYYzlVUQ00tCw79W3n6+HRHKIz5btJb3GTJjvQcLJaSAzwU8bg2/Cbnb08ND0vsk+Q5sC0e1JVAgI3IvWnB6MZLBQd6QgP5DGmvECiVYJg7yBOP4In4F5YIRmx34uLs9uK2vZw4X1u2V8l2QSflxpfZ4hA4Nkzgd7cxpbagfT7xymkO5onkP3G8DEofSLzsBqXPKOdY46IvtbyuGeXXcJ7D21JGc4lkJPgm3WqIMerJevODiXESDSqnms+igLx9cdvO70gQ/WY5PCAxGmuCYXXuFbb4XhHS97k/t/QB1bnHN9gMZMZdbY+srl6Feb1zmTQiOk9o+PC0pFCHDvYHESzVA2oK5QOm0MV+sGUYy/AL/Wt66PuklDPBTslOZmBXn32/JPVcwwaH+9uPm1GSb14zqcHgigIuz/sZ9lBo+pSu6zLgFEssYONUIEy59oHRUJUPpfWlmzvACN0eXlzAVdKJ2+GFqbqIeLS7tnJwotoM3eVyUXwUNkXEiB61YhKL+/Md5uDIGJpMSUa4bcbUmNq9iGSHg2R+nkSUOobg+lz7gZg9V//9SO5yb4Ghdh28jRQGJoh79d0Bp4Mq/llNYKcSNOdGSnkQnqY+LSPFaawzO5y8ioUIjiH0IfLwoSoipgViT2Nke05ItbvIYBBq/WPexXN8X/M3ldoTAFAAA="},"shape":[166],"dtype":"float64","order":"little"}],["varexp",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3FeTiUCQAH4EgkRsjR4UhWStqQI5LfSKNUtCFHhafdylGIcmSkdpMJWbKO7UDlCGGubxwTosGQa3LliMImijCVI/Ks9583+M/+x9L2zzA9Mz1dFl8AqeRI+sHZApiI7c82ky3EQPgvOzdbLO8C24bjRdC6Q+EY8IowOhpsaDlbhPV5af3h4nRIblTZyibToUgOHc4Np+M/neygk3F0BDSRMh/n0bHb6fm7rx0MOE/RPLa9ZaDY9Q7TdJGB4wkCMd0eJvZKjGYJdrChTBN1aSllIzF8pTfDiMCN2PTKexkcZAVyOucNnsNjbg3ZWLIC5iam0UYuLxB+yGByvVcVyhVY19MuVuGVWzl9xUAVenv3frEk8aDpETMUYl+LDbc/xYnI80GseEq4xHXi/eR988uuXRC6b/TVZnajYN5X/aN8Dz7LtZnZJo8jsXatoZHbFHpVVn2kEVPQ/zetciJWiJTRkYR16d+gJpvnd/fyAhh7dL9NJS2iRKVwnUXFIsySjfRJY4soPHtMLT7yJxJJQgdh1hKMq2jfHh0QJVdEjxhE2omTf+Oo31glIUU+VKLw65ur8uSbRZrxkcfpGDB/tfmANQOpksN54dcY8Gl92sr4mwEp/rQxdZYBb9s6M74dE2epNNWaYCZE3N/3W1CZoBQb04YimNC2cc3sj2Fi6w+LzxcYTLiO52zRU2FBMi9beVMIC/NK2515N1mQvuRZYFzPAquacqmtgYWRBLIbz5oN0QiC4Nqwsdfxwm17Bzaw005d7yUbn2m9R+/0svFH0pG0rFE2kisMQ9uX94/zj26xIWCzJBs26EDARVu6WsebwJnT1Tndy0so8T9JhhKYeyhauZRLgPSFRa0uIxCY4CNzuJmA5B6xzLgFAmEh8zKaJhx4GKpn9JA5GB7O/uB8hYNCYsyDEsXBifnSr0qxHEgkNfnZFXIga5Ti/LaBAw1b5Q4rAQekNtKMSBsH4hkLU5mmxbASitmZ3yqG+5Mer7HlD4rb+GmMFsNfkK8lmCxGuopdRN6WEoypKTir+pXAS75lItS/BOqUF6nhsSUodVSMim8uwWKwmFyudikMT2pImB4uhXyLNc0/pxRWCeWhA7vKsFvunuf6oDJ0ujt5Nitw0R+gUW6VzsUu//Jt2nwu+pQc/DY1cvFj6W4j0/85AnIv8nVmyuEiklAvM1IBK2b7jibdSlg2UufreqoQ9EE2toD6Et52ykMPRHi4fiR0ju3Gw+sylbrgDB7O5Z//nZ3PQ6kg8UZ/GQ/V9r1S80dr4cGJqfU8X4dLEuOdlSl1kP5yWWH2Vj0OXZvyomfUw1VSsP1YWz2unqkh1Tk34IREN5Vb9Qoz01HyYlsb8deLIcqTh40IlaaYlKo1wVRgN7zvdBMMCsP4zxSbYcBTVOKqNkO45LW6dW0LdFTLvQMDWnAqfX9MN9GC09Gnch7ot6LCaK/ThnOt4D706TDZJcBOgSBp1kGAkCuOB4ZDBTi8ckbhw6PXiPGf2+/r14ZUvW0ZPqNteEsd0beQbYeTfM2C+tN2TPEn1GbDOlCd/92Xd7ULGo7vPsmFdcG6Urhai3iDFasmKWWPuuEnxTLX1exDmdRg/+1/+hAm8Bw/1d0Hj6OLHZa1gxDebb6Y0jCI64GBHmuUPkJLouakH2kcXB8r7wiZCcy8Hpj4qiOEu9wVXfEd33FfKfDN3M8ZUPP5mpSoWeSm2gapBGwnd+1xvPBYbx/5f4lo9gIwBQAA"},"shape":[166],"dtype":"float64","order":"little"}],["varexprej",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/xOJfRRZsk7RwWDlv+Vs0zUckvTVazTVFB26hc2ecyhqO2jrO/YtdVZx+JAW/fiIjp5DiO70u2696g7ZD7iS55noOTwOODN/a6yWw79pOUIv76g6MPxYfvw9s4bDp79WjjVfVBy4fBJs3PnMHLy+T1LteqDrMGnJ6719mtoOelOyP4QZGTmoKYj8U+vWc9isv+zBQnUbh/iFAsVBUywdxJo3Bq/4bu/wUijvQsQEM4evKie6z281cjgpv7xA28PZgeETp8lWMWuHt/7aTSeumTus2HA1cEuolcPsc3wM0yeZOwRsEXfUm2vjkPhuEmtJmqnDq6tT3KwWOzlIxnBe1n5o7/DzSBZ/WlKgw7SaR74ua9wd5lmVOz844OJwf4f+WlbHAAfuua+EJpwPcvjawn5JPD7EQetk+OHtbwIc/q082OLx399B6Pni+0c/eTr8PsrZ9NEo2OHHr60Bvx54O1x36r79zCvQ4fG00BdV1/0dqj33btM96ePA1ak2b1FngMPt3TWF37uDHJ7nGCmW/A906Fp0y3N+b4ADAxj8qB+lR8NhNB0M3nwAAPvDuc4wBQAA"},"shape":[166],"dtype":"float64","order":"little"}],["kappa_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWUR04EQQxFvWTJggULFiWEEEIIkTOMgSHnnKEJB/FR5ih1lD4CRyD4/dk8ufy/XVVTbrPfX732P1hcJetN0h+IL5N2hu4U4jPycYTvHN7ih6b8BfWeycN4Zf0QbsNhOADX4DgcS4b0e6x/d+z/10fMvq2Dfpf1eWhwBm7AHfRd4lU4CRfgCFyHQ3AQTsMCR2E//EgW2DQZ1/ekcz/NJ/FbskXn+FrYkw5/gRVfKP9EHfI96hk6o29FV8iH9Or3lXXiMWkv8J511cNn0uMP9KFz67zojPcY8rGfyjkMFvJVPp1HevVhX8b7dPSOvuh+eJ+Or6f/g3zoHavPXZ63sl9XH+6lwtB8kG+pV/G77rHL/Z1A8qG507xqHmGje93Hp3lmzh1/ZR4bnYu8UdeYk0o903eCOTfNs+KD7Ofyq/8x+9hMms6DPpj7UJ1F9MyfbREz36G+U9RbgUvo+F4592Wz5NmHLRM7epE+pn3OoZvwH4vA2ykwBQAA"},"shape":[166],"dtype":"float64","order":"little"}],["rho_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWUN07FUBBFp6SkoKCgsBBCCCFEzmH45JxzMoaFzFK8lFmKl8AS4Oud6+Zo7pv8bJv9P/WP92F1A78LTeTc6qJX6Cl+ouMX6EE+R+/QW50TV5PXoSnuq+SNW/p5L8xH9BdsnR9gP+N/Xeicd+RL6rQwG/zPiX8jTnWwQ+dX+F8WVuQJ7DgsepxB/POJuBPyK88puuoylz0Qfwdv8CPOP9DxS+2L/MH8yd5c+dlPUDeJN/pryWPcT6B3DfWU75U51BdzG/07cSk/9UnfqTk1n/pSffLGPnV1H9yz019LXxW0I/ZEXKW9UNfvOdd7gm7HRU/6sb1id9xvrb50r9Rx7UPfg/ZOHZetPV0wj6j3Xu+x5mRv1qPfKUgf3mDjF7vY84Wp79HR16DB323rP868rfy1nyH8luAWnIXyG8BehYtwBq7AaTgC5+BCYbBv0xzD6NyLjeG/DZc538EWNe8G5/p/DeI3DjfhJKzgKJwgvoe97n+hlVvXMAUAAA=="},"shape":[166],"dtype":"float64","order":"little"}],["varexp_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zXSR45UQQwGYC9ZsmDBgsUTQgiNECKHIYyHnHOOj4GD+Ch9FB+lj8ARANVXvfn0l6v0WrYj/v36d/4nNiyuTC4Mbn+Nd80NVyaXWT8Y94vJ9ec436zDhfFj5PzCd96/HfYbmcl+Pc6D9dK9F7ytPt2Tb/EyL/ICz/EsT/EkT/A4Fx7jUR7hYR4alj4FtwfjvLlyYXCrfz37yGJyYXCrz83iypxzmPfMo+Zc2N/9fyaD/U2dyWB/VWcy2OZfDPZn75gM9id1JoP9UZ3JYH9QZzLY79WZDPbcVwbb/iZjOvfZ3ib7le8wGWz7nYzp3Pfn432wnsmspzLricx6LLMeyayHMuuBzLovs+7JrLsy647M2pdZKU9vyjd4nbu8xqu8wks8zzM8zR0G/+z9BXu5hS0wBQAA"},"shape":[166],"dtype":"float64","order":"little"}],["component",["66","153","115","55","31","120","46","165","90","143","139","140","38","53","22","97","16","157","59","160","15","161","45","141","20","98","73","125","149","60","29","150","17","9","26","84","58","101","72","67","106","107","131","82","24","158","44","109","112","57","93","121","75","4","36","124","95","27","11","28","142","54","99","35","110","69","164","41","76","129","159","122","116","2","61","87","148","71","47","51","8","111","43","130","3","39","78","65","32","5","156","105","64","135","21","25","77","80","119","136","118","137","104","144","63","33","154","49","56","138","146","91","128","102","23","50","126","103","14","40","6","94","88","89","123","70","0","62","1","85","134","10","113","145","86","114","162","117","37","30","132","42","155","74","13","133","48","127","7","18","81","34","92","163","151","83","152","68","19","108","52","147","100","96","12","79"]],["color",{"type":"ndarray","array":["#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c"],"shape":[166],"dtype":"object","order":"little"}],["size",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/x3UezSUeRgH8NEYM2553hm3UCLDbmzjemqr3Z4lDJNcK2JCLtlNuZxcSrSiFSci5L61cptSWVta43IUm1gkJKpduojaTrnsHrVttc/u+8/nnPd3znvO7/t8n5fF+u8BVFudPRWgAJg/fvzsADlgasF9QS5ahkQZLAGUGzeIJGzAnAq/9m6yeiL1BUsRMMs8opoh2/+yK/Akj0zF7M8nI6xYXdXkvVNlQ11k3LvG6EUlwKr+DZu5XMDGDd9ccSPX1AUr2SgDvupWn9BTAzzxVpbroQ4YYnB0cvdSwKickLvJDGDxyUTjtuWAGoXqvJtGgL/tbhCNmQLOmbUu5a8G3ON2blpI6h1aVNK1oHOR/EmDHeDLN8O25zcBGgUNiH2dAWe2qK7wPwP4LPbs1wE1gEqczow5OeDDyfldW9oBL01uN3McYzCd+1OivhEfnXqZSN3P+FjiG1J6ex8fD9q2ZBY18bG8JY75pUaAyVpfcI8MCLDfIzqCOyJAdkoYo3pfgBGGln6hrwXYp5J24Z22JqYJRQtqzzQxLuVuyksFbbxqzxtpc9PBcrFTpzdXD0uMW9VCKaeb7pc57RxAn09cPddSXuyV6/Sl5OPgDrED5cWSOyuzeYCBpgYTO8lXtQpNoaRdeuyVSJJ9J5WTQXrA9bRxsiatev1NyvfAzKbX2SqAP1+raJWRFhnJOqgKGLawcMaBvHg1CrZT/pGf7yoIIItmmmpiyGInV4swmodvpfRSKfnAyq6qmVxbsVJVTiqeU2RO0pyS+nqsqsn4lrCFYbJONzDmLvlYwvn+T1Iy/cE0SANwKm5oMZ0UZIxMXCY1PMZStIC+97Y9sJj8EsquXiRvpRjdWUFzvycTWjuRys9udHuQhq1hs2Vk2Vd/190nE6ct5TNkY7dJzkvSwj7PcpAP+Cjz48Z4AeAfjhuaE0iVfu8Ed01Aqb/njiAye2seb5D0kfV0xWkB/lAr7kgky/fauDSRFSUNe521AUtT9b3UdQA1e103+ZH3Lwn7VukCujpvvOi5DPDwRt/W52SSvzhLrE+5B5QkxRsAukTdkQyS8eNe78bI8A/ZqfYrqG/Ro9bl1F9pu9TowirA6TeZaU4mgBPvp+I51NuC+SJvKxtA5kfJtWTqb+FwmIS/FvDYpNTSZh2gLKE0O5Qc2mZsUUu+XxYLp6jflZKnkeGbAU+r3OpZ7wjoUBm3Xe4GODsh8DHfSvsxn9us7A740dRQzccTsH/bh+vHdlDfeu2b7f0Adw4rDEv8Af/hdbplSAHzdKryC3fR/s+WirqCAU0KvsufJjnHHoBGOOD+h+qs1j2Anyaa6TyNoHuOjq3h7QUc/N095AX5xFbcYRVN7+tllQdiACFzKbc5FpB/W3Xg0WHKf79rzes06l99/UHD44ABkezw5EzAo95PBRdy6J7PD/rNFgIeWtLplVgL2OUbqJhEputbZdk3Ajpek5kH096yRdYP9g0Cmu9Z1HYZof2YP/pr9Sjtc3HbGwc9BuOFwUwuOWQENvUJDPYV9RTMDTDIK7TuPT3J4ENf44gjQXwsGDq/fK6Hj9+KZqdVVQS4vqqBf8NAgCeqhNZFz4X4/2+SZYv/AqD/MUAwBQAA"},"shape":[166],"dtype":"float64","order":"little"}],["classif",{"type":"ndarray","array":["accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected"],"shape":[166],"dtype":"object","order":"little"}],["classtag",{"type":"ndarray","array":["Low variance","Low variance","Low variance","Low variance","Low variance","Low variance","Low variance","Low variance","Low variance","Likely BOLD","Low variance","Low variance","Low variance","Likely BOLD","Low variance","Low variance","Low variance","Low variance","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD"],"shape":[166],"dtype":"object","order":"little"}],["angle",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3FeTQUCAAHYEcRZbbIUZIt5GxDBpv0k4hayZFSUSQqEzNjZoyGscO4yjHD5CgdjxzRhKyjHBUij0RMElESwrPIVRt29/vnIy95kHcxSRjeEJWUUHEZxbLLcvlbA6Cu5TZZbRYAKYJ4z0ffAJR8u134LysQ3ezPeyQnA+Gp6xPmvo0MVVOL3vuGZHx3nrP+jURG2kodh5FPRvvMQIPlYzL05Oy8H4jICH15d1Q0QQFuZxgrzFIwbeGg6qRAhfjg2vrAGSrkKrpLPtrS8EJ3jcztLhoIZ1fe6zjT4VCmoL5Sw0BAX5jftxOhiKo4tvLQkI2TwqKbHZF/YgfXR8wvnAP7su9l05EchPq2rfp7jgPer0sUbW0uioiyJBo5GmzZxEueRrF4Im5om1OYCuqjKgsRMw21rI2plZ0ZyJU6q7VkcgNiM3SSdo0QZqQfTBqtBO07Jfr3tpbA75pvsEZuKVJnBoY3VZXBsbi5dTCjGsZx3vkt1TWIvZCT5PilBjKKCeYn19fi1KJyTJGwFpmc3qobr5+C1dhdx/Csxz2il1v35SY8q5h2rtdvhTdFeHQupRPntXbHKYWRscs+k+jjQUGPmsLrEQEFV+VsjxvnUtCVOrQznkBFR0557xE/KoReOioRSVQULWBKXECFP2fxWmEaFftXb58uz6YiL5hsw2ymQpVatNhmEoSjwqwIE34QosKj5idvBSEssszt6WAQWmQOHvIYCsKZqouyi140fNaR9P/mQ8Pj4T679AAattiv8Nf207DZzKgvbp6G0BbHY2WSdLw4+DVw6P87nEQu53zpYBdMzUWS6VhWmtcbi6KjZUhmOT2aDkJ6XvwHAR1pC17jCo101Iu5Uybf0qE6Ysjnj9Ex+txfWkGFASF9mPLDlYE20pxJrScDTVZ1VyKSGZBR93CJvceAwGwq6Ox9BsQUuZTGFgbeiFN1WaMMGJymnRqfZCBZXtRbOMWAlrL+X+9PBGM24483PfeCsV7t8ruYnGB4GXmdsZFm4mI4IXaZwMTIz+ZlVWsmVDwk/RYSmSj4ZPLWlcfEzTwvAfsBE/kdQufxSSayxhJd2fYhiB1rtbUkhYCgnqQ28zIEwTKaA5tdrkC6bHi4NP0KqpN9f1qZs2CSfVo3qJ6Fd96r9RInWCgI4bXHTLFQFtPyZel6KIqts7Lj1NiwPHCwspQQDvasknWHWzg6N5nyi6Y50AzI03t1PRLaymQeVZWL5x8VRVIhXLDUmlZpVHGxzUV7NLCRiz4ng+yHIi7WyW/cMnkpGkF3qr16o2JgpKm/g1YegxDiQKxDfhz+mdrbqV0Xh0/j4+fWzcVhwuVriTnrKtwVU+qUh6/Bl5CyeuJwPOp6XtH16uNRJYw2n7FJQHPxnaiWyASYzBgzTCwT4RovU3nENhHcfScqH5gnoXFWo6PrZhKIxcWJqQNJ2NdQAAkPHpReS0w28niw0t2eambLBzeYeEjXn4938lt17Hh8aPbbuvY9Tkb//OdPrNgURMiaErZKCBBtEd6grSeAVaNlTnedANIKBlVtadehHL/npFNGGqZHuqzu/n9MRbC9pygd55/dUtldnwFTCX+XX+wzoWPDKVr1JBOPxJQOE1cyUeV7gXOpPwshDpt+Ngxm4YP8QgWJmI/WQoUPvN1CaIxx3JaJD7GkWyDKPVAK++Nk5Vd25dhp0MT8Xa0SGyz11yCvEvv3mF99JBhDu9S+p47uy/gPbrDF5DAFAAA="},"shape":[166],"dtype":"float64","order":"little"}]]}}}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\minimal\\\\sub-P7\\\\ses-7\\\\BOLDREST1\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1012"},"y_range":{"type":"object","name":"DataRange1d","id":"p1013"},"x_scale":{"type":"object","name":"LinearScale","id":"p1021"},"y_scale":{"type":"object","name":"LinearScale","id":"p1022"},"title":{"type":"object","name":"Title","id":"p1014","attributes":{"text":"Kappa / Rho Plot"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1042","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1043","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1044"}}},"glyph":{"type":"object","name":"Scatter","id":"p1039","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.5},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.5},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.5}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1040","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1041","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1020","attributes":{"tools":[{"id":"p1010"},{"id":"p1009"},{"id":"p1033"},{"id":"p1034"},{"id":"p1035"},{"id":"p1036"},{"type":"object","name":"SaveTool","id":"p1037"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1028","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1029","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1030"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1031"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1023","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1024","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1025"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1026"}}}],"center":[{"type":"object","name":"Grid","id":"p1027","attributes":{"axis":{"id":"p1023"}}},{"type":"object","name":"Grid","id":"p1032","attributes":{"dimension":1,"axis":{"id":"p1028"}}},{"type":"object","name":"Slope","id":"p1038","attributes":{"gradient":1,"y_intercept":0,"line_color":"#D3D3D3"}},{"type":"object","name":"Legend","id":"p1045","attributes":{"orientation":"horizontal","border_line_alpha":0,"background_fill_alpha":0.5,"items":[{"type":"object","name":"LegendItem","id":"p1046","attributes":{"label":{"type":"value","value":"accepted"},"renderers":[{"id":"p1042"}],"index":0}},{"type":"object","name":"LegendItem","id":"p1047","attributes":{"label":{"type":"value","value":"rejected"},"renderers":[{"id":"p1042"}],"index":49}}]}},{"type":"object","name":"Span","id":"p1048","attributes":{"name":"rho elbow","location":13.26514791366255,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1049","attributes":{"text":"rho elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":300,"y":13.530450871935802,"x_units":"screen"}},{"type":"object","name":"Span","id":"p1050","attributes":{"name":"kappa elbow","location":11.772321593587188,"dimension":"height","line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1051","attributes":{"text":"kappa elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":12.007768025458931,"y":300,"y_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1148","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1187","attributes":{"args":{"type":"map","entries":[["source",{"id":"p1006"}]]},"code":"\\n        if (window._tedana_key_handler_added) {\\n            return;\\n        }\\n        window._tedana_key_handler_added = true;\\n\\n        document.addEventListener(&#x27;keydown&#x27;, function(e) {\\n            const key = e.key;\\n            const N = source.get_length();\\n            if (!N) return;\\n\\n            let idx = 0;\\n            if (source.selected.indices.length &gt; 0) {\\n                idx = source.selected.indices[0];\\n            }\\n\\n            if (key === \\"ArrowLeft\\") {\\n                idx = (idx + 1) % N;\\n            } else if (key === \\"ArrowRight\\") {\\n                idx = (idx - 1 + N) % N;\\n            } else {\\n                return;\\n            }\\n\\n            source.selected.indices = [idx];\\n            source.change.emit();\\n        });\\n    "}},{"id":"p1192"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1149"},"y_range":{"type":"object","name":"DataRange1d","id":"p1150"},"x_scale":{"type":"object","name":"LinearScale","id":"p1158"},"y_scale":{"type":"object","name":"LinearScale","id":"p1159"},"title":{"type":"object","name":"Title","id":"p1151","attributes":{"text":"Variance Explained View"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1176","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1177","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1178"}}},"glyph":{"type":"object","name":"Wedge","id":"p1173","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1171","attributes":{"field":"angle","include_zero":true}}},"end_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1172","attributes":{"field":"angle"}}},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Wedge","id":"p1174","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Wedge","id":"p1175","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_alpha":{"type":"value","value":0.2}}}}},{"type":"object","name":"GlyphRenderer","id":"p1183","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1180","attributes":{"selected":{"type":"object","name":"Selection","id":"p1181","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1182"},"data":{"type":"map"}}},"view":{"type":"object","name":"CDSView","id":"p1184","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1185"}}},"glyph":{"type":"object","name":"Scatter","id":"p1179","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"size":{"type":"value","value":150},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"value","value":"white"}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1157","attributes":{"tools":[{"id":"p1146"},{"id":"p1147"},{"type":"object","name":"SaveTool","id":"p1170"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1165","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1166","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1167"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1168"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1160","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1161","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1162"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1163"}}}],"center":[{"type":"object","name":"Grid","id":"p1164","attributes":{"visible":false,"axis":{"id":"p1160"}}},{"type":"object","name":"Grid","id":"p1169","attributes":{"visible":false,"dimension":1,"axis":{"id":"p1165"}}},{"type":"object","name":"Label","id":"p1186","attributes":{"text":"Total: 166\\nAccept: 49/33.4%\\nReject: 117/66.6%","text_font_size":"12pt","text_align":"center","text_baseline":"middle","x":0,"y":1}}]}}]}},{"type":"object","name":"Row","id":"p1194","attributes":{"children":[{"type":"object","name":"Figure","id":"p1101","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1191"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1143","attributes":{"start":-1,"end":167}},"y_range":{"type":"object","name":"DataRange1d","id":"p1103"},"x_scale":{"type":"object","name":"LinearScale","id":"p1111"},"y_scale":{"type":"object","name":"LinearScale","id":"p1112"},"title":{"type":"object","name":"Title","id":"p1104","attributes":{"text":"Rho Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1134","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1128","attributes":{"selected":{"type":"object","name":"Selection","id":"p1129","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1130"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DB1cOAAAAwI+kIRpUyGhbpVKUpBTtYQsVGoiiaBhFymrRUNkp5He6e+/WBQKB9Qa5wWA3GmKoYYa7yQg3u8VIo4w2xq1uM9Y4493uDnea4C53u8e9Jppksimmmma6+9zvAQ96yAwzPWyW2eZ4xFzzPOox8y3wuIWesMiTFlviKUst87RnLLfCSqustsZa66y3wbOe87wXvOglL3vFRq96zes22WyLN7zpLVtts90Ob3vHu3Z6z/t22e0DH9pjr498bJ/9DjjoE5/6zOcOOewLXzriK0cd87VvfOs73zvuhJNOOe0HPzrjrHPO+8kFF13ys1/86je/+8OfLvvLFVf97R//uuY//wNeUbGWmAIAAA=="},"shape":[166],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3TeTjUeQDH8UjZkqimHGl+v+/vN2NcDcNk7MT6rO2QWlIobbuFHFmKchUJOSZNEoqMqA0V0iIdz+pwJUeFWkpFeghR2o6l2rT+ej3P+/n8+xna9LRH3vcDLirtLfertYFsMNQ5zd0GSeFtAfYhSxFW/cf7GSVSnJnb9e1tgRWksH3lWCWBl7zD1LRAgqIfwu/PCpEgKj4s3239ZGefK6ktk6Ay6JtU5mOJ2tj4NM+FlhA5lnw26F8Cz7EK/qMOMT4Yx7c53xHDzbZOGhsgRqjyoeYRqRi28xfsmsqKUfJfWmmjshgDDpeKGp9bIMijjcNLsoBYpCg251tAQ9L3Yx/HAsoe15UfaliAc19UsDPSHAMXau72aZuD03f7yKbHIlyOl+7bbCpCab+2Ssm4GYj/3xhtNYPmxnDmuLsZDi7fdcn5nRCJj6aoHT68GDkbkusXcRcj3ckym+kzQYzis3uCjgnUjp4Jr04yQnfiyswRRyPoOPQYO0w3Qn1MWRl72hAPc9Sl8zIN8cZKJTXLzxBGto5BEbUGeBD85LzjXwaQmzXd8I0yQLvGwM3Onwzws/UvdssXG2DgRcSVtm4BuhYWflxyTAB9bmClUqQATQnep1tcBTjp2xnPXy1Aq0rRNFKvD7vgGbUpsfpwdu4/luivD8GBqNf7dfThQ84/bhzj4+TG9BlOCXxYBkfqtu3g49y3DaVN2/gQetfE5lnyce+yrLVwgoftY+n/3hvnIXXNsYbEqzyEX7UfnxrOwz/Bo+vrKlns0gs6IahgsXQ0X6FXzMI8uyhDGMPiVozu+EAUi9nPOcUn/Fj4qHTuPunCoqalxlXVhkVuf7xwWMjCn99Zm7uYhXeJg26cCYumwfLUImMW0j93SqcYsBi/4BF8/y2DGq4s+1I/A6W9ucodzxi85ngXUvUMfq1tXhF9hUGm7your4xBn9a09okUBjMNh/Pzghn8fqpAoraZgd8Hbcvk9Qxs5iRExK1lUCd8NjTqxMBEznvnYMkg30lVRUmHQcKsa2uL5k7uYp6o505noCVXjngxRhBo1duqeEwQ1jpibt5MUOdVq/c1n2C2SY+IVRAYkqCt2pNme8qEOEFg+nava1UWgWeYdowilWDHwripKckE3CzTCYWM4Hb/SEjZAYLtR+ZkD8URHH8/FpYTTbCueiD9xh6Ca6q3qR4fgtyOXKuXLgQjCrr13mqCklBZi5Y1QSel77rMjKD64rvCq6YEDW8aHDL0CZ46+uzm8QjMomcWCHUIbtrIhuw5BNEuZdYL5hH0t3SGN2sSDIfGHU9SJzC5Pj2kQ5XA3mIwM2nStHPuKzPHaXj5Z/l199L4RmfYZV6gseyjo9utszSO9hRr5iho6Cgt7fFNpSdfPk/oKqfRuzVPze4QjZJXXi+vJ9NIogeF3EnP+sS5RO+jocf79PXUXhorh1u/42+nkV5lIcnzpDG7/f1vxyQ0Qj+WH+ycRuPamYcPuqbQYLp3eBQNUZBnpM/c2UvhbKdxs2UNBeuUPd1bblL4Il6XVFlFoUtE3ozmUXiZE7jnUQaFG8lfAj6kUAj8lF0qklG4s+pg2oYtFD4IDeOK11CguryocjGF9KiaWas0Kbzdsq195CsXXbrVgvm1XJg2lq6Th3AxwjR8snPjQsu9Tifgey6s1Vdr2N9dBK4mZ7N3rh4EzdFO3DQ9fImPXFnP08FERebrFRXzEWXT+Prafg7+B2+F3iwwBQAA"},"shape":[166],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1135","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1136"}}},"glyph":{"type":"object","name":"Line","id":"p1131","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1132","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1133","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1140","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1141","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1142"}}},"glyph":{"type":"object","name":"Scatter","id":"p1137","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1138","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1139","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1110","attributes":{"tools":[{"id":"p1100"},{"id":"p1099"},{"id":"p1123"},{"id":"p1124"},{"id":"p1125"},{"id":"p1126"},{"type":"object","name":"SaveTool","id":"p1127"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1118","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1119","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1120"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1121"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1113","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1114","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1115"},"axis_label":"Components sorted by Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1116"}}}],"center":[{"type":"object","name":"Grid","id":"p1117","attributes":{"axis":{"id":"p1113"}}},{"type":"object","name":"Grid","id":"p1122","attributes":{"dimension":1,"axis":{"id":"p1118"}}},{"type":"object","name":"Span","id":"p1144","attributes":{"name":"elbow","location":13.26514791366255,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1145","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":13.530450871935802,"x_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1054","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1190"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1096","attributes":{"start":-1,"end":167}},"y_range":{"type":"object","name":"DataRange1d","id":"p1056"},"x_scale":{"type":"object","name":"LinearScale","id":"p1064"},"y_scale":{"type":"object","name":"LinearScale","id":"p1065"},"title":{"type":"object","name":"Title","id":"p1057","attributes":{"text":"Kappa Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1087","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1081","attributes":{"selected":{"type":"object","name":"Selection","id":"p1082","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1083"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DB1cOAAAAwI+kIRpUyGhbpVKUpBTtYQsVGoiiaBhFymrRUNkp5He6e+/WBQKB9Qa5wWA3GmKoYYa7yQg3u8VIo4w2xq1uM9Y4493uDnea4C53u8e9Jppksimmmma6+9zvAQ96yAwzPWyW2eZ4xFzzPOox8y3wuIWesMiTFlviKUst87RnLLfCSqustsZa66y3wbOe87wXvOglL3vFRq96zes22WyLN7zpLVtts90Ob3vHu3Z6z/t22e0DH9pjr498bJ/9DjjoE5/6zOcOOewLXzriK0cd87VvfOs73zvuhJNOOe0HPzrjrHPO+8kFF13ys1/86je/+8OfLvvLFVf97R//uuY//wNeUbGWmAIAAA=="},"shape":[166],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3NezSUCQAFcEaLlSgRS2O+b97jOdOM8TZXhPWoRC9pt4gNEdvKcwtFQirWKsYRy2qjSFGkPCq2UhSWPNraNkSUakJb2vnrd84999xLHLCQXuJ6YHZ1T9s1BzeYpn9ScG50RcEg13JHmxOmLL3jTf2dcKQosSuXXI1C45I7vyg7wjvnrF3UA2Cr6pdTPr0SDFe5ZEVVSBDPO3pxMkECmzN1Tn51DshtdxspTrNDPWo9q6ts4ZvzypV+yhZLCxZtFvrawt23qcPEyBarYxOCmHtt8DOtsqmEYQN6Sr5e/0orCAa9lKNKLWGxeN6r7rUYN1s81IYmxNB9L3VGjhiJD4J7FB3FcFCtbvhWJIbTuHqUjbkYATPCIJ6ivDdZE/9kVoT8zN4lwlIRQrwTwxZyRdipH5DaECuCwpOjqAoWQdqfNbSlXgh3z0b7iGwhUvl7DDYUrkJrdnLLPedVcKVUvI9+J4C60t+/teYLMPCB2d2bJsCaIYlWaqoAKyivswkZHxZ3D0Ys7eEjumrOLWwdH1MHp+oXf82HNMt/pkCRD43Eyf+0ZWZ4GG1FqZGYwcXHbtx/qwkkQonSRoYxXphvvritwQhq4r6ymVgj1Cp6JakFGSGQ4u6/e46HjW/trl9x4MGz75m5qYAHJT31tYHmPHRbBko7IrmILuxZStvAhcXYrqbwTA7MZdOWcxEcjI7VZLjZc3BNWh352ZYDte8p7VQjDrLSOz7WK3JQYtidlvWGjX0k5+lCNxsXLgv8vOSm6Iu2VxWz8ZB62bwhh43grZ/v9nPZcPR50rVHj43J88l+72ZZGKmd9rP5kwXKQjhHepuFZuMW7zf5LDgPzm4SHmaBVjHslxHHwpmyUb7kXybc9jV00e8xEWy9ZlIhhQnC0l8WuJGJvCStklQuE9y/mNs75xh43K7ZUDXBgO75ZF+tcwzMNz4acypmQKqmWf5rOgMrQgXLbvoycPWKX0IJj4Fv6t3DVO7T8TiqMeZ2KR1CQ/cW/Wg62O2BLMoGOkJX7ks67kyHvYq+SMSi49ZTWdkwnY7O/BeXTOS6y4K2ZC+ho3vMxNhAmY5Dn3Id2iZIjB1eptD8nITZy6HQvG4S6id/P0nUkIhw0J12+4PER53HCWOlJBwznOPOFpF46xOoGnCChNqq4st2CSSenzbrUYki0TVxvNLIi0TyQrharR2JGQ39gkU2JGKdO2rGuCRyBsp1vuiQ2PkhlblI7q5h7fyry0lEsuJ8uXI173KazqmQ8BhiHkmnyP9yI3I3zROIOcbdr/SOgN93OWWh4wSExblJowME+r4SvDrRQyBzNJmvdp+AacCN9IBWAjcoBWLXZgKP4p5uU22U5z80rz93lUBNXfC6C3kENFy6FCCXDBmNGcyV7xlWlt84RkD9XtT7R4cIWAbLtAZiCOjtqHzgHUHg2ZWcwL3rCYTwTNcSawgcykxSrnOQ7wZREwJ4BP4pOlBgr0lANtcwPj1Jw/rC07SQOzRErGgsLyuhQVlHN8WzgIblaQkLBaE0WDmcit300BAv59zjrW4ZgtLW7/HM2hA/qi6vuEMaItM6w9bnNRXMQB8TyjQVo7ZdI6/6qOjYphTGLaUiXGtX4otMKsavn1TpdKFC2DBVdi1vJYztJEtaswxQvZ8fWfSTAeg8j96dqvpI3CFJo8/p4mCttbizQhcaJtpZ2vM6MPXwPNPVp4Nb7OqR3XL/B1XQPtIwBQAA"},"shape":[166],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1088","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1089"}}},"glyph":{"type":"object","name":"Line","id":"p1084","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1085","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1086","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1093","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1094","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1095"}}},"glyph":{"type":"object","name":"Scatter","id":"p1090","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1091","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1092","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1063","attributes":{"tools":[{"id":"p1053"},{"id":"p1052"},{"id":"p1076"},{"id":"p1077"},{"id":"p1078"},{"id":"p1079"},{"type":"object","name":"SaveTool","id":"p1080"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1071","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1072","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1073"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1074"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1066","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1067","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1068"},"axis_label":"Components sorted by Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1069"}}}],"center":[{"type":"object","name":"Grid","id":"p1070","attributes":{"axis":{"id":"p1066"}}},{"type":"object","name":"Grid","id":"p1075","attributes":{"dimension":1,"axis":{"id":"p1071"}}},{"type":"object","name":"Span","id":"p1097","attributes":{"name":"elbow","location":11.772321593587188,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1098","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":12.007768025458931,"x_units":"screen"}}]}}]}}]}},{"type":"object","name":"Column","id":"p1196","attributes":{"children":[{"id":"p1188"}]}}]}},0,0]]}}]}}';
+        const render_items = [{"docid":"37d63854-a010-4e1b-94b5-062614fc5347","roots":{"p1206":"b57e16d3-99f8-42f9-961d-e05395a4bc5c"},"root_ids":["p1206"]}];
+        root.Bokeh.embed.embed_items(docs_json, render_items);
+        }
+        if (root.Bokeh !== undefined) {
+          embed_document(root);
+        } else {
+          let attempts = 0;
+          const timer = setInterval(function(root) {
+            if (root.Bokeh !== undefined) {
+              clearInterval(timer);
+              embed_document(root);
+            } else {
+              attempts++;
+              if (attempts > 100) {
+                clearInterval(timer);
+                console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+              }
+            }
+          }, 10, root)
+        }
+      })(window);
+    });
+  };
+  if (document.readyState != "loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+})();
+</script>
+
+  </body>
+</html>

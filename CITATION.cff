@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: >-
+  Si utilizas este software o su documentación, por favor cita la versión
+  archivada en Zenodo mediante el DOI correspondiente.
+type: software
+title: >-
+  PsyConn — Pipeline reproducible multi-echo para el análisis de la
+  conectividad funcional cerebral en estudios con psicodélicos: aplicación a
+  la psilocibina
+abstract: >-
+  Pipeline reproducible para el análisis de la conectividad funcional cerebral
+  en estudios con psicodélicos, aplicado al dataset abierto ds006072
+  (Siegel et al., 2024; N=6, diseño crossover intra-sujeto psilocibina 25 mg
+  vs metilfenidato, BOLD multi-echo de cinco ecos). La cadena combina
+  denoising térmico NORDIC, fMRIPrep multi-echo, TEDANA por dependencia del
+  eco y regresión de confounds, un atlas combinado Schaefer 200 + Tian S2
+  (232 ROIs) y análisis de redes funcionales basados en teoría de grafos y
+  entropía. Desarrollado como Trabajo Final de Máster del Máster Universitario
+  en Bioinformática y Bioestadística (UOC-UB), área de Desarrollo de Programas
+  y Aplicaciones, convocatoria 06/2026.
+authors:
+  - given-names: Juan Ignacio
+    family-names: Villalón Luis
+    email: j.i.villalon93@gmail.com
+    orcid: 'https://orcid.org/0009-0005-6987-5168'
+keywords:
+  - neuroimagen funcional
+  - resting-state fMRI
+  - multi-echo BOLD
+  - conectividad funcional
+  - teoría de grafos
+  - entropía
+  - psilocibina
+  - psicodélicos
+  - reproducibilidad
+  - NORDIC
+  - fMRIPrep
+  - TEDANA
+  - atlas Schaefer
+  - atlas Tian
+  - ds006072
+license: MIT
+license-url: 'https://opensource.org/licenses/MIT'
+url: 'https://github.com/'

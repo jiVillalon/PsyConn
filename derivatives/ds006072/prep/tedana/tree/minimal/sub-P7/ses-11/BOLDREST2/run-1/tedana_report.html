@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>tedana report</title>
+    <meta
+      name="viewport"
+      content="width = device-width, initial-scale = 1"
+      charset="UTF-8"
+    />
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.9.0.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
+      crossorigin="anonymous"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <!-- and it's easy to individually load additional languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/go.min.js"></script>
+
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <!-- CSS for the report -->
+    <style type="text/css">
+      body {
+        padding: 10px 20px 10px 20px;
+      }
+    </style>
+  </head>
+
+  <nav>
+    <div class="pure-menu pure-menu-horizontal">
+      <a
+        href="https://github.com/ME-ICA/tedana"
+        class="pure-menu-heading pure-menu-link"
+        >tedana 26.0.3</a
+      >
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+          <a href="https://tedana.readthedocs.io" class="pure-menu-link"
+            >Reporting documentation</a
+          >
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <body>
+    <style type="text/css">
+  .brainplot {
+    width: 50%;
+    height: auto;
+  }
+
+  .report {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .about {
+    position: relative;
+    top: -50px;
+    margin-left: 5%;
+    margin-right: 5%;
+    white-space: pre-line;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: larger;
+    float: left;
+    width: 80%;
+  }
+
+  .references ul {
+    line-height: 150%;
+  }
+
+  .carpet-wrapper {
+    margin-top: 30px;
+  }
+
+  .carpet-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  .carpet-buttons {
+    height: 40px;
+    padding-bottom: 5px;
+  }
+
+  .carpet-image {
+    margin-top: 20px;
+  }
+
+  .info {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 150px;
+    height: auto;
+    float: left;
+  }
+
+  .tsne-plots {
+    float: left;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-bottom: 100px;
+  }
+
+  button {
+    margin-right: 15px;
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    float: left;
+    font-size: 18px;
+    font-weight: 700;
+    height: 40px;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+
+  button:active {
+    width: auto;
+    border-radius: 6px;
+    border-top: none;
+    text-align: center;
+    color: black;
+    padding: 10px;
+    margin-top: 3px;
+    float: left;
+  }
+
+  .blue {
+    background: #8caef9;
+    border-bottom: #6684c6 3px solid;
+    border-left: #6684c6 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .blue:active {
+    background: #7fa5f8;
+    border-bottom: #6684c6 1px solid;
+    border-left: #6684c8 1px solid;
+    border-right: #6684c6 1px solid;
+  }
+
+  .red {
+    background: #ec5e57;
+    border-bottom: #bb3d36 3px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .red:active {
+    background: #ea4c44;
+    border-bottom: #bb3d36 1px solid;
+    border-left: #bb3d36 1px solid;
+    border-right: #bb3d36 1px solid;
+  }
+
+  .green {
+    background: #74ca74;
+    border-bottom: #509d51 3px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .green:active {
+    background: #64c465;
+    border-bottom: #509d51 1px solid;
+    border-left: #509d51 1px solid;
+    border-right: #509d51 1px solid;
+  }
+
+  .yellow {
+    background: #f7ce5f;
+    border-bottom: #c5a13e 3px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  .yellow:active {
+    background: #f6c94d;
+    border-bottom: #c5a13e 1px solid;
+    border-left: #c5a13e 1px solid;
+    border-right: #c5a13e 1px solid;
+  }
+
+  td {
+    padding: 0.3rem 1.5rem;
+  }
+
+  pre {
+    width: 60%;
+    white-space: pre-wrap; /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+  }
+
+  .code_block {
+    padding: 2em !important;
+    border-radius: 5px;
+  }
+
+  /* Rica button styles */
+  .rica-button-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .rica-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    opacity: 1;
+  }
+
+  .rica-button:active {
+    transform: translateY(0);
+    float: none;
+    margin-top: 0;
+  }
+
+  /* Rica modal styles */
+  .rica-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .rica-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .rica-modal h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 24px;
+  }
+
+  .rica-modal p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .rica-modal code {
+    background: #f4f4f4;
+    padding: 10px 15px;
+    border-radius: 6px;
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+    margin: 15px 0;
+  }
+
+  .rica-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    float: none;
+  }
+
+  .rica-modal-close:hover {
+    color: #333;
+    opacity: 1;
+  }
+
+  .rica-modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .rica-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    float: none;
+    height: auto;
+  }
+
+  .rica-modal-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+  }
+
+  .rica-modal-btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+</style>
+
+<!-- Rica Button -->
+<div class="rica-button-container">
+  <button type="button" class="rica-button" onclick="openRicaModal()" aria-haspopup="dialog">
+    🔍 Open in Rica
+  </button>
+</div>
+
+<!-- Rica Modal -->
+<div class="rica-modal-overlay" id="ricaModal" role="dialog" aria-modal="true" aria-labelledby="ricaModalTitle">
+  <div class="rica-modal">
+    <button type="button" class="rica-modal-close" onclick="closeRicaModal()" aria-label="Close modal">×</button>
+    <h2 id="ricaModalTitle">Open in Rica</h2>
+    <p>
+      <strong>Rica</strong> is an interactive web-based tool for exploring ICA components
+      with 3D brain visualization and
+      can be used to manually change component classifications.
+    </p>
+    <p>
+      To view these results in Rica locally, run this command in your output directory:
+    </p>
+    <code>python open_rica_report.py</code>
+    <p style="font-size: 13px; color: #777;">
+      This will download Rica (if needed), start a local server, and open your browser.
+    </p>
+    <div class="rica-modal-buttons">
+      <button type="button" class="rica-modal-btn rica-modal-btn-secondary" onclick="closeRicaModal()">
+        Close
+      </button>
+      <button type="button" class="rica-modal-btn rica-modal-btn-primary" onclick="openRicaWebsite()">
+        Learn more about Rica →
+      </button>
+    </div>
+  </div>
+</div>
+<div class="content">
+  <h1>ICA components</h1>
+  <div id="fb6aa37e-656f-40de-8496-98530a72a399" data-root-id="p1206" style="display: contents;"></div>
+</div>
+<div></div>
+<div class="carpet-plots">
+  <h1>Carpet plots</h1>
+  <div class="carpet-wrapper">
+    <div class="carpet-buttons"><button
+  class="blue"
+  type="button"
+  onClick="updateCarpetPlot('optcom_nogsr')"
+  style="display:none"
+>
+  Optimally combined with global signal
+</button>
+<button class="blue" type="button" onClick="updateCarpetPlot('optcom')">
+  Optimally combined 
+</button>
+<button class="yellow" type="button" onClick="updateCarpetPlot('denoised')">
+  Denoised 
+</button>
+<button
+  class="yellow"
+  type="button"
+  onClick="updateCarpetPlot('denoised_mir')"
+  style="display:none"
+>
+  Denoised after MIR
+</button>
+<button class="green" type="button" onClick="updateCarpetPlot('accepted')">
+  Accepted 
+</button>
+<button
+  class="green"
+  type="button"
+  onClick="updateCarpetPlot('accepted_mir')"
+  style="display:none"
+>
+  Accepted after MIR
+</button>
+<button class="red" type="button" onClick="updateCarpetPlot('rejected')">
+  Rejected
+</button></div>
+    <div class="carpet-plots-image">
+      <img
+        id="imgCarpetPlot"
+        src="./figures/carpet_optcom.svg"
+        style="width: 95%; max-width: 1200px; height: auto"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="carpet-plots">
+  <h1>Adaptive mask</h1>
+  <img
+    id="adaptiveMask"
+    src="./figures/adaptive_mask.svg"
+    style="width: 95%; max-width: 1200px; height: auto"
+  />
+</div>
+
+<div class="carpet-plots">
+  
+  <h2>T2*</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starBrainPlot"
+      src="./figures/t2star_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="t2starHistogram"
+      src="./figures/t2star_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>S0</h2>
+  <div class="carpet-plots-image">
+    <img
+      id="s0BrainPlot"
+      src="./figures/s0_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="s0Histogram"
+      src="./figures/s0_histogram.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+    
+  <h2>
+    T2* and S0 model fit (RMSE). (Scaled between 2nd and 98th percentiles)
+  </h2>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseBrainPlot"
+      src="./figures/rmse_brain.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  <div class="carpet-plots-image">
+    <img
+      id="rmseTimeseries"
+      src="./figures/rmse_timeseries.svg"
+      style="width: 95%; max-width: 1200px; height: auto"
+    />
+  </div>
+  
+</div>
+
+
+
+
+<div class="info">
+  <h1>Info</h1>
+  <div>
+  <p>
+    <span class="title">Tedana command used:</span>
+  <pre class="language-python">
+      <code class="code_block">
+        tedana -d D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-1_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-2_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-3_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-4_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-5_part-mag_desc-preproc_bold.nii.gz -e 0.0142 0.03893 0.06366 0.08839 0.11312 --out-dir D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/tedana/t2\sub-P7\ses-11\BOLDREST2\run-1 --mask D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\sub-P7\ses-11\func\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_part-mag_desc-brain_mask.nii.gz --fittype curvefit --tedpca kic --tree minimal --convention bids --prefix  --overwrite
+      </code>
+    </pre>
+  </p>
+  <table>
+    <tr>
+      <td class="title">System:</td>
+      <td>Windows</td>
+    </tr>
+    <tr>
+      <td class="title">Node:</td>
+      <td>DESKTOP-533QSJ9</td>
+    </tr>
+    <tr>
+      <td class="title">Release:</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td class="title">System version:</td>
+      <td>10.0.19045</td>
+    </tr>
+    <tr>
+      <td class="title">Machine:</td>
+      <td>AMD64</td>
+    </tr>
+    <tr>
+      <td class="title">Processor:</td>
+      <td>Intel64 Family 6 Model 165 Stepping 3, GenuineIntel</td>
+    </tr>
+    <tr>
+      <td class="title">Python:</td>
+      <td>3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:39:58) [MSC v.1943 64 bit (AMD64)]</td>
+    </tr>
+    <tr>
+      <td class="title">Tedana version:</td>
+      <td>26.0.3</td>
+    </tr>
+    <tr>
+      <td class="title">Other library versions:</td>
+      <td>{'bokeh': '3.9.0', 'mapca': '0.0.7', 'matplotlib': '3.10.6', 'nibabel': '5.3.2', 'nilearn': '0.12.1', 'numpy': '2.4.4', 'pandas': '2.3.3', 'robustica': '0.1.4', 'scikit-learn': '1.7.2', 'scipy': '1.17.1', 'threadpoolctl': '3.6.0', 'tqdm': '4.67.1'}</td>
+    </tr>
+  </table>
+</div>
+</div>
+<div class="about">
+  <h1>About tedana</h1>
+  The minimal decision tree (tedana community et al. 2024) is a simplified version of the MEICA decision tree (Kundu et al. 2013, DuPre et al. 2021) without many criteria that do not rely on kappa and rho thresholds. TE-dependence analysis was performed on input data using the tedana workflow (DuPre et al. 2021). A user-defined mask was applied to the data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. An adaptive mask was then generated using the dropout method(s), in which each voxel's value reflects the number of echoes with 'good' data. A two-stage masking procedure was applied, in which a liberal mask (including voxels with good data in at least the first echo) was used for optimal combination, T2*/S0 estimation, and denoising, while a more conservative mask (restricted to voxels with good data in at least the first three echoes) was used for the component classification procedure. A monoexponential model was fit to the data at each voxel using nonlinear model fitting in order to estimate T2* and S0 maps, using T2*/S0 estimates from a log-linear fit as initial values. For each voxel, the value from the adaptive mask was used to determine which echoes would be used to estimate T2* and S0. In cases of model fit failure, T2*/S0 estimates from the log-linear fit were retained instead. Multi-echo data were then optimally combined using the T2* combination method (Posse et al. 1999). Principal component analysis based on the PCA component estimation with a Moving Average(stationary Gaussian) process (Li et al. 2007) was applied to the optimally combined data for dimensionality reduction. The following metrics were calculated: kappa, rho, countnoise, countsigFT2, countsigFS0, dice_FT2, dice_FS0, signal-noise_t, variance explained, normalized variance explained, d_table_score. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise. The number of significant voxels not from clusters was calculated for each component. Independent component analysis was then used to decompose the dimensionally reduced dataset. The following metrics were calculated: countsigFS0, countsigFT2, dice_FS0, dice_FT2, kappa, normalized variance explained, rho, signal-noise_t, variance explained. Kappa (kappa) and Rho (rho) were calculated as measures of TE-dependence and TE-independence, respectively. A t-test was performed between the distributions of T2*-model F-statistics associated with clusters (i.e., signal) and non-cluster voxels (i.e., noise) to generate a t-statistic (metric signal-noise_z) and p-value (metric signal-noise_p) measuring relative association of the component to signal over noise.
+
+ Next, component selection was performed to identify BOLD (TE-dependent) and non-BOLD (TE-independent) components using a decision tree.
+
+ This workflow used numpy (Van Der Walt et al. 2011), scipy (Virtanen et al. 2020), pandas (McKinney et al. 2010, pandas development team et al. 2020), scikit-learn (Pedregosa et al. 2011), nilearn, bokeh (Team et al. 2018), matplotlib (Hunter et al. 2007), and nibabel (Brett et al. 2019). This workflow also used the Dice similarity index (Dice et al. 1945, Sorensen et al. 1948).
+</div>
+<div class="content references">
+  <h1>References</h1>
+  <ul>
+    <li>Brett, M., Markiewicz, C.&nbsp;J., Hanke, M., Côté, M.-A., Cipollini, B., McCarthy, P., … freec84 (2019 , May).
+<em>nipy/nibabel: 2.4.1</em>.</li><li>Dice, L.&nbsp;R.
+(1945).
+Measures of the amount of ecologic association between species.
+<em>Ecology</em>, <em>26</em>(3), 297–302.
+URL: <a href="https://doi.org/10.2307/1932409">https://doi.org/10.2307/1932409</a>, <a href="https://doi.org/10.2307/1932409">doi:10.2307/1932409</a></li><li>DuPre, E., Salo, T., Ahmed, Z., Bandettini, P.&nbsp;A., Bottenhorn, K.&nbsp;L., Caballero-Gaudes, C., … others.
+(2021).
+Te-dependent analysis of multi-echo fmri with* tedana.
+<em>Journal of Open Source Software</em>, <em>6</em>(66), 3669.
+URL: <a href="https://doi.org/10.21105/joss.03669">https://doi.org/10.21105/joss.03669</a>, <a href="https://doi.org/10.21105/joss.03669">doi:10.21105/joss.03669</a></li><li>Hunter, J.&nbsp;D.
+(2007).
+Matplotlib: a 2d graphics environment.
+<em>Computing in Science &amp; Engineering</em>, <em>9</em>(3), 90–95.
+<a href="https://doi.org/10.1109/MCSE.2007.55">doi:10.1109/MCSE.2007.55</a></li><li>Kundu, P., Brenowitz, N.&nbsp;D., Voon, V., Worbe, Y., V<span class="bibtex-protected">é</span>rtes, P.&nbsp;E., Inati, S.&nbsp;J., … Bullmore, E.&nbsp;T.
+(2013).
+Integrated strategy for improving functional connectivity mapping using multiecho fmri.
+<em>Proceedings of the National Academy of Sciences</em>, <em>110</em>(40), 16187–16192.
+URL: <a href="https://doi.org/10.1073/pnas.1301725110">https://doi.org/10.1073/pnas.1301725110</a>, <a href="https://doi.org/10.1073/pnas.1301725110">doi:10.1073/pnas.1301725110</a></li><li>Li, Y.-O., Adal<span class="bibtex-protected">ı</span>, T., &amp; Calhoun, V.&nbsp;D.
+(2007).
+Estimating the number of independent components for functional magnetic resonance imaging data.
+<em>Human brain mapping</em>, <em>28</em>(11), 1251–1266.
+URL: <a href="https://doi.org/10.1002/hbm.20359">https://doi.org/10.1002/hbm.20359</a>, <a href="https://doi.org/10.1002/hbm.20359">doi:10.1002/hbm.20359</a></li><li>McKinney, W., &amp; others. (2010).
+Data structures for statistical computing in python.
+<em>Proceedings of the 9th Python in Science Conference</em> (pp.&nbsp;51–56).
+URL: <a href="https://doi.org/10.25080/Majora-92bf1922-00a">https://doi.org/10.25080/Majora-92bf1922-00a</a>, <a href="https://doi.org/10.25080/Majora-92bf1922-00a">doi:10.25080/Majora-92bf1922-00a</a></li><li>pandas&nbsp;development team, T. (2020 , February).
+<em>pandas-dev/pandas: Pandas</em>.</li><li>Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others.
+(2011).
+Scikit-learn: machine learning in python.
+<em>the Journal of machine Learning research</em>, <em>12</em>, 2825–2830.
+URL: <a href="http://jmlr.org/papers/v12/pedregosa11a.html">http://jmlr.org/papers/v12/pedregosa11a.html</a></li><li>Posse, S., Wiese, S., Gembris, D., Mathiak, K., Kessler, C., Grosse-Ruyken, M.-L., … Kiselev, V.&nbsp;G.
+(1999).
+Enhancement of bold-contrast sensitivity by single-shot multi-echo functional mr imaging.
+<em>Magnetic Resonance in Medicine: An Official Journal of the International Society for Magnetic Resonance in Medicine</em>, <em>42</em>(1), 87–97.
+URL: <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">https://doi.org/10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a>, <a href="https://doi.org/10.1002/(SICI)1522-2594(199907)42:1<87::AID-MRM13>3.0.CO;2-O">doi:10.1002/(SICI)1522-2594(199907)42:1&lt;87::AID-MRM13&gt;3.0.CO;2-O</a></li><li>Sorensen, T.&nbsp;A.
+(1948).
+A method of establishing groups of equal amplitude in plant sociology based on similarity of species content and its application to analyses of the vegetation on danish commons.
+<em>Biol. Skar.</em>, <em>5</em>, 1–34.</li><li>Team, B.&nbsp;D. (2018).
+<em>Bokeh: Python library for interactive visualization</em>.
+URL: <a href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a></li><li>tedana community.
+(2024).
+Component selection decision trees in tedana.
+<em>figshare</em>.
+<a href="https://doi.org/10.6084/m9.figshare.25251433.v2">doi:10.6084/m9.figshare.25251433.v2</a></li><li>Van Der&nbsp;Walt, S., Colbert, S.&nbsp;C., &amp; Varoquaux, G.
+(2011).
+The numpy array: a structure for efficient numerical computation.
+<em>Computing in science &amp; engineering</em>, <em>13</em>(2), 22–30.
+URL: <a href="https://doi.org/10.1109/MCSE.2011.37">https://doi.org/10.1109/MCSE.2011.37</a>, <a href="https://doi.org/10.1109/MCSE.2011.37">doi:10.1109/MCSE.2011.37</a></li><li>Virtanen, P., Gommers, R., Oliphant, T.&nbsp;E., Haberland, M., Reddy, T., Cournapeau, D., … others.
+(2020).
+Scipy 1.0: fundamental algorithms for scientific computing in python.
+<em>Nature methods</em>, <em>17</em>(3), 261–272.
+URL: <a href="https://doi.org/10.1038/s41592-019-0686-2">https://doi.org/10.1038/s41592-019-0686-2</a>, <a href="https://doi.org/10.1038/s41592-019-0686-2">doi:10.1038/s41592-019-0686-2</a></li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+  function updateCarpetPlot(name) {
+    // Create variable to hold the image source
+    let carpetPlot = "./figures/";
+
+    if (name == "optcom") {
+      carpetPlot += "carpet_optcom.svg";
+    } else if (name == "denoised") {
+      carpetPlot += "carpet_denoised.svg";
+    } else if (name == "accepted") {
+      carpetPlot += "carpet_accepted.svg";
+    } else if (name == "rejected") {
+      carpetPlot += "carpet_rejected.svg";
+    } else if (name == "denoised_mir") {
+      carpetPlot += "carpet_denoised_mir.svg";
+    } else if (name == "accepted_mir") {
+      carpetPlot += "carpet_accepted_mir.svg";
+    } else if (name == "optcom_nogsr") {
+      carpetPlot += "carpet_optcom_nogsr.svg";
+    }
+
+    // Update the image source
+    document.getElementById("imgCarpetPlot").src = carpetPlot;
+  }
+
+  // Rica modal functions with accessibility support
+  var ricaModalTrigger = null;
+
+  function openRicaModal() {
+    ricaModalTrigger = document.activeElement;
+    var modal = document.getElementById("ricaModal");
+    modal.style.display = "flex";
+    // Focus the close button when modal opens
+    var closeBtn = modal.querySelector(".rica-modal-close");
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeRicaModal() {
+    document.getElementById("ricaModal").style.display = "none";
+    // Return focus to the element that opened the modal
+    if (ricaModalTrigger) {
+      ricaModalTrigger.focus();
+      ricaModalTrigger = null;
+    }
+  }
+
+  function openRicaWebsite() {
+    window.open("https://github.com/ME-ICA/rica", "_blank");
+  }
+
+  // Close modal when clicking outside
+  document.getElementById("ricaModal").addEventListener("click", function(event) {
+    if (event.target === this) {
+      closeRicaModal();
+    }
+  });
+
+  // Close modal with Escape key and trap focus within modal
+  document.addEventListener("keydown", function(event) {
+    var modal = document.getElementById("ricaModal");
+    if (modal.style.display !== "flex") return;
+
+    if (event.key === "Escape") {
+      closeRicaModal();
+      return;
+    }
+
+    // Trap focus within modal
+    if (event.key === "Tab") {
+      var focusable = modal.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
+      if (!focusable || focusable.length === 0) {
+        return;
+      }
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+</script>
+
+<script>
+(function() {
+  const fn = function() {
+    Bokeh.safely(function() {
+      (function(root) {
+        function embed_document(root) {
+        const docs_json = '{"960f3433-b2a5-4d1a-b312-24a87eec698d":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"p1208","attributes":{"notifications":{"type":"object","name":"Notifications","id":"p1209"}}},"roots":[{"type":"object","name":"GridPlot","id":"p1206","attributes":{"rows":null,"cols":null,"toolbar":{"type":"object","name":"Toolbar","id":"p1205","attributes":{"tools":[{"type":"object","name":"ToolProxy","id":"p1198","attributes":{"tools":[{"type":"object","name":"TapTool","id":"p1053","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1147","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1100","attributes":{"renderers":"auto","mode":"replace"}},{"type":"object","name":"TapTool","id":"p1010","attributes":{"renderers":"auto","mode":"replace"}}]}},{"type":"object","name":"ToolProxy","id":"p1199","attributes":{"tools":[{"type":"object","name":"HoverTool","id":"p1052","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1146","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1099","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}},{"type":"object","name":"HoverTool","id":"p1009","attributes":{"renderers":"auto","tooltips":[["Component ID","@component"],["Kappa","@kappa{0.00}"],["Rho","@rho{0.00}"],["Var. Expl.","@varexp{0.00}%"],["Var. Expl. by Rej.","@varexprej{0.00}%"],["Tags","@classtag"]],"sort_by":null}}]}},{"type":"object","name":"ToolProxy","id":"p1200","attributes":{"tools":[{"type":"object","name":"WheelZoomTool","id":"p1076","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1123","attributes":{"renderers":"auto"}},{"type":"object","name":"WheelZoomTool","id":"p1033","attributes":{"renderers":"auto"}}]}},{"type":"object","name":"ToolProxy","id":"p1201","attributes":{"tools":[{"type":"object","name":"ResetTool","id":"p1077"},{"type":"object","name":"ResetTool","id":"p1124"},{"type":"object","name":"ResetTool","id":"p1034"}]}},{"type":"object","name":"ToolProxy","id":"p1202","attributes":{"tools":[{"type":"object","name":"PanTool","id":"p1078"},{"type":"object","name":"PanTool","id":"p1125"},{"type":"object","name":"PanTool","id":"p1035"}]}},{"type":"object","name":"ToolProxy","id":"p1203","attributes":{"tools":[{"type":"object","name":"CrosshairTool","id":"p1079"},{"type":"object","name":"CrosshairTool","id":"p1126"},{"type":"object","name":"CrosshairTool","id":"p1036"}]}},{"type":"object","name":"SaveTool","id":"p1204"}],"logo":null}},"toolbar_location":"left","children":[[{"type":"object","name":"Row","id":"p1197","attributes":{"children":[{"type":"object","name":"Column","id":"p1195","attributes":{"children":[{"type":"object","name":"Row","id":"p1193","attributes":{"children":[{"type":"object","name":"Figure","id":"p1011","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1189","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"type":"object","name":"ColumnDataSource","id":"p1006","attributes":{"selected":{"type":"object","name":"Selection","id":"p1007","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:indices",[{"id":"p1189"},{"type":"object","name":"CustomJS","id":"p1190","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"type":"object","name":"Div","id":"p1188","attributes":{"width":500,"height":750,"height_policy":"fixed"}}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P7\\\\ses-11\\\\BOLDREST2\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1191","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P7\\\\ses-11\\\\BOLDREST2\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}},{"type":"object","name":"CustomJS","id":"p1192","attributes":{"args":{"type":"map","entries":[["source_comp_table",{"id":"p1006"}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P7\\\\ses-11\\\\BOLDREST2\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1008"},"data":{"type":"map","entries":[["kappa",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w2SezSUCQDFsym7NZQwec73fdOYwY5GgzEyZi7roMSpVWsqlEjbkhSi6EEN2oZdkxBGS3mOaE9pbNK7tF6NWI/ieBQtddLZTdahrL/un/d3fvc6+yUlZ+iTOEOwC+ejKJxI0Z+dDWMiUSecdbCKREjZaonMm4XFwTkf1CUs/Jl03tqzjwkd3okCNxqF745Odm+toHBbOXzutwMcGDU3jey7xwQHQ0ZFMnsgLb1UN80d5opD8cciKWw/ek/B5zHxKv3l8ZfHPTC6q8Zl4jALVjfvTmTeIBFv2NAXmG0NY/sR//XbsJABaTnhtiiOVFeWqtgYerox4vQeD0SrQ2mr2sTIUh/IFYx5ANEdvvUWnsg0NFw8Q7IhpOmXpX/ZgqWWp1RD3R5Ikb8OcTDmY9ohk3v7sSdClzyMs9Pj4OluSXGtmQis4tr90iIW1nIix0UGdphrG6ybbBKgSDEfad7JgkoxVbH5tTfWbNa5U6XhY6JmU8nFHgEsBZ2ldbtc4PX5SkNivStW3hp1b64QoN+m08wqSIgYdTTnNYMPfuGRnX5Tjgh5Itb+Zd4Jzdn83e9j+Hjs3ZPCtRJheq1KO3SdGOoguZveoCPO7s69xH/hjF0s3r2S5QJ4uCtW0blCxDF6UrMLGIg5dHbQtpvAeO/oz9K7BDJv9kk/jhF4opzmp+UyUFz9Vj+qjIEz3cOSQB8C/hljJd8Yk0hdtGySs4lAtNWnS+EPSSRn7/1g1U7ganfKvLCKwOzgkS6xmEBTgNZMchsBv8A8iY03A2Z36vuLNhJgr75wlCRJTPVrf63mE5CWhV0uGCDwNt5twiDWAtKLc6MvEwk0SoVesYEEaF05/QPOBDJE75V2owRivmqt6aaT4BoFjFA1C3tXlDWFPifwUUvZbsBh4DKtyT9mCQnJo/q2CBqBN60XhxtjSSg7DvJbBSQcz0UNuj1nQEsjM/a9RYJ/zm9ApTLG/Gfdq+9OEPjgsKeunUeASmrULQsnsHE47fCGXjOEmMv/o//KgMkfBabGYQvehJaeKykK9K9ssiwVBJJcJOfl0STK3ZJfiLrMsXzYc1XEwv+rozxdXEHgRuoh9g8JC/yacXnPEAlV3CO27wInXXrSVqlkoLKPuZOhTeABrZceME3AqWHs32uZFlAMZj+o3UahPb61ra/JGFdXDijq5WYosiufeOpLR2GY9it6KIljYQZLt5eQyHq8r1Dia4JjbcPyzlISpytrf8/TmKJeJtKxriUx7x75IPoTExE/xbbkLPTFRhudl5YzIRXcFedzKcibXKt+DLFBI0VPphxMwNYzeHZhDRNdvJNbIx3XQN6xwiiGSYHrU3YgP9QWplWM1OQsJpzW+64QB1MIqnlTvbefifmDAZtmUkhcV2ol/vOIhb8TQmeaE/nYMey1bEy4Dr0l+bxTGktcYSdWWt5mYjxNNkOb+ha8QD1FcCQLGs0XXnKpKepoPXkF1Va4PztyNnzOBPuF0z4csT3GtV7EOYZZINWwtsXe1BQN36tuBE+x8I6lWpR/3wRblAOUo8IFG9Kr5/6SWUPj8KzQJ8AWapEWeS3QDbqMDbIdTlwcEeworOuwwuIEnVx/mSW4oskluV7r8H6nhczpuitq9ZozXBvWw2I1Pa7oIQ+SvLCgpRH20C1vSahqccb/bk02UQAFAAA="},"shape":[160],"dtype":"float64","order":"little"}],["rho",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w2TezSUeQCGhUjKbtnFpMz3+75hZmKYhuaQ1Fu5toROxZZQmi6GQmG1GqKWjNoSmlMbiZVLoq0OKeSSZJBFVFrKhgrVOi6nC9bf7z/v85z3FUcHHvILYSP/y6eUEnUKB1JCq2cKKFRWRjWLfqaw1aO8NieSjcL8HKMblwgW2fpODlkTBGfF8SxCKSichWodn9nomIpwTVdl46fStm7GhcK2V7KcsL9pDOu5DmoMMAiQmxsX2hDY9na2KsLZ0Jhs9K99QlDdFkBiDShoyiRHCvZSSFyb4ZX2jIaCkgTMKCiU2MY8eOZL0PTidnuQx2wePjx1s5pGxMqbt4w0GWwIi0pRr6cgut/ixD9IgzYwzJHuovDOsrlGHMLASVM+orxAo2FZQl+cKhfPh4Z8YsMJXkY36d3hUMhtbNR768SAiYjN8NRi0OX4eiaZy8A/+OLZsj4+zDW7PluocHBb2r7lBNcEbwTZbo0uBHkyyzeZD7goYinP3RpbhgVzEc/UG2NTyoc1tTJjJH9bmKkc5GJSqSZ4Pn85Bg3MNpFUPjZfqRTMVzWCGOv2uY6bwOn8fZfeWa8f3ilrrQ+bIHVb67DZAR5aTvGLnh7jYkWeMHtRIh99KrXCqyV8HDZV23XsPYFaiadPpi7Budzhwn3JFIpd93YKpQRBxYcMjxbPckl2rVY0UBhnLY35IZqN9KboUB13gngHCz0KBDqhVafy/SjU1KR6iSQ0vhklnXBxIHBVvvy4uZ3Cj8KKBhsxwdW82EsjdyjUtUvStH4lWK3do1q5nqD8zaKMFnsal+c2FjcmEmjxnPvr7dn43TR4d54hhT3xaK7i0FCPLwgsMKfQf3nPw7d5FPRNJwZ73WjcfxjF8g+hMaZtFvBgCYF87tK69QcI7B2DKnTcCPzqtYfqBgiM6cg0pywKHoFByZwYAu1AXWP5HhpVo3jYcpyGf9byqdJmLrw6NVU7zAlWJbjYs7poPJmoy734kULSo1VntJtMwG7YEeL7G4HMffWj9wM0StOj18jtCM47QsdmO8GTDes3bkwhUB1SC935kcAhSaNjtJLCUsUaS8lsn+7F7+Y8c6bx2OXVKfsXBL6G1xX+PQTSnVZhed4MHBpaVbIyGRQJ2jQuujHodvGcGOWYwIjrysnWoaGn0Az/7MPDPKMRT5pFcNZUOtTzJw9p81yXPecQFHp3Ra3UZdC0sUa3rYWHt+sWVs/PJVAWrRqUlnMhSx+oCnhMQ/5UqRXjyCDY6jSuqTDwEsT8sWWagt0cszKH/TSUrCXTUz4ER2cK/rMNYiNM9MuF6cUMgrIEgoIAUyT0f2hMu0vj0D92ie5fOVhQOaKuaBVBcfpr2MLZX8nvVfTkf7EBifIJSc8mEI/xrmYuscS5srsGW4+JwJOpcV5PCnHmzt3AtHYxtsP6eB/LDCeF93p2zO6hN+mG+7XrIgj99S1zDFcgZTQqstNzHaaJlZpz5gqwJkJXCtxMsVYlw887QYSxiMwTqR4ilFW42847aIZJr3prEmmJvz5582X7hThtVbbgSLs9Xl2x048bd0K7+drK7cGA1wQmr5Q7ont3SJYdV4iiwC558n4B9Pt38yykHCR6aFsYVdshb9S8xFFih5FS5t+jsxzsOBNFxbgAZ/W+k375Xoz/AXSot5YABQAA"},"shape":[160],"dtype":"float64","order":"little"}],["varexp",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3MfzjTCQDH8a5fSNwoIjlkVIQp9JS5zwq5KIUllMek63SuHtcvzvlVR0dbPaiJLj+e0J1ifffLNqPmt0bCuk1PlOWSX8dzxdBU56/X8/7nrb9RJ9Z0mIM/mGvem37k4GJQRuvT9VyQwyV5p+Rc5D5+LtfG8EE3yfVqVPMhoodY6voKYfHifVX5MSGspjxK9VhCZA9dNtzMqoHH/Oe6f1kidA6bpTpwRfCpPLT55z4RfKsZFhp7MZiWXSOph8TIbfX4uzdTjH1pJvLAu2KkULZZqyIk6Nc/ZdQfKkVRqBWbq1sH5+R3A/zbdfg8vreBvfAIlBFxm02IDMTwcYdLF2QICjfJnpqX4fxAKt/RrRHCkYlYdWgj5jyQHlTRAoaeIXUnpRV6YYmcdm07Mo5Zs0vC5fgQTE6h/yWH85KjPrUfOrBLvOxbkk8n6BZBHiboRvwg+XW1kwLu90iGX/e8wJ7URApz1WtcOkNYxDPewJkREPTg/H/IMWizTaXOIMolXrahdgbUUXbdtiENLv1YkU66Owu8Vcvp2XOIyGav9AmbRzTZ32g/ex7n1FsfUgK0mEtvXupTvoCkvLe24sGltFJSckkJQaaZWnOSO+fsaccMTE2mXbbSNE/9jJKOuNK8C/Ry7j+uQtgJz8vV6irEvKnvqpmvxhO7UMmJLA46Bbk6mh4O9rGiWqNecjD7eFVhO5nAu6tmJjpxBBJ+dbzfnEEgbaygkZ1HoLrNWJJ9k4BV/BknGzYBf9bvR4YKCawl5fculxJQFMald7cS6Dp+SxHVQeCUwbSdfJrArELrRdEQ+NNzqsiAxEWD0lu0wYYLsTfp6oqNXDwM7IjefYCLWLHf3r5FTQ/1VkYyuCjsqHIcL+WifjLyQU45FzXRbjSXIS46+q3Srs9xkbPn9JC7lguvnTFU44XFPhyuE+jFA0XP1vDaorWFSUxlJA+fWd3d0Qk8DJxZ8tM9Fg85TcqoZ/k8jJvVcRKKeGiqfBQ1WcGDfV/Z9ZX3ebjma3xSKOLB3chfz/4JD86JYU+NlYtfQveGbIoH623VGul6PorKdeYr/fkw/7LAbM7mI+3J1rE7TD4YmXZ2bIYAW9LNLb3jBKAsW0NdXyKAQLfloc2i6X03rGsWFV2pZZwtFUB1fZ3ThESAo1nsUbtuAdQqVoRfmBArploOKiVCNNOKZ0cTayDzNI+9UFWDO8EOH1LcRfBflav5dFMEunWtE8EWIYsapVw9J0J+cYLq1UoxNP3LZ05fFaPAao49zxFDb9A3JL9egqpN1O1+vbXQMuOdVxyVouFA2Sdzj3psln48u5/+CKN7xoc4eQ0wqLRcd9itCRMhyYyBXU0IVagujf3QDGXmb5kBBi3YseN9WcNMK0g9GfIyszbwDElhJ2+1gTwWkcp1b8fA+W+76u914GIm812WdTdcfWNfcqt7sGydbNLpgAKeZ0lfWtmLFrhSA3oUSAteIt3l/hy/0DaJneOf42CwvY2FVIk4l3z+xS4lKHy6lQ1ZhaDvTkc6qVUQwMVhvLcPtpue2anEr7ClTX9wX/EgfGj6fb0SNQaHzyV9LH4Dxxj6beFXQ9htlCW+wv8Hw2Wut0Wuw5haHqDI047CIXC4/JvXE/gSXdFMkU1Cmz+S4mY4DSnn+9Vrg2fBvmtD3t6iQ/sfHkgPIAAFAAA="},"shape":[160],"dtype":"float64","order":"little"}],["varexprej",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/xNKvnL2sKqWw7TIjWsVc7QcFDwFJDW/Kzs0V615ZJhs5ND0rNqldqWuQ+17BQ5/f32Hub8L7jZO1XOo0//w5kOkuYPcqflrd1pbOVxlumT6ca2KQ4KLLleesIEDa+Nv/wdtSg7V/OnRO9YaOwj4KGtNKTNxmLVBd9K7PfoO39Z/9Y+qVnFYcai+b8JEPQeh6jdrIz+qOcT3PTtjV2vqsM1gRuDNo8YO7FvOLRdO0HVgS5SIVt9h6CCo7Rc5zULPof6H07fXOcYOJd7f10tEaDuw3l696ONRdYfbvucP8+foOny5cNbebYqxw82u1c1Tvpo53OrTvXIixMGhYJH909ezjBxOHvRbaXrd3qE0lMVCbraJw7OPNbY7J7o5ZMw3V+pUs3RwOdM5p0fF1MG1Pj2G9ayDg+y2x6uvrrd32G+XJja3w9ZBKnnyp7oNFg7FsZoHSs/aOKy2Xb4maIqjw7FV88VDCxwd8v7N52sVcnNQO9Lz4G+Iu8ORw9M2qkm6OXS3CXg94LV3UNffY+m8ytWhWfC7k+1Rd4d12R5pi+87O5yv2RPw8a+rQ0Cm4Zfnmv4OtX+9Tsj6ujks7m2Ie/rCxYEBDH7Uj9Kj4TCaDijPBwAYlGoKAAUAAA=="},"shape":[160],"dtype":"float64","order":"little"}],["kappa_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWUN04EQRBFKyQkICAgaCGEEEII72FrF++9d83CQeooc5Q+yhyBI2D6/Umefk2ZX7Pda/b7xJP/wewGXlfGfWW5QJ+jL+EtJN+Oqb+CDkcrnf6u/BHi9C935B/CcbgHT2CCE3AIDlaG8r479v8ME98mbwAtv7PE8WG76HXyztCG7qLX4DycghtwGWruFnqVPj30DJyEHbgIN+EKdR+V/gJfiT9XNnoPyzv1/M6Bdr53oU/QxzP56JY+Rrw8Mk958tHHzxtkTlYd/hwfzvkK6o36wvuiugfmMTfhJ/DffuKXuY3qpNVXe+ArdH7Z07SX8vGX6Bf0M51T9snqq+9OPKkP577gsxC3L74Tc117ah90q3z8OPevlS/dN/aJg9q3oU/ovlHnyuNeFeoDn0FeMN+499arfWOn0k7xr/nMDd0jzT8iT3t1q87slRTnnmXpOebp/2CfuWPEpekf+DH5myZ/gXzudTjxJf8BuztJYAAFAAA="},"shape":[160],"dtype":"float64","order":"little"}],["rho_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zWSR04EQQxFvWTJggULFi2EEEIIkTOMZ8g559QMHMRH6aPUUfoIHIHg92vzZJf9y2Xb7PfUn/4HK31YJ9uPZMV9PHD/mqy5b5VHXCX7MuPiGJLn0rtPf0N8oOfkVdjlKeOMOL9C7yLp1Fuu0SMvTsjDb3vY6NXo2Rk66Nk5cR1I/XZA3Esydrj/gof4xW38W/g92er/1OP0NfaJ68Fd8ruQ/LhL29+h+sa/GvpRQdN7z+gwh6K8G97jX6a8N/zq72PahTi/RQ9/o3f6xHHv2K109B5zKXpHc0a/8E/TPHknyHfNlTm4dNifQn+Mvjr5xr1rH+lLYQ7Ou7XqVd/0H/bWxFP6wL4FdrAvpn9oH1RXj/6qbvYumHeRvvZAe8++FvY1pEdfjHqDeZj2eoO5oGNH1D1FHfJX+OmHTWDPwkU4CtfJ1z5M41+Ag3AebsIZOAfX4DhcggPwu2P/Zwjb4DJcTYb+NYx/BE7CFTjmP2wC7Y4ABQAA"},"shape":[160],"dtype":"float64","order":"little"}],["varexp_rank",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/zXTR24VURAF0Boy9IABAwYthBBCCBmTowswOedgwjewkFrKX8pbyl8CS8DwTvXk6L7ULfW7EYdP/sp/xMLVwcyr1XTsT4Pj08zJ6PxxjtcH+97LHO9kJsdb57HeeB/Ha5njlXOYnV9ax3omsx7LrEfOeWi8fSDf5y5v8Tp3uM1zPMvTPMWTPMGFx3mMWzzC4J/d+P/8nnnjfw2uWf0fGdz8nPsG1yyumFwY3BzYzzWLyYXBTd8jrllMLoxe/2O+r5gMju/mmQyOb+aZDI6v5pmMHnffs+/9F+uZDI7P5pmMHteT0T1hcOhNMjrrT7TdI30JDn1Jlr5k96d78mJ+Z7Cey6ynMuuJ3HZv9KT0pPasY92TWXdl1h2ZlXJ7W77JG7zGq7zCy7zEi7zA8zzDo/kXHRxclAAFAAA="},"shape":[160],"dtype":"float64","order":"little"}],["component",["39","86","78","94","60","84","150","19","33","153","29","102","34","1","139","18","43","117","109","88","98","151","42","41","108","11","58","69","113","97","105","66","75","106","48","61","14","107","72","12","99","87","101","100","71","96","148","93","62","54","63","154","143","37","103","28","124","138","81","64","24","135","134","136","2","77","144","21","59","95","13","126","122","8","47","57","118","45","91","129","70","36","85","83","26","5","51","30","74","65","7","147","111","104","159","152","68","142","137","32","16","125","53","38","149","67","89","114","132","35","123","158","40","127","156","25","20","133","131","27","140","6","56","15","9","55","155","10","141","23","80","82","112","73","90","110","46","119","157","3","0","17","44","145","49","116","22","146","121","120","52","4","31","128","115","92","130","76","79","50"]],["color",{"type":"ndarray","array":["#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#2ecc71","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c","#e74c3c"],"shape":[160],"dtype":"object","order":"little"}],["size",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/y3UezTUaRgHcNEhGXp+Y2bcFWPmWJcow0lon1y6qUY0JNpVrF234izrXnIdyT1ZtOnISjVtnWpdku6SSzZ2yVqrNiodTZSyuWWf3bPvP5+/3nOe932/3/ftQuHHGSVAvwIFhRWLARda69/pLQUU6QhNaliAk7rflRSxAS+HnHYN4gB2VTSfz9IBtKnu0npCrpqxK8rTBfxLs23A2RAQLpTnTRsBLq8ebTxkDJiqFClg+ICypNg/bUwASy7m/fiQ3Hl5VqtYAOjjejRvjjwdktZ+xhRws7FTs4I14LFb6hbFqwGNd1a3XBQBqmiXDx12Arz+JGfyrAspt0+sdaV5vMz4yZsAawY8NY7tAJT+vpZb4gnYE+YwA2GA7TafirgHAIfa7Hc8SAM8ruI0/CIXMMM4rM6yAPB9dlDD3TJA19qZCt4JQIPs4fLAJkBr+eD0Ly8Ah3VPPV2+mcEama9OynEGxYlFHjpjDIbWlroN/qaJGy6LfHquclCSZsQe6eZgQ7B5ymkeF5MTI2O6nLkYWqJ4yzOOi2OsyVLbWi4WX4rVk9Rxcd/YkdmzejwcGejwSg/j4Zt4t9mILG18Nhaups0yx58ODl7pMbVEyVyWqs8na1T4b4n+F3B3avvUOgXAv6M197kpAirrj6Vvo3eMGF9d10tuTF7Pf0nO3+No5CoDmgbEGheqAF5Ykxg5QV4/Vfk9fwlgntqNX83Ic7aHF1uSX265X7WOzI8q3NZIJph/nB4hF3ksGvxAcvKdbPJV6d2ieXuPkbZlj0zeky7eGtttKDecRJ7MjnS/NHajj3Q0K5f3k/a82hQDNcClQQWpLMpVu/IfirqkwNR9cJE6YBP/zLwH2SnU795N1jOTCl+Qig+FUrEGYDGkRnmQKWmlc61kzQevAuEywNZ2dXEMmeVtIC8nrbK9i6+QhVVHXvWQtnrR7GdkpnVLEwcAK1yE2yXkzYXnphmkbFeA4wipdLcwII0BvHMosk9EeY/9fCrBUJPytPSVWEBW+rX22vPoPGJJwF4ya02vh5EW4Nuk8PB/9Z5RLuKTN1kq7kLy3nr2yXQyUPmr0T5yKnP0TRf1ZUq6WLBGD1D++knFrAFgUvpn0deoN37xkp6fV9D+zPAQLepN3FPXeR3yOXfeIpP6M9vvzWomm+5fFVRTX5q91GLMhdS3bs7XXDPA0ufXBrgrAQ07ek2A+rPNP4E/bgeoH5rSxnYAzL0jdRzdSvd69MTE3C7AB6wJsaUv5aN/qPzZXuq7rMjpfDDg9tw94s5owCvH91R2xQA+bsnfFB8PGOly9Fv1g4B71BuqsktpjlMNVpWNgKrSJEHZI8pHnMqhqlH6F6I6Zb2vAf2T3Q03TgBeEonMl03RXB99XeOm6V7l+6vC9Rgs06j3zNFnMN0tWDXFiEH50Jb+AxYMSn9wZIWvZdBHLmPuFzLIMlTqV6pn0MHxm5U9jxk89zK0RfKOwYwo51V35hkM07g9MmnFxuAb4xEW/mxU57MvBHaysWM4Rv+DkSbqOOYknPTVRKMNFreH9nPwXsPCsq3WXCyw6gvS7tDFfwCDGx46AAUAAA=="},"shape":[160],"dtype":"float64","order":"little"}],["classif",{"type":"ndarray","array":["accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","accepted","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected","rejected"],"shape":[160],"dtype":"object","order":"little"}],["classtag",{"type":"ndarray","array":["Low variance","Low variance","Low variance","Low variance","Likely BOLD","Likely BOLD","Low variance","Low variance","Low variance","Likely BOLD","Low variance","Likely BOLD","Likely BOLD","Low variance","Low variance","Likely BOLD","Likely BOLD","Low variance","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Likely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD","Unlikely BOLD"],"shape":[160],"dtype":"object","order":"little"}],["angle",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3SazSUCQDG8erkTjeX2FCqVWxpQ7Jqe3Swc9YixUzUcFIhtsy871zdZYiYNkJM7SqWsUZJLrmNS25ZFLMdirPOaooil2hIaHfn0+/D/9NzzjMffOiUwQYG8nQj9Kx3MqAQNzbrWBOom1d1zJET6Ns5vu9kDAtObA1R5woLPwfg7GwAB9wP6zVLwznI/PrHEK9iDsQS3aWnEi7i9ANLP9zjwSDL+KG/jAe/aWrj0CIP0uW1F7sofNDpbqWpBB+D6+mbdxfx4bvyqbWrlQ9nU+60e3Q46CatF1SiIkEbnCvssYrC9bmJwKzHURB//kKpNI9FZUyc74mQOByNecceSY2Du0J/YM3Gy5hLHjKbcItHewddpZcRj63HfMQNLYkQHGHuP+txBTNiMaXR5Cpua+tUMaNTcLPxn5y0nhQsNAj7a4yEuLoyuToqVIjtLcIkS2oa6t8/ZjVRMvDx5b5r5goRdvaRZVLbO9hRNFgVGp6PA1ouZKDwIbqT/J+e9q3CQLmLZeGLKkiDqIsea6qR7ybd821LNZo1RbJSSQ3aqArv6oha0KDw3lRTi5QbwxauzHoUnOWnWHdL8bgh2ThgqQVeCT6WTT1vUEsf0lM1fIvNz48KnGmTiFwxSNBmzILrGkJrHLsI2wflghn1S5gSUDmc7WEwSk/wHH0YBqGxe+7QchgiJKLdx1UY6Hbqt6xzYEJoMWvmc5mJ2imNSvvbTCwXUTONi5kI3h1orVvChM5ULrtE6emMZAN2GRMFnXa3WmRMMEW3PXOHmbDaGj1gI2eixtGFPaBFYElfm3VEh8Bax8PLR3YRWLMl3znQnkDiwJjXse8IvDb/a6b9PAFbk5A8v0ACGt1P9q/wCBjSnchXNQTi1PrHUqUE6OLrothlAsWDAaPLG0gU+1mMinVJ6PjmhyTokTiKbSOGNBImUVmHfZRaFs7/+pRLounM9K3INBIy017T4UISqtu05LplpPIn175vf0TCXvUBg9Kk7M9P7gtsJWFkon/XXEaCvTz3qVROYtZY4H5/hsSipH4pWoOFMH9FV4UtCxNtaR/l51lIDVG4eRWwoJ12cK+VmIXC2PHXlCg24vduPLM2iY2OB3oLZvVsGHW+ZVkopc1HljYqXepKmI6UsrExr+204QAb6yzMPZiTbLx8+77TlcPBlNXfvv4vODAydKvnZHNhMzZ7iNLNxWDFnKYmlQcnlWfDWlU8THkcUGtSKl/55lyeIR/NOj5Xk3bxkdk4Hv5nCR/9zWVPrvTx8fldz6mMkXC0fezwki5EQCs2fa9tXCTsQj2an/lFo8LvusOV6BiYb5rrS5dcRrLB8COGhwAZuSderaIKIGWw7IsECfism6Y2bpGIrDq20Se9JFzYkSBRt0+CjbpZIq86Cb3p3v0iWjJMozzrvHpSof9huJxtl4Z18w2xte3p4C6IvEODM/BHt4ZuUFkGym2odocmM7BBpiIs98xU7ncqWUjNRPDkq+FVQzehNkJp5k7dhNG5879lOWVDo2nd8/zVOVBn0Q4WK3IQ4HA4WyTPRdguz1sjlXdBao8uTsjycMlbfbNrTT6cp/NCU7f8jnt3uQckvQWQ/XI8W35MjDs/BBm/MZXg5U8Oe/xU72NeXmHzZbwUVVtinXgWlfjqX9Z/HUQ1XIL8bsSPPsH/bM+ICQAFAAA="},"shape":[160],"dtype":"float64","order":"little"}]]}}}],["div",{"id":"p1188"}],["outdir","D:\\\\ProfessionalProyects\\\\PsyConn\\\\derivatives\\\\ds006072\\\\prep\\\\tedana\\\\t2\\\\sub-P7\\\\ses-11\\\\BOLDREST2\\\\run-1"],["prefix",""]]},"code":"\\n    // Accessing the selected component ID\\n    var data          = source_comp_table.data;\\n    var selected_idx = source_comp_table.selected.indices;\\n    console.log(&#x27;Selected idx is &#x27; + selected_idx)\\n    if(selected_idx &gt;= 0) {\\n        // A component has been selected\\n        // -----------------------------\\n        var components = data[&#x27;component&#x27;]\\n        var selected = components[selected_idx]\\n        var selected_padded = String(selected).padStart(3,0)\\n        var selected_padded_forIMG = selected_padded\\n        var selected_padded_C = &#x27;ica_&#x27; + selected_padded\\n\\n        // Find color for selected component\\n        var colors = data[&#x27;color&#x27;]\\n        var this_component_color = colors[selected_idx]\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;span&gt;&lt;img src=&#x27;./figures/\\"+prefix+\\"comp_\\"+selected_padded_forIMG+\\".png&#x27;\\" +\\n            \\" alt=&#x27;Component Map&#x27;&gt;&lt;span&gt;\\\\n\\";\\n        console.log(&#x27;Linea: &#x27; + line)\\n        var text = div.text.concat(line);\\n        var lines = text.split(\\"\\\\n\\")\\n            if (lines.length &gt; 35)\\n                lines.shift();\\n        div.text = lines.join(\\"\\\\n\\");\\n\\n    } else {\\n        // No component has been selected\\n        // ------------------------------\\n        // Set Component color to Black\\n        var this_component_color = &#x27;#000000&#x27;\\n\\n        // Image Below Plots\\n        div.text = \\"\\"\\n        var line = \\"&lt;p&gt;Please select an individual component to view it in more detail&lt;/p&gt;\\\\n\\"\\n        var text = div.text.concat(line);\\n\\n    }\\n    "}}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1012"},"y_range":{"type":"object","name":"DataRange1d","id":"p1013"},"x_scale":{"type":"object","name":"LinearScale","id":"p1021"},"y_scale":{"type":"object","name":"LinearScale","id":"p1022"},"title":{"type":"object","name":"Title","id":"p1014","attributes":{"text":"Kappa / Rho Plot"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1042","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1043","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1044"}}},"glyph":{"type":"object","name":"Scatter","id":"p1039","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.5},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.5},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.5}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1040","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1041","attributes":{"x":{"type":"field","field":"kappa"},"y":{"type":"field","field":"rho"},"size":{"type":"field","field":"size"},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1020","attributes":{"tools":[{"id":"p1010"},{"id":"p1009"},{"id":"p1033"},{"id":"p1034"},{"id":"p1035"},{"id":"p1036"},{"type":"object","name":"SaveTool","id":"p1037"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1028","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1029","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1030"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1031"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1023","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1024","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1025"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1026"}}}],"center":[{"type":"object","name":"Grid","id":"p1027","attributes":{"axis":{"id":"p1023"}}},{"type":"object","name":"Grid","id":"p1032","attributes":{"dimension":1,"axis":{"id":"p1028"}}},{"type":"object","name":"Slope","id":"p1038","attributes":{"gradient":1,"y_intercept":0,"line_color":"#D3D3D3"}},{"type":"object","name":"Legend","id":"p1045","attributes":{"orientation":"horizontal","border_line_alpha":0,"background_fill_alpha":0.5,"items":[{"type":"object","name":"LegendItem","id":"p1046","attributes":{"label":{"type":"value","value":"accepted"},"renderers":[{"id":"p1042"}],"index":0}},{"type":"object","name":"LegendItem","id":"p1047","attributes":{"label":{"type":"value","value":"rejected"},"renderers":[{"id":"p1042"}],"index":54}}]}},{"type":"object","name":"Span","id":"p1048","attributes":{"name":"rho elbow","location":13.021188170159789,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1049","attributes":{"text":"rho elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":300,"y":13.281611933562985,"x_units":"screen"}},{"type":"object","name":"Span","id":"p1050","attributes":{"name":"kappa elbow","location":9.481329036441364,"dimension":"height","line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1051","attributes":{"text":"kappa elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":9.670955617170192,"y":300,"y_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1148","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"type":"object","name":"CustomJS","id":"p1187","attributes":{"args":{"type":"map","entries":[["source",{"id":"p1006"}]]},"code":"\\n        if (window._tedana_key_handler_added) {\\n            return;\\n        }\\n        window._tedana_key_handler_added = true;\\n\\n        document.addEventListener(&#x27;keydown&#x27;, function(e) {\\n            const key = e.key;\\n            const N = source.get_length();\\n            if (!N) return;\\n\\n            let idx = 0;\\n            if (source.selected.indices.length &gt; 0) {\\n                idx = source.selected.indices[0];\\n            }\\n\\n            if (key === \\"ArrowLeft\\") {\\n                idx = (idx + 1) % N;\\n            } else if (key === \\"ArrowRight\\") {\\n                idx = (idx - 1 + N) % N;\\n            } else {\\n                return;\\n            }\\n\\n            source.selected.indices = [idx];\\n            source.change.emit();\\n        });\\n    "}},{"id":"p1192"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"DataRange1d","id":"p1149"},"y_range":{"type":"object","name":"DataRange1d","id":"p1150"},"x_scale":{"type":"object","name":"LinearScale","id":"p1158"},"y_scale":{"type":"object","name":"LinearScale","id":"p1159"},"title":{"type":"object","name":"Title","id":"p1151","attributes":{"text":"Variance Explained View"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1176","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1177","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1178"}}},"glyph":{"type":"object","name":"Wedge","id":"p1173","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1171","attributes":{"field":"angle","include_zero":true}}},"end_angle":{"type":"expr","expr":{"type":"object","name":"CumSum","id":"p1172","attributes":{"field":"angle"}}},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Wedge","id":"p1174","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Wedge","id":"p1175","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"radius":{"type":"value","value":0.9},"start_angle":{"type":"expr","expr":{"id":"p1171"}},"end_angle":{"type":"expr","expr":{"id":"p1172"}},"line_color":{"type":"value","value":"white"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_alpha":{"type":"value","value":0.2}}}}},{"type":"object","name":"GlyphRenderer","id":"p1183","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1180","attributes":{"selected":{"type":"object","name":"Selection","id":"p1181","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1182"},"data":{"type":"map"}}},"view":{"type":"object","name":"CDSView","id":"p1184","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1185"}}},"glyph":{"type":"object","name":"Scatter","id":"p1179","attributes":{"x":{"type":"value","value":0},"y":{"type":"value","value":1},"size":{"type":"value","value":150},"line_color":{"type":"value","value":"white"},"fill_color":{"type":"value","value":"white"}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1157","attributes":{"tools":[{"id":"p1146"},{"id":"p1147"},{"type":"object","name":"SaveTool","id":"p1170"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1165","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1166","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1167"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1168"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1160","attributes":{"visible":false,"ticker":{"type":"object","name":"BasicTicker","id":"p1161","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1162"},"major_label_policy":{"type":"object","name":"AllLabels","id":"p1163"}}}],"center":[{"type":"object","name":"Grid","id":"p1164","attributes":{"visible":false,"axis":{"id":"p1160"}}},{"type":"object","name":"Grid","id":"p1169","attributes":{"visible":false,"dimension":1,"axis":{"id":"p1165"}}},{"type":"object","name":"Label","id":"p1186","attributes":{"text":"Total: 160\\nAccept: 54/76.6%\\nReject: 106/23.4%","text_font_size":"12pt","text_align":"center","text_baseline":"middle","x":0,"y":1}}]}}]}},{"type":"object","name":"Row","id":"p1194","attributes":{"children":[{"type":"object","name":"Figure","id":"p1101","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1191"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1143","attributes":{"start":-1,"end":161}},"y_range":{"type":"object","name":"DataRange1d","id":"p1103"},"x_scale":{"type":"object","name":"LinearScale","id":"p1111"},"y_scale":{"type":"object","name":"LinearScale","id":"p1112"},"title":{"type":"object","name":"Title","id":"p1104","attributes":{"text":"Rho Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1134","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1128","attributes":{"selected":{"type":"object","name":"Selection","id":"p1129","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1130"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DB1cOAAAAwE8pLZLIbBoJCWlIexlpKbJSoT0kimgppYzKSmn+VHfv3a5AIBBksLsNMdQ9hhluhJFGudd9RrvfGA8Y60EPGedhj3jUYx73hPEmmGiSyaZ40lOe9oypnjXNc573guleNMNLXvaKmV41y2xzzPWaeV433wILLbLYEksts9wKK73hTW952yrvWG2NtdZZ710bbPSe923ygQ995GOf2OxTW2y1zWc+94Xtdthpl9322Guf/Q740kFfOeRr3zjsiG9956jv/eCY40446ZQfnXbGT84652fnXfCLX/3mdxddctkf/vSXv/3jin9ddc1/rrvhpltuu+N/uLDJ0YACAAA="},"shape":[160],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3NezSUeQDGcSGSslt2MSnz/t53mJkYpqE5JPVUri2hU7EllHQxFAqr1RC1ZNSW0JzaSKxcEm11SCGXJIMsotJSNlSo1nE5XbDz1+eP73PO8+qKnX78hBO8JjF1pcIRp63KFxzpsEfqWHRUl+c6dJivrdoeAiR5aFsY1dghf8y81DHQDrJ7lb0FX2xw5s7doPQOMc7qfSf58r0YU14N1iTKEuJx3tWsJZYYLWP+Pap0QdWourxNhL7kG+7XrouwViXTzztRhHPldw22HhNhPDLrRJqHCDPESs05awWE/vqWuYYrwJOqcV5PCfHXJ2++dL8QPbtDs+24QrDjTeSVEwIUB3XLUvYLUF7pbjvvoBm2w/p4P8sMwdkCQWGAKViTYSsFbqaYUqgJns9fDv+Qi2fL+/noV6kTXi3lY8jAbBNJ42NFvjBnURIfzRtrddtbeThrKhnu/ZOHtG1tI2YHeNCTa0Z89uEh5dvCLMUQF/7Zy6fLWrjIl1q+yXrAhaJ41ZCkgovWU/zip8e4aFyW2B+vyoUY6/a5Tpgg+dGqM9rNJvjwTlFnfdgEtyUdW05wTdDj4jk5xjHBgrlIYBqMsSn1w5o6qTEO/WOX5P6VA/2B3TwLCQfmmt2fLVQ4GNFzHdIYZODQ2KaSncXgnWVLrTiUgWSnVXi+N4NiQbvGRTcGeU1Nem+dGMieKrRiHRl0O76eTeEyKPLujl6pyyBc9MuFmcUMmMi4TE8tBpErb94y0mQQYnUa11QYSN1XP3o/SCNpbaZX+jMaqxJd7FndNLa9kuaG/01DmjFYHfBY2SNGpm/W0JCf/hq+UGniwIem9Ls0nDRlo4oLNKrH8LD1OI37D6NZ/qE0RPdbnfgHadjNMSt32E+jtjbNSxRIQztI11i2h4a+6eRQnxuNnsXv5jxzplHxZlFmqz2Nk8J7vTuU7klASzWHhhHXlZOjQ0N1WC1s50eCw6Zqu469J/Br0B6uHyTwNbwu9+8leOzy6pT9CwKNqSb/uicEb9ctrJmfR0CifUIzcgiczt936btEUFSQa3RD6ZMN6zduTCW4PLeppCmJgN24I9T3NwKPoOAUTixBfUdgutavBM+Hh33iIghKXPd2CSUEsrlL69cfICi1jX3wzJdAwVoyM+1DcN4ROjbbCTKaY8J03AmWytdYBroR2DsGV+oofSPIcWtyIfhmlHzCxYFgtXavatV6ggQHCz0KBGUZMWtkdgQBMnPjIhuCRba+U8PWBD8KKxttxAReXZqqneYE6fNclz3nEIxrmwU8WEIwz2jUk2YRqJV6+mTpKneC2D+2zFB4Mlmfd/EjBVfFy4+bOyjkBe5aLW+ksCE8OlW9gYJDskbnWBWFq/lxl0bvUAguOWR4tITCgdSwmtlCCgOX9zx8m0/BmI5Kd8qmIKcCA2blFM7ljRTtS6EQkh3PswijoCkNPFK4lwJtYJgr2UVBJ6z6VIEfhaqq6BbRzxSaX9zuCPag8FNZew/jQkE9oTCo0JzCy5hmvTscCr+bhuzON6RQ0x5A4gwoFHz5lFqqrvxzFqp1fmZjgrU09ocYNrZ6VNTlRrFh29fVJo9gQxwTdMgvlI2js4X/2QazocVzHmiwZ6NzOtI1Q5WNzVeqBPNVjVDMUpy7Nb4M/wN2DPgTAAUAAA=="},"shape":[160],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1135","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1136"}}},"glyph":{"type":"object","name":"Line","id":"p1131","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1132","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1133","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1140","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1141","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1142"}}},"glyph":{"type":"object","name":"Scatter","id":"p1137","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1138","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1139","attributes":{"x":{"type":"field","field":"rho_rank"},"y":{"type":"field","field":"rho"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1110","attributes":{"tools":[{"id":"p1100"},{"id":"p1099"},{"id":"p1123"},{"id":"p1124"},{"id":"p1125"},{"id":"p1126"},{"type":"object","name":"SaveTool","id":"p1127"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1118","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1119","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1120"},"axis_label":"Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1121"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1113","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1114","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1115"},"axis_label":"Components sorted by Rho","major_label_policy":{"type":"object","name":"AllLabels","id":"p1116"}}}],"center":[{"type":"object","name":"Grid","id":"p1117","attributes":{"axis":{"id":"p1113"}}},{"type":"object","name":"Grid","id":"p1122","attributes":{"dimension":1,"axis":{"id":"p1118"}}},{"type":"object","name":"Span","id":"p1144","attributes":{"name":"elbow","location":13.021188170159789,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1145","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":13.281611933562985,"x_units":"screen"}}]}},{"type":"object","name":"Figure","id":"p1054","attributes":{"js_event_callbacks":{"type":"map","entries":[["tap",[{"id":"p1190"}]]]},"width":400,"height":400,"x_range":{"type":"object","name":"Range1d","id":"p1096","attributes":{"start":-1,"end":161}},"y_range":{"type":"object","name":"DataRange1d","id":"p1056"},"x_scale":{"type":"object","name":"LinearScale","id":"p1064"},"y_scale":{"type":"object","name":"LinearScale","id":"p1065"},"title":{"type":"object","name":"Title","id":"p1057","attributes":{"text":"Kappa Rank"}},"renderers":[{"type":"object","name":"GlyphRenderer","id":"p1087","attributes":{"data_source":{"type":"object","name":"ColumnDataSource","id":"p1081","attributes":{"selected":{"type":"object","name":"Selection","id":"p1082","attributes":{"indices":[],"line_indices":[]}},"selection_policy":{"type":"object","name":"UnionRenderers","id":"p1083"},"data":{"type":"map","entries":[["x",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3DB1cOAAAAwE8pLZLIbBoJCWlIexlpKbJSoT0kimgppYzKSmn+VHfv3a5AIBBksLsNMdQ9hhluhJFGudd9RrvfGA8Y60EPGedhj3jUYx73hPEmmGiSyaZ40lOe9oypnjXNc573guleNMNLXvaKmV41y2xzzPWaeV433wILLbLYEksts9wKK73hTW952yrvWG2NtdZZ710bbPSe923ygQ995GOf2OxTW2y1zWc+94Xtdthpl9322Guf/Q740kFfOeRr3zjsiG9956jv/eCY40446ZQfnXbGT84652fnXfCLX/3mdxddctkf/vSXv/3jin9ddc1/rrvhpltuu+N/uLDJ0YACAAA="},"shape":[160],"dtype":"int32","order":"little"}],["y",{"type":"ndarray","array":{"type":"bytes","data":"H4sIAAEAAAAA/w3QazSUCQDG8WzKbg0lTK7zvu80ZrCj0WCMjJmHdVDi1Ko1FUqkbUkKUXShBm3DrkkIo6VcR7SnNDbpXlq3RqxLcVyKljrp7CbrUNan36f/8+ER0vTL0r9sgUoxVbH5tTemHTK5tx97AtEdvvUWnshSH8gVjHlgqeUp1VC3B16lvzz+8rgHhp5ujDi9xwNISy/VTXOHWqRFXgt0g7H9iP/6bQu5OpS2qk2M6bUq7dB1Ynh9vtKQWO+K9zstZE7XXfHYuyeFayXC092S4lozEbYoByhHhQssBZ2ldbtcUKvXnOHasB5nd+de4r9whm55S0JVizP6bTrNrIKE8HBXrKJzhQh5Itb+Zd4JEzWbSi72CDDXNlg32STAyluj7s0VAuxi8e6VLBeAX3hkp9+UI9RBcje9QUdwMGRUJLOHJC8saGmEPfYLp304Ynus2axzp0rDx98JoTPNiXw0Z/N3v4/hI0YdzXnN4CNF/jrEwZgPrmhySa7XOuwY9lo2JlyHtZzIcZGBHSxW0+OKHvIWfghIywm3Bden7EB+qC00Ds8KfQJsocvYINvhxMV4mmyGNvUt5E2uVT+G2CDesKEvMNsaG9Kr5/6SWeOIYEdhXYcV6mg9eQXVVritHD732wEOQpc8jLPT46A4Ul1ZqmIj09Bw8QzJRm9JPu+UxhKLE3Ry/WWWaPhedSN4ioUixXykeScL15Vaif88YmFxcM4HdQkLrOLa/dIiFkZ31bhMHGaBF6inCI5kIaRstUTmzUIX7+TWSMc1mHePfBD9iYmgmjfVe/uZ+DPpvLVnHxNGzU0j++4xcYWdWGl5m4nYaKPz0nImTKsYqclZTJxI0Z+dDWNi+9F7Cj6PCbaewbMLa5j47uhk99YKCmcIduF8FAVzxaH4Y5EUnNb7rhAHU1AMZj+o3UZBKrgrzudSkHesMIphUhgXWnqupCjo8E4UuNEoxGjG5T1DJKKtPl0Kf0hCSyMz9r1Fwurm3YnMGyTqZSId61oSXKOAEaqGRKJOOOtgFYnlw56rIhY81jYs7yxdMMxg6fYSEvMHAzbNpJB403pxuDGWRJKL5Lw8mkRhmPYreigJZcdBfquABHv1haMkScI/Y6zkG2MSMV+11nTTSTj7JSVn6JO4TGvyj1lCQhX3iO274ANaLz1gmkDmzT7pxzECGaL3SrtRAtKysMsFAwRiDp0dtO0mEF9R1hT6nEBy9t4PVu0EmgK0ZpLbCIz3jv4svUvganfKvLCKAP0rmyxLBYH5z7pX351Y2Lk4N/oykcCN1EPsHxIIUEmNumXhBEz+KDA1DiPQKBV6xQYSSF20bJKzicCZ7mFJoA8Bszv1/UUbCVRHebq4gsDs4JEusZgArSunf8CZwFS/9tdqPoEPDnvq2nkEJI/q2yJoBCJ+im3J0SZQ2cfcyVjQ8VzUoNtzBoqr3+pHlTFAl560VSoZiGP0pGYXMPBEOc1Py2UgxFz+H/1XBvwC8yQ23gx81FK2G3AYcGoY+/dapgXexrtNGMRaYFzrRZxjmAXK3ZJfiLrMsXE47fCGXjNcXTmgqJeb4XRl7e95GlNoNF94yaWmSDWsbbE3NcX92ZGz4XMmeMdSLcq/b4Ksx/sKJb4maKToyZSDCdrjW9v6mozBP+c3oFIZo8iufOKpLx3/Az7DOeIABQAA"},"shape":[160],"dtype":"float64","order":"little"}]]}}},"view":{"type":"object","name":"CDSView","id":"p1088","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1089"}}},"glyph":{"type":"object","name":"Line","id":"p1084","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"}}},"nonselection_glyph":{"type":"object","name":"Line","id":"p1085","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.1}},"muted_glyph":{"type":"object","name":"Line","id":"p1086","attributes":{"x":{"type":"field","field":"x"},"y":{"type":"field","field":"y"},"line_alpha":0.2}}}},{"type":"object","name":"GlyphRenderer","id":"p1093","attributes":{"data_source":{"id":"p1006"},"view":{"type":"object","name":"CDSView","id":"p1094","attributes":{"filter":{"type":"object","name":"AllIndices","id":"p1095"}}},"glyph":{"type":"object","name":"Scatter","id":"p1090","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.7},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.7},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.7}}},"nonselection_glyph":{"type":"object","name":"Scatter","id":"p1091","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.1},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.1},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.1}}},"muted_glyph":{"type":"object","name":"Scatter","id":"p1092","attributes":{"x":{"type":"field","field":"kappa_rank"},"y":{"type":"field","field":"kappa"},"size":{"type":"value","value":5},"line_color":{"type":"field","field":"color"},"line_alpha":{"type":"value","value":0.2},"fill_color":{"type":"field","field":"color"},"fill_alpha":{"type":"value","value":0.2},"hatch_color":{"type":"field","field":"color"},"hatch_alpha":{"type":"value","value":0.2}}}}}],"toolbar":{"type":"object","name":"Toolbar","id":"p1063","attributes":{"tools":[{"id":"p1053"},{"id":"p1052"},{"id":"p1076"},{"id":"p1077"},{"id":"p1078"},{"id":"p1079"},{"type":"object","name":"SaveTool","id":"p1080"}],"logo":null}},"toolbar_location":null,"left":[{"type":"object","name":"LinearAxis","id":"p1071","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1072","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1073"},"axis_label":"Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1074"}}}],"below":[{"type":"object","name":"LinearAxis","id":"p1066","attributes":{"ticker":{"type":"object","name":"BasicTicker","id":"p1067","attributes":{"mantissas":[1,2,5]}},"formatter":{"type":"object","name":"BasicTickFormatter","id":"p1068"},"axis_label":"Components sorted by Kappa","major_label_policy":{"type":"object","name":"AllLabels","id":"p1069"}}}],"center":[{"type":"object","name":"Grid","id":"p1070","attributes":{"axis":{"id":"p1066"}}},{"type":"object","name":"Grid","id":"p1075","attributes":{"dimension":1,"axis":{"id":"p1071"}}},{"type":"object","name":"Span","id":"p1097","attributes":{"name":"elbow","location":9.481329036441364,"line_color":"#000033","line_alpha":0.75,"line_dash":[6]}},{"type":"object","name":"Label","id":"p1098","attributes":{"text":"elbow","text_color":"#000033","text_alpha":0.75,"text_font_size":"10px","x":20,"y":9.670955617170192,"x_units":"screen"}}]}}]}}]}},{"type":"object","name":"Column","id":"p1196","attributes":{"children":[{"id":"p1188"}]}}]}},0,0]]}}]}}';
+        const render_items = [{"docid":"960f3433-b2a5-4d1a-b312-24a87eec698d","roots":{"p1206":"fb6aa37e-656f-40de-8496-98530a72a399"},"root_ids":["p1206"]}];
+        root.Bokeh.embed.embed_items(docs_json, render_items);
+        }
+        if (root.Bokeh !== undefined) {
+          embed_document(root);
+        } else {
+          let attempts = 0;
+          const timer = setInterval(function(root) {
+            if (root.Bokeh !== undefined) {
+              clearInterval(timer);
+              embed_document(root);
+            } else {
+              attempts++;
+              if (attempts > 100) {
+                clearInterval(timer);
+                console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+              }
+            }
+          }, 10, root)
+        }
+      })(window);
+    });
+  };
+  if (document.readyState != "loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+})();
+</script>
+
+  </body>
+</html>

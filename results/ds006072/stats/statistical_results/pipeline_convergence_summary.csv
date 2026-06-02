@@ -1,0 +1,14 @@
+"metric","n_dir","n_dir_noGSR","n_sig_raw","n_sig_FDR","sign_primary","dz_primary","n_total","converge_S0"
+"eigenvector",7,6,4,0,1,1.26143843965516,7,TRUE
+"betweenness",6,6,1,0,-1,-1.06530582356563,7,TRUE
+"assortativity",6,6,2,0,-1,-1.05779940989714,7,TRUE
+"char_path_length",6,6,0,0,-1,-1.03530951544767,7,TRUE
+"clustering",6,6,0,0,1,0.972323510589223,7,TRUE
+"mean_strength",6,6,0,0,1,0.971293512870366,7,TRUE
+"global_efficiency",6,6,0,0,1,0.889893170782723,7,TRUE
+"density",7,6,0,0,1,0.782591082550288,7,TRUE
+"small_worldness",6,6,1,0,1,0.662116786827915,7,TRUE
+"modularity",7,6,0,0,-1,-0.622641653373172,7,TRUE
+"closeness",6,5,0,0,-1,-0.0283659638346467,7,TRUE
+"participation",5,5,2,0,-1,-1.11100230107444,7,FALSE
+"degree_entropy",5,4,0,0,1,0.198820958841412,7,FALSE

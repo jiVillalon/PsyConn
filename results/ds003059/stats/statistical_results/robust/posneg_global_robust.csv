@@ -1,0 +1,10 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"posneg_POS","t pareado (todos)",15,-1.44926546084044,0.169292321985628,FALSE,2
+"posneg_POS","Wilcoxon (todos)",15,29,0.0832230814775737,FALSE,2
+"posneg_POS","t pareado (sin influyentes)",14,-2.62587327918727,0.0209510547947061,TRUE,2
+"posneg_NEG","t pareado (todos)",15,2.27872900700918,0.038885680135466,TRUE,2
+"posneg_NEG","Wilcoxon (todos)",15,96,0.0437723237630412,TRUE,2
+"posneg_NEG","t pareado (sin influyentes)",14,1.97974790425153,0.069305134932292,FALSE,2
+"posneg_RATIO","t pareado (todos)",15,1.20290955354013,0.248960348916941,FALSE,2
+"posneg_RATIO","Wilcoxon (todos)",15,77,0.348688077541053,FALSE,2
+"posneg_RATIO","t pareado (sin influyentes)",14,0.681837120342302,0.507308377533061,FALSE,2

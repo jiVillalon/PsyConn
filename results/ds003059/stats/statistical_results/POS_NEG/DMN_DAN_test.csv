@@ -1,0 +1,2 @@
+"metric","n_pairs","mean_LSD","mean_PLCB","d_z","p_onesided","p_twosided","p_wilcoxon","hypothesis"
+"DMN_DAN",15,-0.0383569113186715,-0.0809140505964906,0.636320115067147,0.0136370439115282,0.0272740878230564,0.0218861618815206,"LSD > PLCB (entropic brain)"

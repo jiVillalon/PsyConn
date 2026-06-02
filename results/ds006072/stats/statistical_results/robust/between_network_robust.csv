@@ -1,0 +1,52 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"Cont ↔ Default","t pareado (todos)",6,2.95227136466122,0.0318017301060943,TRUE,2
+"Cont ↔ Default","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ Default","t pareado (sin influyentes)",6,2.95227136466122,0.0318017301060943,TRUE,2
+"Cont ↔ DorsAttn","t pareado (todos)",6,2.70612890861888,0.0424719957670112,TRUE,2
+"Cont ↔ DorsAttn","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ DorsAttn","t pareado (sin influyentes)",6,2.70612890861888,0.0424719957670112,TRUE,2
+"Cont ↔ Limbic","t pareado (todos)",6,3.21926563496691,0.023484852738195,TRUE,2
+"Cont ↔ Limbic","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ Limbic","t pareado (sin influyentes)",6,3.21926563496691,0.023484852738195,TRUE,2
+"Cont ↔ SalVentAttn","t pareado (todos)",6,2.5763972672141,0.0496485049503096,TRUE,2
+"Cont ↔ SalVentAttn","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ SalVentAttn","t pareado (sin influyentes)",6,2.5763972672141,0.0496485049503096,TRUE,2
+"Cont ↔ SomMot","t pareado (todos)",6,2.63648395639289,0.0461712196576201,TRUE,2
+"Cont ↔ SomMot","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ SomMot","t pareado (sin influyentes)",6,2.63648395639289,0.0461712196576201,TRUE,2
+"Cont ↔ Subcortex","t pareado (todos)",6,3.23294575970049,0.0231299156455677,TRUE,2
+"Cont ↔ Subcortex","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Cont ↔ Subcortex","t pareado (sin influyentes)",6,3.23294575970049,0.0231299156455677,TRUE,2
+"Cont ↔ Vis","t pareado (todos)",6,2.46482027238341,0.0568908075704437,FALSE,2
+"Cont ↔ Vis","Wilcoxon (todos)",6,19,0.0934924836898357,FALSE,2
+"Cont ↔ Vis","t pareado (sin influyentes)",6,2.46482027238341,0.0568908075704437,FALSE,2
+"Default ↔ DorsAttn","t pareado (todos)",6,2.49618181632057,0.0547452396791866,FALSE,2
+"Default ↔ DorsAttn","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Default ↔ DorsAttn","t pareado (sin influyentes)",6,2.49618181632057,0.0547452396791866,FALSE,2
+"Default ↔ Subcortex","t pareado (todos)",6,2.7867678436075,0.0385920014959596,TRUE,2
+"Default ↔ Subcortex","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Default ↔ Subcortex","t pareado (sin influyentes)",6,2.7867678436075,0.0385920014959596,TRUE,2
+"DorsAttn ↔ Limbic","t pareado (todos)",6,3.58765383618469,0.0157470159401519,TRUE,2
+"DorsAttn ↔ Limbic","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"DorsAttn ↔ Limbic","t pareado (sin influyentes)",6,3.58765383618469,0.0157470159401519,TRUE,2
+"DorsAttn ↔ Subcortex","t pareado (todos)",6,3.04791290073627,0.0284921056890423,TRUE,2
+"DorsAttn ↔ Subcortex","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"DorsAttn ↔ Subcortex","t pareado (sin influyentes)",6,3.04791290073627,0.0284921056890423,TRUE,2
+"Limbic ↔ SalVentAttn","t pareado (todos)",6,4.64738320183456,0.00559530505701593,TRUE,2
+"Limbic ↔ SalVentAttn","Wilcoxon (todos)",6,21,0.0360316862182336,TRUE,2
+"Limbic ↔ SalVentAttn","t pareado (sin influyentes)",6,4.64738320183456,0.00559530505701593,TRUE,2
+"Limbic ↔ SomMot","t pareado (todos)",6,3.34212528330489,0.0205047346397378,TRUE,2
+"Limbic ↔ SomMot","Wilcoxon (todos)",6,21,0.0360316862182336,TRUE,2
+"Limbic ↔ SomMot","t pareado (sin influyentes)",6,3.34212528330489,0.0205047346397378,TRUE,2
+"Limbic ↔ Subcortex","t pareado (todos)",6,2.91782652342956,0.0330972086355888,TRUE,2
+"Limbic ↔ Subcortex","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"Limbic ↔ Subcortex","t pareado (sin influyentes)",6,2.91782652342956,0.0330972086355888,TRUE,2
+"Limbic ↔ Vis","t pareado (todos)",6,2.60730206018758,0.0478254237122124,TRUE,2
+"Limbic ↔ Vis","Wilcoxon (todos)",6,21,0.0360316862182336,TRUE,2
+"Limbic ↔ Vis","t pareado (sin influyentes)",6,2.60730206018758,0.0478254237122124,TRUE,2
+"SalVentAttn ↔ SomMot","t pareado (todos)",6,3.48150378302347,0.0176302850067983,TRUE,2
+"SalVentAttn ↔ SomMot","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"SalVentAttn ↔ SomMot","t pareado (sin influyentes)",6,3.48150378302347,0.0176302850067983,TRUE,2
+"SomMot ↔ Subcortex","t pareado (todos)",6,2.48780817707595,0.055309356520244,FALSE,2
+"SomMot ↔ Subcortex","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"SomMot ↔ Subcortex","t pareado (sin influyentes)",6,2.48780817707595,0.055309356520244,FALSE,2

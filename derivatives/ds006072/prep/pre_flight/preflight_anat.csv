@@ -1,0 +1,8 @@
+subj,ses,n_t1w_total,n_t1w_echos,n_t1w_combine,zooms,verdict,reason
+sub-P1,ses-1,2,0,2,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P2,ses-1,1,0,1,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P3,ses-1,2,0,2,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P4,ses-1,1,0,1,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P5,ses-1,2,0,2,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P6,ses-1,1,0,1,"(0.9, 0.898, 0.898)",✓ PASS,
+sub-P7,ses-0,25,24,1,"(0.5, 0.5, 0.5)",⚠ WARN,"T1w con 24 echos individuales (modal del dataset: 0); MEMPRAGE multi-echo, alerta para §5.4.1; zooms T1w=(0.5, 0.5, 0.5) != modal=(0.9, 0.898, 0.898) (alerta para §5.4.2)"

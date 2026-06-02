@@ -1,0 +1,6 @@
+"seed","n_tests","n_sig","n_sig_wilcox","max_d_z","median_d_z","label","ref"
+"AMY",228,0,0,2.03365271616303,0.450806091145526,"Amigdala (Tian: lAMY+mAMY bilateral)","Kaelen 2015; Roseman 2018"
+"HIP",228,0,0,3.03981702915491,0.766271904898073,"Hipocampo (Tian: aHIP+pHIP bilateral)","Carhart-Harris 2014 §MTL; Kaelen 2015"
+"NAc",228,0,0,2.58295668697446,0.860891720397717,"Nucleo Accumbens (Tian: shell+core bilateral)","Muller 2018 NeuroImage Clin"
+"PUT",228,114,0,6.79568821762162,1.28833722976877,"Putamen (Tian: aPUT+pPUT bilateral)","Carhart-Harris 2012 PNAS"
+"THA",224,1,0,4.27741278511093,0.899888097692962,"Talamo (Tian: DP+VP+VA+DA bilateral)","Preller 2018 eLife; Muller 2017"

@@ -1,0 +1,13 @@
+"predictor","brain","n","rho_full","rho_no_infl","n_influential","agreement","zscore_thresh"
+"MEQ_total_PSIL","delta_global_efficiency",6,0.6,0.6,0,TRUE,2
+"MEQ_total_PSIL","delta_synch_entropy_assoc",6,-0.885714285714286,-0.885714285714286,0,TRUE,2
+"MEQ_Mystical_PSIL","delta_global_efficiency",6,0.314285714285714,0.314285714285714,0,TRUE,2
+"MEQ_Mystical_PSIL","delta_synch_entropy_assoc",6,-0.885714285714286,-0.885714285714286,0,TRUE,2
+"MEQ_Positive_Mood_PSIL","delta_global_efficiency",6,0.714285714285714,0.714285714285714,0,TRUE,2
+"MEQ_Positive_Mood_PSIL","delta_synch_entropy_assoc",6,-0.771428571428571,-0.771428571428571,0,TRUE,2
+"MEQ_Time_Space_PSIL","delta_global_efficiency",6,0.347862621391469,0.347862621391469,0,TRUE,2
+"MEQ_Time_Space_PSIL","delta_synch_entropy_assoc",6,-0.811679449913428,-0.811679449913428,0,TRUE,2
+"MEQ_Ineffability_PSIL","delta_global_efficiency",6,0.57681790368297,0.57681790368297,0,TRUE,2
+"MEQ_Ineffability_PSIL","delta_synch_entropy_assoc",6,-0.394664881467296,-0.394664881467296,0,TRUE,2
+"EBI_total_PSIL","delta_global_efficiency",6,0.657142857142857,0.657142857142857,0,TRUE,2
+"EBI_total_PSIL","delta_synch_entropy_assoc",6,-0.485714285714286,-0.485714285714286,0,TRUE,2

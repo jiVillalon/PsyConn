@@ -1,0 +1,33 @@
+{
+    "ICA accepted components img": "desc-ICAAccepted_components.nii.gz",
+    "ICA components img": "desc-ICA_components.nii.gz",
+    "ICA cross component metrics json": "desc-ICACrossComponent_metrics.json",
+    "ICA decision tree json": "desc-ICA_decision_tree.json",
+    "ICA decomposition json": "desc-ICA_decomposition.json",
+    "ICA metrics json": "desc-tedana_metrics.json",
+    "ICA metrics tsv": "desc-tedana_metrics.tsv",
+    "ICA mixing tsv": "desc-ICA_mixing.tsv",
+    "ICA status table tsv": "desc-ICA_status_table.tsv",
+    "PCA cross component metrics json": "desc-PCACrossComponent_metrics.json",
+    "PCA decomposition json": "desc-PCA_decomposition.json",
+    "PCA metrics json": "desc-PCA_metrics.json",
+    "PCA metrics tsv": "desc-PCA_metrics.tsv",
+    "PCA mixing tsv": "desc-PCA_mixing.tsv",
+    "adaptive mask img": "desc-adaptiveGoodSignal_mask.nii.gz",
+    "combined img": "desc-optcom_bold.nii.gz",
+    "denoised ts img": "desc-denoised_bold.nii.gz",
+    "fit failures img": "desc-decayFitFailures_mask.nii.gz",
+    "input img": [
+        "..\\..\\..\\..\\..\\..\\fmriprep\\t1\\sub-P4\\ses-6\\func\\sub-P4_ses-6_task-BOLDREST2_dir-PA_run-1_echo-1_part-mag_desc-preproc_bold.nii.gz",
+        "..\\..\\..\\..\\..\\..\\fmriprep\\t1\\sub-P4\\ses-6\\func\\sub-P4_ses-6_task-BOLDREST2_dir-PA_run-1_echo-2_part-mag_desc-preproc_bold.nii.gz",
+        "..\\..\\..\\..\\..\\..\\fmriprep\\t1\\sub-P4\\ses-6\\func\\sub-P4_ses-6_task-BOLDREST2_dir-PA_run-1_echo-3_part-mag_desc-preproc_bold.nii.gz",
+        "..\\..\\..\\..\\..\\..\\fmriprep\\t1\\sub-P4\\ses-6\\func\\sub-P4_ses-6_task-BOLDREST2_dir-PA_run-1_echo-4_part-mag_desc-preproc_bold.nii.gz",
+        "..\\..\\..\\..\\..\\..\\fmriprep\\t1\\sub-P4\\ses-6\\func\\sub-P4_ses-6_task-BOLDREST2_dir-PA_run-1_echo-5_part-mag_desc-preproc_bold.nii.gz"
+    ],
+    "rmse img": "desc-rmse_statmap.nii.gz",
+    "s0 img": "S0map.nii.gz",
+    "t2star img": "T2starmap.nii.gz",
+    "z-scored ICA accepted components img": "desc-ICAAccepted_stat-z_components.nii.gz",
+    "z-scored ICA components img": "desc-ICA_stat-z_components.nii.gz",
+    "z-scored PCA components img": "desc-PCA_stat-z_components.nii.gz"
+}

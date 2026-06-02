@@ -1,0 +1,7 @@
+"metric","n","BF10","BF01","evidence"
+"mean_strength",15,0.467104221338721,2.14084984531718,"anecdótica H0"
+"modularity",15,0.301663775190424,3.3149489008707,"moderada H0 (LSD ≈ PLCB)"
+"clustering",15,3.6474592578394,0.274163446199083,"moderada H1"
+"global_efficiency",15,1.32319769123941,0.755744970400698,"anecdótica H1"
+"char_path_length",15,2.03245965464861,0.492014686595533,"anecdótica H1"
+"density",15,3.26185859432263,0.306573682176331,"moderada H1"

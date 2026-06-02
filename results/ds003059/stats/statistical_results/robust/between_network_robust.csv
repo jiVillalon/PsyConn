@@ -1,0 +1,7 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"Cont ↔ Vis","t pareado (todos)",15,3.64974809092697,0.00262616940625904,TRUE,2
+"Cont ↔ Vis","Wilcoxon (todos)",15,107,0.00826562227177156,TRUE,2
+"Cont ↔ Vis","t pareado (sin influyentes)",14,5.87804018546214,5.42862639511042e-05,TRUE,2
+"Default ↔ Subcortex","t pareado (todos)",15,3.22034823126521,0.00616588123907048,TRUE,2
+"Default ↔ Subcortex","Wilcoxon (todos)",15,108,0.0069795438131406,TRUE,2
+"Default ↔ Subcortex","t pareado (sin influyentes)",14,4.2364271192712,0.000971401518596722,TRUE,2

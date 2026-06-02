@@ -1,0 +1,37 @@
+{
+    "BIDSVersion": "1.5.0",
+    "DatasetType": "derivative",
+    "GeneratedBy": [
+        {
+            "CodeURL": "https://github.com/ME-ICA/tedana",
+            "Command": "tedana -d D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-1_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-2_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-3_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-4_part-mag_desc-preproc_bold.nii.gz D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_echo-5_part-mag_desc-preproc_bold.nii.gz -e 0.0142 0.03893 0.06366 0.08839 0.11312 --out-dir D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/tedana/t2\\sub-P7\\ses-11\\BOLDREST2\\run-1 --mask D:/ProfessionalProyects/PsyConn/derivatives/ds006072/prep/fmriprep/t0\\sub-P7\\ses-11\\func\\sub-P7_ses-11_task-BOLDREST2_dir-PA_run-1_part-mag_desc-brain_mask.nii.gz --fittype curvefit --tedpca kic --tree minimal --convention bids --prefix  --overwrite",
+            "Description": "A denoising pipeline for the identification and removal of non-BOLD noise from multi-echo fMRI data.",
+            "Name": "tedana",
+            "Node": {
+                "Machine": "AMD64",
+                "Name": "DESKTOP-533QSJ9",
+                "Processor": "Intel64 Family 6 Model 165 Stepping 3, GenuineIntel",
+                "Release": "10",
+                "System": "Windows",
+                "Version": "10.0.19045"
+            },
+            "Python": "3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:39:58) [MSC v.1943 64 bit (AMD64)]",
+            "Python_Libraries": {
+                "bokeh": "3.9.0",
+                "mapca": "0.0.7",
+                "matplotlib": "3.10.6",
+                "nibabel": "5.3.2",
+                "nilearn": "0.12.1",
+                "numpy": "2.4.4",
+                "pandas": "2.3.3",
+                "robustica": "0.1.4",
+                "scikit-learn": "1.7.2",
+                "scipy": "1.17.1",
+                "threadpoolctl": "3.6.0",
+                "tqdm": "4.67.1"
+            },
+            "Version": "26.0.3"
+        }
+    ],
+    "Name": "tedana Outputs"
+}

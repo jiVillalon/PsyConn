@@ -1,0 +1,2 @@
+"n_edges","n_subj_LSD","n_subj_PLCB","median_var_LSD","median_var_PLCB","median_diff","p_wilcoxon_onesided","hypothesis"
+26796,15,15,0.0320992519319601,0.0334231501589471,-0.00144144959860734,1,"var(LSD) > var(PLCB)"

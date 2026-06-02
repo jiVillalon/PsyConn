@@ -1,0 +1,95 @@
+# ==========================================================================
+# .gitignore — PsyConn
+# ==========================================================================
+
+# --- R / RStudio (originales) ---
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# --- Credenciales / licencias personales ---
+# (Solo el license.txt de la raíz, que es una clave de software con
+#  credenciales personales — NO confundir con LICENSE/LICENSE-docs.md,
+#  que sí se publican. El patrón usa /license.txt con barra inicial
+#  para anclarlo a la raíz del repo y evitar matches con LICENSE en
+#  sistemas case-insensitive como Windows.)
+/license.txt
+
+# --- Entornos y cachés ---
+.claude/
+__pycache__/
+*.pyc
+.DS_Store
+
+# --- Dependencias de terceros con su propio repositorio ---
+# NORDIC_Raw (Steen Moeller, UMN). Se documenta en README cómo obtenerlo.
+src/external/NORDIC_Raw/
+
+# --- Carpetas raíz completas ---
+tools/
+TFM/
+docs/
+Bibliography/
+
+# --- Subcarpetas en reports/ ---
+reports/__pycache__/
+reports/_archive/
+
+# --- Subcarpetas en notebooks/ ---
+notebooks/.claude/
+notebooks/_archive/
+
+# ==========================================================================
+# derivatives/ds006072/prep/
+# ==========================================================================
+
+# --- fmriprep ---
+derivatives/ds006072/prep/fmriprep/data/texc/
+derivatives/ds006072/prep/fmriprep/data/t0/sourcedata/
+derivatives/ds006072/prep/fmriprep/data/t1/sourcedata/
+derivatives/ds006072/prep/fmriprep/data/t0/logs/
+derivatives/ds006072/prep/fmriprep/data/t1/logs/
+# Todas las sesiones por sujeto
+derivatives/ds006072/prep/fmriprep/data/t0/sub-*/ses-*/
+derivatives/ds006072/prep/fmriprep/data/t1/sub-*/ses-*/
+# Recorte agresivo: SVG de QC del nivel sub-*/figures/ (416 MB)
+derivatives/ds006072/prep/fmriprep/data/t0/sub-*/figures/
+derivatives/ds006072/prep/fmriprep/data/t1/sub-*/figures/
+
+# --- nordic ---
+derivatives/ds006072/prep/nordic/data/
+
+# --- tedana: árbol kundu y QC kundu fuera ---
+derivatives/ds006072/prep/tedana/tree/kundu/
+derivatives/ds006072/prep/tedana/qc/kundu/
+
+# --- tedana/tree/minimal: recorte agresivo ---
+# (Conservar por run-*/: tedana_report.html, report.txt, tedana_call.sh,
+#  references.bib, dataset_description.json, desc-ICA_decision_tree.json,
+#  desc-ICA_status_table.tsv, desc-tedana_metrics.{tsv,json},
+#  desc-tedana_registry.json. Lo demás fuera.)
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/*.nii.gz
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/open_rica_report.py
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/tedana_2026-*.tsv
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/figures/
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-ICA_mixing.tsv
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-ICA_decomposition.json
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-ICACrossComponent_metrics.json
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-PCA_mixing.tsv
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-PCA_metrics.tsv
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-PCA_metrics.json
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-PCA_decomposition.json
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-PCACrossComponent_metrics.json
+derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-confounds_timeseries.tsv
+
+# ==========================================================================
+# derivatives/ds006072/conn/ — conservar solo group/, fuera mtp/ y psil/
+# ==========================================================================
+derivatives/ds006072/conn/*/mtp/
+derivatives/ds006072/conn/*/psil/
+
+# ==========================================================================
+# derivatives/ds003059/ — dataset LSD descartado, fuera del alcance del TFM
+# ==========================================================================
+derivatives/ds003059/

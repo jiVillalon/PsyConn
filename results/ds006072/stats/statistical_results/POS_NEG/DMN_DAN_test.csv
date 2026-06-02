@@ -1,0 +1,2 @@
+"metric","n_pairs","mean_PSIL","mean_MTP","d_z","p_onesided","p_twosided","p_wilcoxon","hypothesis"
+"DMN_DAN",6,0.444182317587967,0.151383269736127,1.01906195919985,0.0273726198395934,0.0547452396791868,0.0295860339129297,"PSIL > MTP (entropic brain)"

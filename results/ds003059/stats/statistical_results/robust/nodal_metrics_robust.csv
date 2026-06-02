@@ -1,0 +1,13 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"nodal_eigenvector","t pareado (todos)",15,1.92957835628439,0.0741774269308857,FALSE,2
+"nodal_eigenvector","Wilcoxon (todos)",15,97,0.0381666313335627,TRUE,2
+"nodal_eigenvector","t pareado (sin influyentes)",14,3.09017833695057,0.00860797446952183,TRUE,2
+"nodal_betweenness","t pareado (todos)",15,-1.93232409548371,0.0738111935523532,FALSE,2
+"nodal_betweenness","Wilcoxon (todos)",15,30,0.09383863903411,FALSE,2
+"nodal_betweenness","t pareado (sin influyentes)",15,-1.93232409548371,0.0738111935523532,FALSE,2
+"nodal_closeness","t pareado (todos)",15,0.328364905742048,0.74749551566512,FALSE,2
+"nodal_closeness","Wilcoxon (todos)",15,55,0.798272981372542,FALSE,2
+"nodal_closeness","t pareado (sin influyentes)",13,0.59054418871597,0.565781976548106,FALSE,2
+"nodal_participation","t pareado (todos)",15,1.85325061034007,0.0850388439279786,FALSE,2
+"nodal_participation","Wilcoxon (todos)",15,90,0.09383863903411,FALSE,2
+"nodal_participation","t pareado (sin influyentes)",15,1.85325061034007,0.0850388439279786,FALSE,2

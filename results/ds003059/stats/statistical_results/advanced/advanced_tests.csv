@@ -1,0 +1,2 @@
+"metric","mean_LSD","mean_PLCB","diff","p_value","p_wilcox","d_z","d_av","shapiro_p","method","p_FDR","significant"
+"degree_entropy",5.76395213454225,5.66188547913414,0.102066655408104,0.0494025332106706,0.0500579654932533,0.555448430113144,0.688104533624945,0.635378340964031,"parallel (t + Wilcoxon)",0.120538318762689,FALSE

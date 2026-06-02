@@ -1,0 +1,7 @@
+"metric","n","W","p_shapiro","normal","note"
+"mean_strength",15,0.901148593486481,0.0990980495014251,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"
+"modularity",15,0.905389418047802,0.115072404388681,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"
+"clustering",15,0.953333430365356,0.578392966427894,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"
+"global_efficiency",15,0.923945242511015,0.221181776246457,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"
+"char_path_length",15,0.94049741713049,0.388666219067734,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"
+"density",15,0.96980540964173,0.855162598661682,TRUE,"No evidencia contra normalidad (N=15: baja potencia, Razali 2011)"

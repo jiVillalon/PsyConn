@@ -1,0 +1,4 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"adv_degree_entropy","t pareado (todos)",15,2.15124251950526,0.0494025332106706,TRUE,2
+"adv_degree_entropy","Wilcoxon (todos)",15,95,0.0500579654932533,FALSE,2
+"adv_degree_entropy","t pareado (sin influyentes)",14,1.79356796438746,0.0961645805737695,FALSE,2

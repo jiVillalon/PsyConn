@@ -1,0 +1,46 @@
+{
+  "upload_type": "software",
+  "title": "PsyConn — Pipeline reproducible multi-echo para el análisis de la conectividad funcional cerebral en estudios con psicodélicos: aplicación a la psilocibina",
+  "description": "<p>Pipeline reproducible para el análisis de la conectividad funcional cerebral en estudios con psicodélicos, aplicado al dataset abierto <strong>ds006072</strong> (Siegel et al., 2024; N=6, diseño <em>crossover</em> intra-sujeto psilocibina 25 mg vs metilfenidato, BOLD multi-echo de cinco ecos).</p><p>La cadena de procesado combina:</p><ul><li>Denoising térmico con NORDIC.</li><li>Preprocesamiento estructural y funcional con fMRIPrep multi-echo.</li><li>Combinación óptima de ecos y limpieza ICA con TEDANA, seguida de regresión de <em>confounds</em>.</li><li>Extracción de series temporales con un atlas combinado Schaefer 200 + Tian S2 (232 ROIs cortico-subcorticales).</li><li>Análisis de redes funcionales mediante métricas de teoría de grafos, dos formulaciones de entropía y análisis exploratorios complementarios.</li></ul><p>Desarrollado como Trabajo Final de Máster del Máster Universitario en Bioinformática y Bioestadística (UOC-UB), área de Desarrollo de Programas y Aplicaciones (convocatoria 06/2026).</p><p>El código se distribuye bajo licencia MIT; la documentación adjunta (memoria del TFM, informes de resultados) bajo Creative Commons Attribution 4.0 International (CC BY 4.0).</p>",
+  "creators": [
+    {
+      "name": "Villalón Luis, Juan Ignacio",
+      "orcid": "0009-0005-6987-5168"
+    }
+  ],
+  "access_right": "open",
+  "license": "MIT",
+  "language": "spa",
+  "keywords": [
+    "neuroimagen funcional",
+    "resting-state fMRI",
+    "multi-echo BOLD",
+    "conectividad funcional",
+    "teoría de grafos",
+    "entropía",
+    "psilocibina",
+    "psicodélicos",
+    "reproducibilidad",
+    "NORDIC",
+    "fMRIPrep",
+    "TEDANA",
+    "atlas Schaefer",
+    "atlas Tian",
+    "ds006072"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://openneuro.org/datasets/ds006072",
+      "relation": "isDerivedFrom",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "https://github.com/SteenMoeller/NORDIC_Raw",
+      "relation": "requires",
+      "resource_type": "software"
+    }
+  ],
+  "references": [
+    "Siegel, J. S., Subramanian, S., Perry, D., Kay, B., Gordon, E. M., Laumann, T. O., Reneau, T. R., Metcalf, N. V., Chacko, R. V., Gratton, C., Horan, C., Krimmel, S. R., Shimony, J. S., Schweiger, J. A., Wong, D. F., Bender, D. A., Scheidter, K. M., Whiting, F. I., Padawer-Curry, J. A., ... Dosenbach, N. U. F. (2024). Psilocybin desynchronizes the human brain. Nature, 632(8023), 131–138. https://doi.org/10.1038/s41586-024-07624-5"
+  ]
+}

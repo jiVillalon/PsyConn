@@ -1,0 +1,2 @@
+"metric","mean_PSIL","mean_MTP","diff","p_value","p_wilcox","d_z","d_av","shapiro_p","method","p_FDR","significant"
+"degree_entropy",5.95714942220749,5.91365294804541,0.0434964741620779,0.646849709237208,0.529368106184798,0.198820958841412,0.266350540704005,0.261604191428161,"parallel (t + Wilcoxon)",0.700753851673642,FALSE

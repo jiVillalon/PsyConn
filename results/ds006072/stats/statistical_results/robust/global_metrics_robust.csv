@@ -1,0 +1,25 @@
+"metric","test","n","statistic","p_value","significant","zscore_thresh"
+"mean_strength","t pareado (todos)",6,2.3791734970078,0.0632296612878115,FALSE,2
+"mean_strength","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"mean_strength","t pareado (sin influyentes)",6,2.3791734970078,0.0632296612878115,FALSE,2
+"global_efficiency","t pareado (todos)",6,2.17978419400508,0.0811350781962987,FALSE,2
+"global_efficiency","Wilcoxon (todos)",6,20,0.0591720678258594,FALSE,2
+"global_efficiency","t pareado (sin influyentes)",6,2.17978419400508,0.0811350781962987,FALSE,2
+"char_path_length","t pareado (todos)",6,-2.5359800386949,0.0521485251668724,FALSE,2
+"char_path_length","Wilcoxon (todos)",6,1,0.0591720678258594,FALSE,2
+"char_path_length","t pareado (sin influyentes)",6,-2.5359800386949,0.0521485251668724,FALSE,2
+"density","t pareado (todos)",6,1.91694882950051,0.113371361971768,FALSE,2
+"density","Wilcoxon (todos)",6,19,0.0934924836898357,FALSE,2
+"density","t pareado (sin influyentes)",6,1.91694882950051,0.113371361971768,FALSE,2
+"clustering","t pareado (todos)",6,2.38169646585523,0.0630323628118933,FALSE,2
+"clustering","Wilcoxon (todos)",6,19,0.0934924836898357,FALSE,2
+"clustering","t pareado (sin influyentes)",6,2.38169646585523,0.0630323628118933,FALSE,2
+"modularity","t pareado (todos)",6,-1.52515434336714,0.187736371011587,FALSE,2
+"modularity","Wilcoxon (todos)",6,5,0.29450739368011,FALSE,2
+"modularity","t pareado (sin influyentes)",6,-1.52515434336714,0.187736371011587,FALSE,2
+"assortativity","t pareado (todos)",6,-2.59106880446515,0.0487737014910757,TRUE,2
+"assortativity","Wilcoxon (todos)",6,1,0.0591720678258594,FALSE,2
+"assortativity","t pareado (sin influyentes)",6,-2.59106880446515,0.0487737014910757,TRUE,2
+"small_worldness","t pareado (todos)",6,1.62184827785953,0.165762559535966,FALSE,2
+"small_worldness","Wilcoxon (todos)",6,18,0.142213241936393,FALSE,2
+"small_worldness","t pareado (sin influyentes)",6,1.62184827785953,0.165762559535966,FALSE,2
