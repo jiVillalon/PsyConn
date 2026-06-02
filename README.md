@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20513897.svg)](https://doi.org/10.5281/zenodo.20513897)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docs: CC BY 4.0](https://img.shields.io/badge/Docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![Docs: CC BY-NC-SA 3.0 ES](https://img.shields.io/badge/Docs-CC%20BY--NC--SA%203.0%20ES-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/3.0/es/)
 
 **Pipeline reproducible multi-echo para el análisis de la conectividad funcional cerebral en estudios con psicodélicos: aplicación a la psilocibina**
 
@@ -104,8 +104,9 @@ de la cita en formato CFF.
 
 - **Código** (`src/`, `notebooks/`, scripts auxiliares): MIT — ver [`LICENSE`](LICENSE).
 - **Documentación** (memoria del TFM, informes y figuras de `reports/`):
-  Creative Commons Attribution 4.0 International (CC BY 4.0) — ver
-  [`LICENSE-docs.md`](LICENSE-docs.md).
+  Creative Commons Atribución-NoComercial-CompartirIgual 3.0 España
+  (CC BY-NC-SA 3.0 ES) — ver [`LICENSE-docs.md`](LICENSE-docs.md). Es la
+  licencia documental por defecto de la plantilla de TFM de la UOC.
 
 Los materiales de terceros reproducidos o citados en la memoria (figuras,
 citas literales, datasets) conservan sus licencias originales y se acreditan
