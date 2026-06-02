@@ -41,4 +41,17 @@ keywords:
   - ds006072
 license: MIT
 license-url: 'https://opensource.org/licenses/MIT'
-url: 'https://github.com/'
+url: 'https://github.com/jiVillalon/PsyConn'
+repository-code: 'https://github.com/jiVillalon/PsyConn'
+doi: 10.5281/zenodo.20513897
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20513897
+    description: >-
+      Concept DOI (Zenodo): identifica el proyecto como obra y resuelve siempre
+      a la última versión publicada. Es el DOI recomendado para citar PsyConn
+      en general.
+  - type: doi
+    value: 10.5281/zenodo.20513898
+    description: >-
+      Version DOI de la versión 0.1.0 (release preliminar pre-entrega).

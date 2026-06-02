@@ -1,5 +1,9 @@
 # PsyConn
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20513897.svg)](https://doi.org/10.5281/zenodo.20513897)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs: CC BY 4.0](https://img.shields.io/badge/Docs-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 **Pipeline reproducible multi-echo para el análisis de la conectividad funcional cerebral en estudios con psicodélicos: aplicación a la psilocibina**
 
 Trabajo Final de Máster (TFM) — Máster Universitario en Bioinformática y
@@ -81,10 +85,20 @@ incluido en su repositorio); consulta la atribución y los términos allí.
 ## Cómo citar
 
 Si usas este pipeline o reproduces sus resultados, por favor cita la versión
-publicada en Zenodo (el DOI se añadirá tras el primer *release*).
+publicada en Zenodo:
 
-Mientras tanto, el archivo [`CITATION.cff`](CITATION.cff) contiene los metadatos
-estructurados de la cita.
+> Villalón Luis, J. I. (2026). *PsyConn — Pipeline reproducible multi-echo para
+> el análisis de la conectividad funcional cerebral en estudios con
+> psicodélicos: aplicación a la psilocibina*. Zenodo.
+> <https://doi.org/10.5281/zenodo.20513897>
+
+El DOI anterior (`10.5281/zenodo.20513897`) es el **concept DOI**: resuelve
+siempre a la última versión disponible y es el que conviene citar en general.
+Cada *release* tiene además su propio *version DOI* (la versión 0.1.0
+preliminar corresponde a [`10.5281/zenodo.20513898`](https://doi.org/10.5281/zenodo.20513898)).
+
+El archivo [`CITATION.cff`](CITATION.cff) contiene los metadatos estructurados
+de la cita en formato CFF.
 
 ## Licencias
 
