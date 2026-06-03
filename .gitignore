@@ -17,7 +17,6 @@
 /license.txt
 
 # --- Entornos y cachés ---
-.claude/
 __pycache__/
 *.pyc
 .DS_Store
@@ -37,7 +36,6 @@ reports/__pycache__/
 reports/_archive/
 
 # --- Subcarpetas en notebooks/ ---
-notebooks/.claude/
 notebooks/_archive/
 
 # ==========================================================================
