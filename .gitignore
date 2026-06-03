@@ -62,7 +62,7 @@ derivatives/ds006072/prep/nordic/data/
 derivatives/ds006072/prep/tedana/tree/kundu/
 derivatives/ds006072/prep/tedana/qc/kundu/
 
-# --- tedana/tree/minimal: recorte agresivo ---
+# --- tedana/tree/minimal ---
 # (Conservar por run-*/: tedana_report.html, report.txt, tedana_call.sh,
 #  references.bib, dataset_description.json, desc-ICA_decision_tree.json,
 #  desc-ICA_status_table.tsv, desc-tedana_metrics.{tsv,json},
@@ -88,6 +88,7 @@ derivatives/ds006072/conn/*/mtp/
 derivatives/ds006072/conn/*/psil/
 
 # ==========================================================================
-# derivatives/ds003059/ — dataset LSD descartado, fuera del alcance del TFM
+# Dataset LSD descartado, fuera del alcance del TFM
 # ==========================================================================
 derivatives/ds003059/
+results/ds003059/
