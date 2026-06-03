@@ -1,0 +1,1408 @@
+---
+title: "PsyLSD: Conectividad funcional fMRI bajo LSD vs Placebo"
+subtitle: "TFM — Análisis de neuroimagen con R y Python"
+author: "Juan"
+date: today
+format:
+  pdf:
+    toc: true
+    number-sections: true
+jupyter: "Python (neuroenv)"
+execute:
+  engine: knitr
+  echo: true
+  warning: false
+  message: false
+  error: false
+knitr:
+  opts_chunk:
+    results: hold
+---
+
+<!-- ================================================================
+     PIPELINE DE ANÁLISIS DE CONECTIVIDAD FUNCIONAL fMRI
+     Organización:
+       1.  Entorno y configuración
+       2.  Adquisición de datos (OpenNeuro ds003059)
+       3.  Adquisición de datos (OpenNeuro ds006072)
+       4.  Preprocesamiento (fMRIPrep)
+       5.  Extracción de conectividad funcional (Python)
+       6.  Control de calidad
+       7.  Carga y validación de conectomas en R
+       8.  Análisis de redes funcionales (teoría de grafos)
+       9.  Visualización exploratoria de conectividad
+       10. Análisis estadístico: LSD vs Placebo
+       11. Análisis de sensibilidad y robustez
+       12. Métodos estadísticos complementarios (apéndices)
+       13. Figura resumen tipo paper
+     ================================================================ -->
+
+# 1 — Entorno y configuración
+
+Configuración del entorno Python (`neuroenv`) y R (`reticulate`).
+
+```{r}
+#| eval: false
+library(reticulate)
+Sys.setenv(RETICULATE_PYTHON = "C:/Users/jivil/anaconda3/envs/neuroenv/python.exe")
+use_condaenv("neuroenv", conda = "C:/Users/jivil/anaconda3/Scripts/conda.exe", required = TRUE)
+py_config()
+
+```
+
+## Instalación de Docker y NiPreps
+
+El pipeline de neuroimagen se ejecuta dentro de contenedores Docker, lo que garantiza la reproducibilidad al encapsular todas las dependencias (FSL, ANTs, FreeSurfer, AFNI) en imágenes preconfiguradas. Cada herramienta de la familia [NiPreps](https://www.nipreps.org) (NeuroImaging PREProcessing toolS) se distribuye como una imagen Docker independiente; es decir, instalar fMRIPrep **no** instala automáticamente fMRIPost-AROMA ni otras herramientas NiPreps.
+
+### 1. Docker Desktop
+
+Instalar [Docker Desktop](https://www.docker.com/products/docker-desktop/) para Windows y verificar que el servicio esté activo:
+
+```{bash}
+#| eval: false
+docker info
+```
+
+En Windows, es necesario habilitar las *Shared Drives* desde la configuración de Docker Desktop (`Settings → Resources → File Sharing`) para que los contenedores puedan acceder a los directorios de datos del proyecto mediante montajes `-v`.
+
+### 2. Imágenes Docker de NiPreps
+
+Descargamos las imágenes de las herramientas utilizadas en este pipeline:
+
+```{bash}
+#| eval: false
+# fMRIPrep — preprocesamiento mínimo de fMRI
+docker pull nipreps/fmriprep:25.2.5
+
+# fMRIPost-AROMA — denoising basado en ICA-AROMA (post-procesamiento)
+docker pull nipreps/fmripost-aroma:0.0.12
+```
+
+Verificamos que ambas imágenes estén disponibles localmente:
+
+```{bash}
+#| eval: false
+docker images | grep nipreps
+```
+
+### 3. Licencia de FreeSurfer
+
+fMRIPrep requiere una licencia gratuita de FreeSurfer para la reconstrucción de superficies corticales. Obtenerla en <https://surfer.nmr.mgh.harvard.edu/registration.html> y guardarla como `license.txt` en la carpeta raíz del proyecto (`D:\ProfessionalProyects\PsyLSD\license.txt`).
+
+
+# 2 — Adquisición de datos (OpenNeuro ds003059)
+
+## Elección del dataset
+
+El presente trabajo utiliza el dataset **ds003059** publicado en [OpenNeuro](https://openneuro.org/datasets/ds003059/versions/1.0.0), que contiene los datos de neuroimagen funcional del estudio seminal de Carhart-Harris et al. (2016) *"Neural correlates of the LSD experience revealed by multimodal neuroimaging"*, publicado en *Proceedings of the National Academy of Sciences* (PNAS). Este estudio constituye la primera investigación con neuroimagen moderna de los efectos del LSD sobre el cerebro humano, y su dataset es uno de los pocos conjuntos de datos de fMRI en estado de reposo bajo psicodélicos disponibles públicamente con formato estandarizado.
+
+La elección de este dataset se justifica por varias razones:
+
+1. **Diseño experimental riguroso:** estudio cruzado intra-sujeto (*within-subjects*), doble ciego, controlado con placebo, con orden de condiciones balanceado y al menos dos semanas de separación entre sesiones.
+2. **Relevancia científica:** el artículo original es una referencia fundamental en la investigación con psicodélicos, con hallazgos replicados posteriormente con psilocibina y ayahuasca por grupos independientes.
+3. **Formato BIDS:** los datos están organizados según el estándar *Brain Imaging Data Structure* (BIDS v1.4.0), lo que permite su procesamiento directo con pipelines como fMRIPrep sin necesidad de reorganización manual.
+4. **Licencia abierta:** publicado bajo licencia CC0, lo que permite su uso libre con fines académicos y de investigación.
+
+## Descripción del estudio original
+
+Veinte voluntarios sanos participaron en dos sesiones de adquisición (LSD y placebo) separadas por al menos dos semanas. En cada sesión se administró LSD (75 μg en 10 mL de solución salina) o placebo (10 mL de solución salina) por vía intravenosa. Las adquisiciones funcionales BOLD se realizaron en estado de reposo (*resting state*) con ojos cerrados, aproximadamente 135 minutos después de la infusión, coincidiendo con el pico de los efectos subjetivos del LSD.
+
+Tras la exclusión de un participante por ansiedad durante el escaneo y cuatro participantes adicionales por movimiento excesivo de cabeza (criterio: >15% de volúmenes con *framewise displacement* FD > 0.5), quedaron **15 sujetos** aptos para los análisis BOLD. El dataset publicado en OpenNeuro contiene estos 15 participantes.
+
+Los hallazgos principales del estudio incluyen: aumento de la conectividad funcional de V1, desintegración de la *default-mode network* (DMN) correlacionada con la disolución del ego, y desacoplamiento del circuito parahipocampo–corteza retrosplenial correlacionado con alteraciones en el significado percibido.
+
+## Estructura del dataset (BIDS)
+
+El dataset se descargó directamente desde el navegador de OpenNeuro y se almacenó en `data/openneuro/`. El archivo `dataset_description.json` identifica el dataset como versión BIDS 1.4.0, con DOI `10.18112/openneuro.ds003059.v1.0.0`. Cabe señalar que el campo `DatasetType` original es `"derivative"` (no `"raw"`); las implicaciones de esto se discuten en la @sec-nota-derivative.
+
+El dataset contiene **15 sujetos** (IDs no consecutivos: sub-001 a sub-020, con huecos correspondientes a los participantes excluidos). Cada sujeto posee la siguiente estructura:
+
+```
+openneuro/
+├── .bidsignore.txt
+├── CHANGES
+├── dataset_description.json
+├── README
+├── sub-{ID}/
+│   ├── anat/
+│   │   └── sub-{ID}_T1w.nii.gz              # Imagen anatómica T1-ponderada
+│   ├── ses-LSD/
+│   │   └── func/
+│   │       ├── sub-{ID}_ses-LSD_task-rest_bold.json    # Metadatos de adquisición
+│   │       ├── sub-{ID}_ses-LSD_task-rest_run-01_bold.nii.gz  # BOLD run 1
+│   │       ├── sub-{ID}_ses-LSD_task-rest_run-02_bold.nii.gz  # BOLD run 2
+│   │       └── sub-{ID}_ses-LSD_task-rest_run-03_bold.nii.gz  # BOLD run 3
+│   └── ses-PLCB/
+│       └── func/
+│           ├── sub-{ID}_ses-PLCB_task-rest_bold.json   # Metadatos de adquisición
+│           ├── sub-{ID}_ses-PLCB_task-rest_run-01_bold.nii.gz # BOLD run 1
+│           ├── sub-{ID}_ses-PLCB_task-rest_run-02_bold.nii.gz # BOLD run 2
+│           └── sub-{ID}_ses-PLCB_task-rest_run-03_bold.nii.gz # BOLD run 3
+```
+
+## Contenido de los datos
+
+Cada sujeto dispone de:
+
+- **1 imagen anatómica T1w** (`anat/`): imagen estructural de alta resolución utilizada como referencia para el corregistro y la normalización espacial.
+- **2 sesiones funcionales** (`ses-LSD/` y `ses-PLCB/`): correspondientes a las condiciones experimentales LSD y placebo, respectivamente.
+- **3 runs BOLD por sesión**: según el README del dataset, Rest1 y Rest3 corresponden a estado de reposo puro, mientras que Rest2 corresponde a una condición con música (tres sujetos —S03, S12, S15— presentaron problemas técnicos con la música y no deben utilizarse para ese run).
+
+Los parámetros de adquisición funcional, extraídos de los *sidecar* JSON, son:
+
+| Parámetro | Valor |
+|---|---|
+| Tiempo de repetición (TR) | 2.0 s |
+| Tiempo de eco (TE) | 35 ms |
+| Tarea | Rest (estado de reposo, ojos cerrados) |
+
+En total, el dataset contiene **105 archivos NIfTI** (15 anatómicos + 90 funcionales) y **30 archivos JSON** de metadatos, con un tamaño total de aproximadamente **15 GB**.
+
+## Validación BIDS
+
+La validación del dataset en OpenNeuro reporta una advertencia (*warning*) relevante: los archivos JSON funcionales **no incluyen el campo `SliceTiming`**, lo que significa que la corrección de *slice-timing* no podrá aplicarse automáticamente durante el preprocesamiento con fMRIPrep. Adicionalmente, el campo `Authors` en `dataset_description.json` contiene un único autor genérico (`"Robin Carhart-Harris et al."`) en lugar de un listado completo, lo cual genera una advertencia menor. El archivo `.bidsignore` excluye archivos `*.pdf` y `*.xlsx` de la validación.
+
+## Descarga
+
+Los datos fueron descargados directamente desde el navegador web de OpenNeuro, que permite seleccionar un directorio local y ejecuta la descarga en segundo plano.
+
+Alternativamente, el dataset puede descargarse desde la línea de comandos mediante AWS CLI, que ofrece reanudación automática en caso de corte de conexión (`sync` solo descarga archivos faltantes o modificados) y no requiere autenticación:
+
+```{bash}
+#| eval: false
+aws s3 sync --no-sign-request \
+  s3://openneuro.org/ds003059 \
+  D:/ProfessionalProyects/PsyConn/data/openneuro/ds003059/
+```
+
+Otros métodos de descarga incluyen DataLad (`datalad install https://github.com/OpenNeuroDatasets/ds003059.git`) o el CLI de OpenNeuro.
+
+HACER UN SCRIPT DE DESCARGA COMO EL DE ds006072!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+## Nota sobre el estado de los datos: derivados, no crudos {#sec-nota-derivative}
+
+::: {.callout-warning}
+## Los datos de ds003059 no son datos crudos (*raw*)
+
+Un análisis detallado de los archivos NIfTI reveló que el dataset publicado en OpenNeuro **no contiene datos en espacio nativo del escáner**, sino datos ya preprocesados y registrados a espacio estándar. La evidencia es la siguiente:
+
+| Indicador | Valor esperado (raw) | Valor observado |
+|---|---|---|
+| Resolución BOLD | ~3–3.5 mm (adquisición EPI típica) | **2 mm isotrópico** |
+| Resolución T1w | ~1 mm isotrópico | **2 mm isotrópico** |
+| Dimensiones espaciales | Diferentes entre sujetos | **Idénticas: 91 × 109 × 91** en todos |
+| Espacio de referencia | Nativo (escáner) | **MNI152 2mm** (affine con origen 90, −126, −72) |
+| `DatasetType` en JSON | `"raw"` | **`"derivative"`** |
+| Header NIfTI (`descrip`) | Marca del escáner | **`FSL5.0`** |
+| Volúmenes BOLD | ~220 (scan completo) | **217** (compatibles con eliminación de 3 vol. iniciales) |
+
+Según el README del dataset, el pipeline original aplicado a los datos incluyó: eliminación de los primeros 3 volúmenes, *de-spiking* (AFNI `3dDespike`), corrección de *slice-timing* (AFNI `3dTshift`), corrección de movimiento (AFNI `3dvolreg`), extracción cerebral (FSL `BET`), registro rígido al anatómico (FSL BBR / FreeSurfer `bbregister`) y **normalización no lineal a MNI 2mm** (ANTs `SyN`).
+:::
+
+### Implicaciones para el preprocesamiento con fMRIPrep
+
+Ejecutar fMRIPrep sobre estos datos derivados tiene consecuencias importantes:
+
+1. **Doble interpolación espacial:** los datos ya fueron remuestreados a MNI; fMRIPrep los remuestrea de nuevo, lo que degrada la resolución efectiva y amplifica el suavizado.
+2. **Parámetros de movimiento inválidos:** fMRIPrep estima movimiento de cabeza sobre datos ya corregidos y alineados, produciendo valores artificialmente bajos que no reflejan el movimiento real.
+3. **Confounds no fiables:** las 36 columnas del modelo 36P (6 parámetros de movimiento + derivadas + cuadrados), *framewise displacement* (FD), DVARS, aCompCor y tCompCor se calculan a partir de señales ya procesadas — su capacidad de capturar artefactos reales queda comprometida.
+4. **ICA-AROMA ineficaz:** la clasificación de componentes ICA en "ruido" vs. "señal" depende de características espaciales y temporales que están distorsionadas por el preprocesamiento previo.
+5. **Segmentación tisular degradada:** las máscaras de sustancia blanca y LCR que fMRIPrep genera requieren un T1w en espacio nativo a ~1 mm; el T1w disponible está en MNI a 2 mm.
+
+En resumen, **ninguna estrategia de denoising moderna** (36P, ICA-AROMA, aCompCor/tCompCor, scrubbing basado en FD) funciona correctamente sobre datos que ya han sido registrados a espacio estándar y corregidos por movimiento.
+
+### Acciones tomadas
+
+Se ha contactado a los autores del estudio original (Prof. Robin Carhart-Harris, UCSF; Dr. Leor Roseman, Imperial College London; Prof. Suresh Muthukumaraswamy, University of Auckland) para solicitar los datos en espacio nativo del escáner, así como metadatos adicionales no incluidos en el dataset público (datos demográficos, orden de administración, puntuaciones de cuestionarios subjetivos y `SliceTiming`).
+
+### Conclusión: estrategia de denoising aplicable post hoc {#sec-ds003059-denoising}
+
+A pesar de las limitaciones expuestas, ds003059 admite una estrategia de denoising **complementaria** a la ya aplicada por los autores. La pregunta no es *si* aplicar denoising, sino *cuál* es defendible sobre datos que ya han sufrido (Carhart-Harris et al., 2016; README de OpenNeuro):
+
+1. Eliminación de los 3 primeros volúmenes, *de-spiking* (AFNI `3dDespike`), corrección de *slice-timing* (`3dTshift`) y de movimiento (`3dvolreg`).
+2. Extracción cerebral (FSL `BET`), registro rígido al T1w (FSL `BBR` / FreeSurfer `bbregister`) y normalización no lineal a MNI 2 mm (ANTs `SyN`).
+3. *Scrubbing* con FD > 0.4 mm y sustitución del volumen contaminado por la media de los vecinos (Power et al., 2012).
+4. Suavizado gaussiano de 6 mm FWHM, *bandpass* 0.01–0.08 Hz (`3dFourier`) y *detrending* lineal+cuadrático (`3dDetrend`).
+5. Regresión de **9 ruidos**: 6 parámetros de movimiento + 3 anatómicos (ventrículos, *draining veins* CSF–ventrículos, *local WM* en esfera de 25 mm; Jo et al., 2010).
+
+**Lo que sigue siendo viable** sobre estos datos:
+
+- **GSR (regresión de la señal global) post hoc**: la señal global se calcula a partir de la máscara cerebral en MNI y se regresa de las series temporales. Es independiente del estado de preprocesamiento y permite testar la sensibilidad de los efectos a la centralización a media cero (Murphy & Fox, 2017; Fox et al., 2009).
+- **aCompCor con priores tisulares MNI**: los 5 primeros componentes principales de las máscaras erosionadas de WM y LCR (ICBM 2009) capturan varianza fisiológica vóxel-específica que la regresión de la *media* tisular del pipeline original (ítem 5) no extrae (Behzadi et al., 2007; Muschelli et al., 2014). Sustituye al aCompCor de fMRIPrep, no disponible aquí, y preserva las anti-correlaciones DMN ↔ task-positive sin invertirlas (Chai et al., 2012).
+- **DVARS post hoc** como métrica de *scrubbing* residual: DVARS (RMS de la diferencia frame-a-frame; Power et al., 2012) se calcula directamente sobre la señal actual y refleja artefactos temporales que sobrevivieron al *scrubbing* original por FD. Reemplaza la FD —no recuperable— como red de seguridad temporal.
+- **Re-aplicación de bandpass + detrending suave** (0.01–0.08 Hz) en el masker de Nilearn: garantiza estado espectral consistente entre pipelines y elimina cualquier deriva residual.
+
+**Lo que no es viable**: (i) modelos paramétricos de movimiento (24P/36P) — los parámetros originales no están publicados en el dataset; (ii) FD recalculada — los datos están corregidos por movimiento, cualquier FD nueva es artificialmente baja; (iii) ICA-AROMA — sus plantillas espaciales asumen datos no remuestreados a MNI (Pruim et al., 2015).
+
+### Triangulación metodológica para ds003059 {#sec-ds003059-triangulacion}
+
+Siguiendo la lógica de triangulación validada en PsiloConn (§6.4), se ejecutan **tres pipelines en paralelo** sobre los datos derivados de ds003059. La triangulación está diseñada para aislar (i) el efecto de la GSR adicional, (ii) la captura de varianza fisiológica residual por aCompCor, y (iii) la robustez del efecto del LSD frente a estas dos manipulaciones del denoising.
+
+| Pipeline | Regresión post hoc | GSR | DVARS-scrub | Bandpass | Propósito |
+|---|---|---|---|---|---|
+| **AsIs** (primario) | — (solo masker) | No | Sí | 0.01–0.08 Hz | Replicación fiel de Carhart-Harris et al. (2016): aprovecha el denoising original (9 regresores + scrubbing FD + bandpass) sin añadir regresión adicional |
+| **AsIs + GSR** (sensibilidad) | Señal global cerebral | **Sí** | Sí | 0.01–0.08 Hz | Análisis de sensibilidad al sesgo de centrado en cero (Murphy & Fox, 2017; Fox et al., 2009) |
+| **AsIs + aCompCor** (control fisiológico) | 5 PC WM + 5 PC CSF (priores ICBM 2009 erosionados) | No | Sí | 0.01–0.08 Hz | Captura varianza fisiológica residual sin invertir anti-correlaciones (Behzadi et al., 2007; Chai et al., 2012; Muschelli et al., 2014) |
+
+**Pipeline primario: AsIs.** Los datos publicados en OpenNeuro reflejan el preprocesamiento exacto del estudio original (Carhart-Harris et al., 2016, *PNAS*); este pipeline preserva esa fidelidad y aplica únicamente *standardize*, *detrend* y *bandpass* 0.01–0.08 Hz dentro del masker para garantizar estado consistente entre pipelines. Cualquier resultado en este pipeline reproduce —en lo posible— el procesamiento del paper original.
+
+**Control 1: AsIs + GSR.** Añade GSR sobre la señal residual: la señal media intracerebral se regresa de cada vóxel antes del cálculo de la matriz de conectividad. Si los efectos de LSD aparecen *solo* bajo GSR, la dirección del efecto es atribuible al sesgo matemático de centrado en cero (Murphy & Fox, 2017); si los efectos *desaparecen* solo con GSR, GSR puede estar eliminando señal global de origen neural —especialmente relevante en el estado psicodélico, donde la "desincronización" cortical aumenta la varianza global (Carhart-Harris et al., 2014, *entropic brain*; Schölvinck et al., 2010; Wong et al., 2012, 2013).
+
+**Control 2: AsIs + aCompCor.** Añade los 5 primeros componentes principales de las máscaras erosionadas de sustancia blanca y LCR (ICBM 2009 priors), aproximando el aCompCor original de Behzadi et al. (2007). El pipeline original aplicó la **media** de WM/ventrículos como regresor; aCompCor extrae los modos de varianza dominantes en lugar de la media, capturando ruido fisiológico no-uniforme (Muschelli et al., 2014). Permite preservar las anti-correlaciones DMN ↔ task-positive sin invertirlas matemáticamente (Chai et al., 2012).
+
+**Capa común: censurado por DVARS.** Como la FD original no está publicada, los tres pipelines comparten un *scrubbing* residual basado en DVARS: volúmenes con DVARS > mediana + 1.5·MAD se introducen como *spike regressors* (regresores delta unitarios) en la matriz de confounds (Power et al., 2012, 2014). Esto detecta artefactos temporales residuales que el *scrubbing* original por FD no eliminó, y unifica la red de seguridad temporal entre los tres pipelines. Si > 15 % de los volúmenes resultan censurados, el run se excluye (Parkes et al., 2018).
+
+**Lógica de triangulación:**
+
+- **Efecto en los 3 pipelines** → robusto frente a GSR y aCompCor adicionales; la conclusión del paper original se sostiene bajo dos manipulaciones independientes del denoising.
+- **Efecto solo en AsIs + GSR** → sospechoso de artefacto inducido por la centralización a media cero (Murphy & Fox, 2017; Saad et al., 2012).
+- **Efecto en AsIs y AsIs + aCompCor pero no en AsIs + GSR** → GSR puede estar eliminando señal global de origen neural relevante para el estado LSD (Carhart-Harris et al., 2014; Schölvinck et al., 2010).
+- **Efecto solo en AsIs + aCompCor (no en AsIs)** → varianza fisiológica residual no capturada por los regresores de *media* tisular del pipeline original; el efecto se "desenmascara" al sustituir medias por componentes principales (Behzadi et al., 2007; Muschelli et al., 2014).
+- **Efecto solo en AsIs (desaparece con GSR y aCompCor)** → posible artefacto residual del pipeline original que ambas regresiones adicionales eliminan; la interpretación como efecto neural debe cuestionarse.
+
+Esta triangulación es **menos potente** que la de PsiloConn (donde TEDANA opera sobre datos multi-eco con criterio físico TE-dependiente; §6.4), pero es la mejor disponible sobre un dataset ya pre-procesado en MNI 2 mm. Cuantifica la robustez de los hallazgos del paper original frente a las dos manipulaciones más debatidas en la literatura de denoising single-echo (Ciric et al., 2017; Parkes et al., 2018).
+
+
+
+
+
+
+# 5 — Extracción de conectividad funcional (Python)
+
+
+
+## 4.1 Series temporales y matrices de conectividad
+
+
+```{python}
+#| eval: false
+#=============================================================================
+# FASE 4 — Extracción de conectividad funcional (ds003059)
+# 4.1 — Extracción de series temporales y matrices de conectividad
+#=============================================================================
+# Tres pipelines de denoising ejecutados en paralelo sobre los datos derivados
+# de ds003059 (preprocesados por los autores: scrubbing FD>0.4, bandpass
+# 0.01–0.08 Hz, detrending L+Q, suavizado 6mm FWHM y regresión de 9 ruidos —
+# 6 movimiento + 3 anatómicos —; Carhart-Harris et al., 2016, README OpenNeuro):
+#
+#   1. AsIs            (primario)        — replicación fiel del paper original
+#   2. AsIs + GSR      (sensibilidad)    — añade regresión de la señal global
+#   3. AsIs + aCompCor (control fisiol.) — añade 5 PC WM + 5 PC CSF (ICBM 2009)
+#
+# Capa común: censurado por DVARS post hoc (mediana + 1.5·MAD) — la FD original
+# no está publicada, DVARS es la única señal de calidad temporal recuperable.
+# Solo se procesan run-01 y run-03 (run-02 = música, no resting-state).
+#
+# Lógica de triangulación (Murphy & Fox, 2017; Behzadi et al., 2007):
+#   - Efecto en 3/3 pipelines       → robusto frente a GSR y aCompCor
+#   - Solo en AsIs+GSR              → sospechoso de centrado-en-cero (Murphy 2017)
+#   - En AsIs y AsIs+aCompCor pero no en AsIs+GSR → GSR puede eliminar señal
+#                                                   global neural (entropic brain)
+#   - Solo en AsIs+aCompCor         → varianza fisiológica residual no captada
+#                                     por la media tisular del pipeline original
+#   - Solo en AsIs                  → posible artefacto residual del pipeline
+#                                     original; ambas regresiones lo eliminan
+#=============================================================================
+
+import os
+import functools
+import traceback
+import numpy as np
+import pandas as pd
+
+# Forzar flush automático en todos los prints
+print = functools.partial(print, flush=True)
+
+os.environ.setdefault("OMP_NUM_THREADS",      "1")
+os.environ.setdefault("MKL_NUM_THREADS",      "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
+from scipy.ndimage import binary_erosion
+from sklearn.decomposition import PCA
+from nilearn import datasets, image, masking
+from nilearn.maskers import NiftiLabelsMasker
+
+# -----------------------------------------------------------------------------
+# 1. Rutas — ds003059 (datos derivados; sin confounds TSV publicados)
+# -----------------------------------------------------------------------------
+MAIN_DIR        = "F:/JIVillL/openneuro/ds003059"
+OUT_BASE_ASIS   = "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs"
+OUT_BASE_GSR    = "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_GSR"
+OUT_BASE_ACOMP  = "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_aCompCor"
+STATS_DIR       = "D:/ProfessionalProyects/PsyConn/results/ds003059/stats"
+# QA: DVARS por run se persiste en CSV para que §6.1 (R) lo lea sin recomputar
+# desde el BOLD. Compartido entre pipelines (DVARS depende del BOLD, no del
+# pipeline de denoising).
+QA_DIR          = "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/qa"
+
+# -----------------------------------------------------------------------------
+# 2. Sujetos, sesiones y runs
+# -----------------------------------------------------------------------------
+# Solo run-01 y run-03: el run-02 corresponde a escucha de música ("Rest2 is
+# music", README OpenNeuro), no es resting-state, y se excluye de la
+# extracción de conectividad funcional intrínseca.
+# -----------------------------------------------------------------------------
+SUBJECTS = sorted(
+    d for d in os.listdir(MAIN_DIR)
+    if os.path.isdir(os.path.join(MAIN_DIR, d)) and d.startswith("sub-")
+)
+SESSIONS = ["ses-LSD", "ses-PLCB"]
+RUNS     = [1, 3]
+
+# Parámetros del modelo aCompCor / DVARS
+N_COMPCOR     = 5      # 5 PCs por tejido (Behzadi et al., 2007; Ciric et al., 2017)
+TISSUE_THRESH = 0.90   # umbral de probabilidad tisular (priores ICBM 2009).
+                       # Más restrictivo que el 0.5 común en fMRIPrep para
+                       # máscaras de sujeto, pero los priores ICBM son
+                       # probabilísticamente más suaves y requieren cierta
+                       # exigencia para evitar contaminación con materia gris.
+N_ERODE_WM    = 1      # erosión 3D en WM: reduce contaminación con córtex
+                       # adyacente (frontera difusa en priores ICBM).
+N_ERODE_CSF   = 0      # NO erosionar CSF: los priores ICBM ya concentran la
+                       # alta probabilidad CSF en el núcleo ventricular;
+                       # erosionar deja la máscara en ~270 vóxeles (muy
+                       # restrictiva para PCA de 5 componentes; Behzadi 2007
+                       # canónico usa 500–2000 vox CSF).
+DVARS_K       = 1.5    # umbral DVARS = mediana + K·MAD (k=1.5 ≈ Power 2014)
+TR             = 2.0   # repetition time (s) — Carhart-Harris et al., 2016
+
+# Censurado por % de volúmenes scrubbed: criterio en dos niveles (Parkes 2018
+# como warning, Birn 2013 como hard cut). Permite distinguir runs con
+# outliers aislados (warning, conservados con flag) de runs con motion
+# contamination sistemática (excluidos). Coherente con PsiloConn §5.b.
+PCT_CENSOR_WARN = 15.0  # flag para revisión QA, run conservado (Parkes 2018)
+PCT_CENSOR_HARD = 25.0  # exclusión dura: <5 min restantes en runs de 7 min
+                        # (Birn et al., 2013, NeuroImage: SNR insuficiente
+                        # para conectividad estable por debajo de 5 min)
+
+# Shape esperada de cada matriz de conectividad (Schaefer 200 + Tian 32 = 232).
+# Idempotencia: si un connectome ya existe con esta shape se omite el
+# reprocesado; si existe con shape distinta (e.g., 200×200 de una corrida
+# previa con Schaefer-only) se sobrescribe. Misma lógica que PsiloConn §5.b.
+EXPECTED_SHAPE = (232, 232)
+
+# ------------------------------------------------------------------------------
+# 3. Atlas combinado Schaefer 200 + Tian S2 (232 ROIs cortex+subcortex)
+# ------------------------------------------------------------------------------
+# Construido en PsiloConn §6.7 / §sec-... y guardado en
+# D:/ProfessionalProyects/PsyConn/derivatives/atlas/.
+# IDs 1–200 = Schaefer Yeo-7 (cortex); IDs 201–232 = Tian S2 (subcortex:
+# tálamo, estriado, palidio, hipocampo, amígdala). Mismo espacio
+# MNI152NLin2009cAsym 2 mm que ds003059. Compartirlo entre datasets garantiza
+# matrices 232×232 directamente comparables (LSD vs psilocibina).
+# ------------------------------------------------------------------------------
+ATLAS_DIR  = "D:/ProfessionalProyects/PsyConn/derivatives/atlas"
+ATLAS_PATH = os.path.join(ATLAS_DIR, "Schaefer200_Tian32_MNI2009c.nii.gz")
+if not os.path.exists(ATLAS_PATH):
+    raise FileNotFoundError(
+        f"Atlas combinado no encontrado en {ATLAS_PATH}. "
+        f"Ejecuta primero el chunk de construcción del atlas en PsiloConn §6.7."
+    )
+print(f"Cargando atlas combinado Schaefer 200 + Tian S2 (232 ROIs):")
+print(f"  {ATLAS_PATH}")
+
+# ------------------------------------------------------------------------------
+# 4. Priores tisulares MNI (ICBM 2009 — coherentes con la rejilla del dataset)
+# ------------------------------------------------------------------------------
+# fetch_icbm152_2009 devuelve mapas probabilísticos de WM, CSF, GM y máscara
+# cerebral en espacio MNI152NLin2009cAsym (1 mm). Los datos del paciente
+# están en MNI152 2 mm (`FSL5.0` en el header NIfTI; ver §sec-nota-derivative);
+# nilearn los resamplea automáticamente al ajustar al BOLD del run con
+# `image.resample_to_img`. Behzadi et al. (2007) y Muschelli et al. (2014)
+# erosionan las máscaras tisulares para minimizar contaminación con materia
+# gris en la frontera (volumen parcial).
+# ------------------------------------------------------------------------------
+print("Cargando priores tisulares MNI (ICBM 2009: WM, CSF, brain mask)...")
+icbm = datasets.fetch_icbm152_2009()
+
+def make_eroded_mask(prob_img_path, ref_img, thresh, n_erode):
+    """Resamplea + umbraliza + erosiona un mapa de probabilidad tisular."""
+    pm   = image.resample_to_img(prob_img_path, ref_img,
+                                 interpolation="linear",
+                                 force_resample=True, copy_header=True)
+    mask = pm.get_fdata() > thresh
+    if n_erode > 0:
+        mask = binary_erosion(mask, iterations=n_erode)
+    return image.new_img_like(ref_img, mask.astype(np.uint8))
+
+def make_brain_mask(brain_prob_path, ref_img, thresh=0.5):
+    """Máscara cerebral binarizada y resampleada al BOLD (sin erosión)."""
+    pm   = image.resample_to_img(brain_prob_path, ref_img,
+                                 interpolation="linear",
+                                 force_resample=True, copy_header=True)
+    mask = pm.get_fdata() > thresh
+    return image.new_img_like(ref_img, mask.astype(np.uint8))
+
+# ------------------------------------------------------------------------------
+# 5. Masker común — bandpass + standardize + detrend
+# ------------------------------------------------------------------------------
+# Los datos ya tienen bandpass 0.01–0.08 Hz aplicado por el pipeline original.
+# Re-aplicarlo en el masker no añade filtrado nuevo (los datos ya están en
+# esa banda) pero garantiza estado espectral consistente y elimina cualquier
+# deriva residual introducida por el resampleo MNI-2mm. detrend + standardize
+# son inocuos sobre datos ya detrendados (operación idempotente en señales
+# centradas) y armonizan la escala entre pipelines.
+# ------------------------------------------------------------------------------
+masker = NiftiLabelsMasker(
+    labels_img=ATLAS_PATH,
+    standardize=True,
+    detrend=True,
+    low_pass=0.08,
+    high_pass=0.01,
+    t_r=TR,
+    resampling_target="data",
+    verbose=0,
+)
+
+# Imagen de referencia para fit() — primer BOLD encontrado
+_ref = next(
+    (os.path.join(MAIN_DIR, s, ses, "func",
+                  f"{s}_{ses}_task-rest_run-{r:02d}_bold.nii.gz")
+     for s in SUBJECTS for ses in SESSIONS for r in RUNS
+     if os.path.exists(os.path.join(MAIN_DIR, s, ses, "func",
+                       f"{s}_{ses}_task-rest_run-{r:02d}_bold.nii.gz"))),
+    None,
+)
+if _ref is None:
+    raise FileNotFoundError("No se encontró ningún BOLD de ds003059 — revisa MAIN_DIR.")
+
+print(f"  Referencia para fit() y máscaras: {os.path.basename(_ref)}")
+masker.fit(_ref)
+
+# Pre-construir máscaras una sola vez (todos los sujetos comparten rejilla MNI)
+_ref_img    = image.load_img(_ref)
+brain_mask  = make_brain_mask(icbm["mask"], _ref_img, thresh=0.5)
+wm_mask     = make_eroded_mask(icbm["wm"],  _ref_img, TISSUE_THRESH, N_ERODE_WM)
+csf_mask    = make_eroded_mask(icbm["csf"], _ref_img, TISSUE_THRESH, N_ERODE_CSF)
+print(f"  Máscaras MNI listas — brain: {int(brain_mask.get_fdata().sum())} vox, "
+      f"WM(>{TISSUE_THRESH}, erode={N_ERODE_WM}): {int(wm_mask.get_fdata().sum())} vox, "
+      f"CSF(>{TISSUE_THRESH}, erode={N_ERODE_CSF}): {int(csf_mask.get_fdata().sum())} vox")
+
+# ------------------------------------------------------------------------------
+# 6. Funciones auxiliares: GSR, aCompCor, DVARS, extracción
+# ------------------------------------------------------------------------------
+def compute_gsr_regressor(bold_img, brain_mask_img):
+    """Señal global cerebral = media intra-máscara por volumen.
+
+    Returns: (T, 1) ndarray
+    """
+    ts = masking.apply_mask(bold_img, brain_mask_img)  # (T, N_vox)
+    return ts.mean(axis=1, keepdims=True)
+
+def compute_compcor_pcs(bold_img, tissue_mask_img, n_comp):
+    """Primeros n_comp componentes principales de los vóxeles de un tejido.
+
+    Implementación canónica de Behzadi et al. (2007): se centra cada vóxel,
+    se aplica PCA temporal y se devuelven los scores (series temporales de
+    los PCs). Cada PC es una señal de longitud T.
+
+    Returns: (T, n_comp) ndarray
+    """
+    ts = masking.apply_mask(bold_img, tissue_mask_img)  # (T, N_vox)
+    ts = ts - ts.mean(axis=0, keepdims=True)
+    n_comp_eff = min(n_comp, ts.shape[1], ts.shape[0])
+    pca = PCA(n_components=n_comp_eff)
+    return pca.fit_transform(ts)
+
+def compute_dvars(bold_img, brain_mask_img):
+    """DVARS frame-a-frame (RMS de la diferencia BOLD intra-máscara).
+
+    Power et al. (2012, 2014). Convención: DVARS[0] = 0 (no hay frame previo).
+
+    Returns: (T,) ndarray
+    """
+    ts   = masking.apply_mask(bold_img, brain_mask_img)  # (T, N_vox)
+    diff = np.diff(ts, axis=0)
+    dvars = np.sqrt(np.mean(diff ** 2, axis=1))
+    return np.concatenate([[0.0], dvars])
+
+def dvars_spike_regressors(dvars, k=DVARS_K):
+    """Detecta volúmenes con DVARS > mediana + k·MAD y devuelve spike regressors.
+
+    Returns: (spike_array (T, n_spikes), n_censored, pct_censored)
+    """
+    med   = np.median(dvars)
+    mad   = np.median(np.abs(dvars - med)) * 1.4826  # MAD-as-σ (Huber)
+    thr   = med + k * mad
+    flags = dvars > thr
+    n     = int(flags.sum())
+    if n == 0:
+        return None, 0, 0.0
+    spikes = np.zeros((len(dvars), n))
+    for i, idx in enumerate(np.where(flags)[0]):
+        spikes[idx, i] = 1.0
+    return spikes, n, n / len(dvars) * 100
+
+def output_exists_with_shape(out_dir, prefix, expected_shape=EXPECTED_SHAPE):
+    """True si {prefix}_connectome.npy ya existe con la shape esperada.
+
+    Lectura via mmap_mode para inspeccionar la shape sin cargar la matriz
+    en memoria. Cualquier error de lectura → se considera que NO existe
+    válidamente y se reprocesa.
+    """
+    out_npy = os.path.join(out_dir, f"{prefix}_connectome.npy")
+    if not os.path.exists(out_npy):
+        return False, None
+    try:
+        existing_shape = np.load(out_npy, mmap_mode="r").shape
+    except Exception:
+        return False, None
+    return existing_shape == expected_shape, existing_shape
+
+def extract_and_save(func_file, confounds_array, out_dir, prefix, label):
+    """Extrae timeseries con el masker, calcula correlación Pearson,
+    transforma a z-Fisher y guarda timeseries + zcorr.csv + connectome.npy.
+
+    Idempotencia (misma lógica que PsiloConn §5.b.1): si
+    {prefix}_connectome.npy ya existe con la shape esperada (EXPECTED_SHAPE),
+    se omite el reprocesado. Si existe con shape distinta o no se puede leer,
+    se reprocesa y sobrescribe.
+    """
+    ok, existing_shape = output_exists_with_shape(out_dir, prefix)
+    if ok:
+        print(f"  {label}: ya existe ({prefix}_connectome.npy, "
+              f"shape={existing_shape}), skip")
+        return True
+    if existing_shape is not None:
+        print(f"  {label}: existe con shape={existing_shape} "
+              f"≠ {EXPECTED_SHAPE} — reprocesando y sobrescribiendo")
+
+    try:
+        timeseries = masker.transform(func_file, confounds=confounds_array)
+        print(f"  {label} shape: {timeseries.shape}")
+
+        np.savetxt(os.path.join(out_dir, f"{prefix}_timeseries.csv"),
+                   timeseries, delimiter=",")
+
+        corr   = np.corrcoef(timeseries.T)
+        corr   = np.nan_to_num(corr, nan=0.0)
+        corr   = np.clip(corr, -0.999999, 0.999999)
+        z_corr = np.arctanh(corr)
+        np.fill_diagonal(z_corr, 0)
+
+        csv_out = os.path.join(out_dir, f"{prefix}_zcorr.csv")
+        npy_out = os.path.join(out_dir, f"{prefix}_connectome.npy")
+        np.savetxt(csv_out, z_corr, delimiter=",")
+        np.save(npy_out, z_corr)
+        print(f"  {label} guardado: {os.path.basename(csv_out)}")
+        return True
+
+    except Exception:
+        print(f"  ERROR {label}:")
+        traceback.print_exc()
+        return False
+
+# ------------------------------------------------------------------------------
+# 7. Loop principal — AsIs / AsIs+GSR / AsIs+aCompCor (DVARS-scrub común)
+# ------------------------------------------------------------------------------
+for subj in SUBJECTS:
+    for ses in SESSIONS:
+        func_dir   = os.path.join(MAIN_DIR, subj, ses, "func")
+        cond_label = ses.split("-")[1].lower()  # "lsd" / "plcb"
+        out_dir_asis  = os.path.join(OUT_BASE_ASIS,  cond_label, subj)
+        out_dir_gsr   = os.path.join(OUT_BASE_GSR,   cond_label, subj)
+        out_dir_acomp = os.path.join(OUT_BASE_ACOMP, cond_label, subj)
+        os.makedirs(out_dir_asis,  exist_ok=True)
+        os.makedirs(out_dir_gsr,   exist_ok=True)
+        os.makedirs(out_dir_acomp, exist_ok=True)
+
+        for run in RUNS:
+            run_label   = f"run-{run:02d}"
+            bids_prefix = f"{subj}_{ses}_task-rest_{run_label}"
+            out_prefix  = f"{subj}_{ses}_{run_label}"
+            func_file   = os.path.join(func_dir, f"{bids_prefix}_bold.nii.gz")
+
+            if not os.path.exists(func_file):
+                print(f"  Omitido: {subj} {ses} {run_label} (BOLD ausente)")
+                continue
+
+            # QA path para DVARS (compartido entre los 3 pipelines).
+            qa_subj_dir = os.path.join(QA_DIR, subj)
+            os.makedirs(qa_subj_dir, exist_ok=True)
+            dvars_csv   = os.path.join(qa_subj_dir, f"{out_prefix}_dvars.csv")
+
+            # Early-skip a nivel de run: si los 3 conectomas ya existen con la
+            # shape esperada Y el CSV de DVARS también, evita cargar el BOLD y
+            # recomputar regresores. Idempotencia fuerte sobre datos derivados
+            # pesados (ds003059).
+            all_exist = (
+                all(output_exists_with_shape(d, out_prefix)[0]
+                    for d in (out_dir_asis, out_dir_gsr, out_dir_acomp))
+                and os.path.exists(dvars_csv)
+            )
+            if all_exist:
+                print(f"  {subj} {ses} {run_label}: 3 conectomas + DVARS ya "
+                      f"existen — skip run completo")
+                continue
+
+            print(f"\nProcesando {subj} | {ses} | {run_label}")
+            bold_img = image.load_img(func_file)
+            n_vol    = bold_img.shape[3]
+
+            # ------------------ Capa común: DVARS-scrub --------------------
+            dvars  = compute_dvars(bold_img, brain_mask)
+            spikes, n_censored, pct_censored = dvars_spike_regressors(dvars,
+                                                                       k=DVARS_K)
+            # Persistir DVARS en CSV (idempotente: solo escribe si falta).
+            # §6.1 lo lee sin recargar el BOLD.
+            if not os.path.exists(dvars_csv):
+                pd.DataFrame({
+                    "volume": np.arange(n_vol),
+                    "dvars":  dvars,
+                }).to_csv(dvars_csv, index=False)
+            print(f"  DVARS: med={np.median(dvars):.2f}, "
+                  f"MAD-σ={np.median(np.abs(dvars - np.median(dvars))) * 1.4826:.2f}; "
+                  f"censurados {n_censored}/{n_vol} ({pct_censored:.1f}%)")
+
+            # Criterio en dos niveles:
+            #   > PCT_CENSOR_HARD → exclusión (Birn 2013: <5 min de datos)
+            #   > PCT_CENSOR_WARN → warning + flag, run conservado (Parkes 2018)
+            min_retained = (n_vol - n_censored) * TR / 60.0
+            if pct_censored > PCT_CENSOR_HARD:
+                print(f"  ⚠⚠ {pct_censored:.1f}% > {PCT_CENSOR_HARD}% — "
+                      f"run EXCLUIDO ({min_retained:.1f} min restantes < 5 min, "
+                      f"Birn 2013)")
+                continue
+            if pct_censored > PCT_CENSOR_WARN:
+                print(f"  ⚠ {pct_censored:.1f}% > {PCT_CENSOR_WARN}% — "
+                      f"FLAG QA, run conservado ({min_retained:.1f} min "
+                      f"restantes ≥ 5 min)")
+
+            # ------------------ Pipeline 1: AsIs ---------------------------
+            # Sin regresión adicional. Solo spike regressors si los hay.
+            conf_asis = spikes  # ndarray (T, n_spikes) o None
+            n_asis    = 0 if conf_asis is None else conf_asis.shape[1]
+            print(f"  AsIs: {n_asis} confounds (0 base + {n_censored} spikes)")
+            extract_and_save(func_file, conf_asis, out_dir_asis,
+                             out_prefix, "AsIs")
+
+            # ------------------ Pipeline 2: AsIs + GSR ---------------------
+            gs = compute_gsr_regressor(bold_img, brain_mask)  # (T, 1)
+            conf_gsr = (np.hstack([gs, spikes])
+                        if spikes is not None else gs)
+            print(f"  AsIs+GSR: {conf_gsr.shape[1]} confounds "
+                  f"(1 GS + {n_censored} spikes)")
+            extract_and_save(func_file, conf_gsr, out_dir_gsr,
+                             out_prefix, "AsIs+GSR")
+
+            # ------------------ Pipeline 3: AsIs + aCompCor ----------------
+            wm_pcs  = compute_compcor_pcs(bold_img, wm_mask,  N_COMPCOR)
+            csf_pcs = compute_compcor_pcs(bold_img, csf_mask, N_COMPCOR)
+            comp_block = np.hstack([wm_pcs, csf_pcs])         # (T, 10)
+            conf_acomp = (np.hstack([comp_block, spikes])
+                          if spikes is not None else comp_block)
+            print(f"  AsIs+aCompCor: {conf_acomp.shape[1]} confounds "
+                  f"({wm_pcs.shape[1]} WM PC + {csf_pcs.shape[1]} CSF PC + "
+                  f"{n_censored} spikes)")
+            extract_and_save(func_file, conf_acomp, out_dir_acomp,
+                             out_prefix, "AsIs+aCompCor")
+
+print("\nFase 4.1 completa "
+      "(AsIs + AsIs+GSR + AsIs+aCompCor; runs 01 y 03; DVARS-scrub común).")
+```
+
+## 4.2 Promedios de conectividad por sujeto y grupo
+
+El protocolo de Carhart-Harris et al. (2016) incluye **tres scans BOLD por sesión**, pero solo dos de ellos son resting state: `run-01` y `run-03` (`Rest1` y `Rest3` en la nomenclatura del README). El `run-02` (`Rest2`) corresponde a un paradigma de **escucha de música** —diseñado para estudiar el efecto del LSD sobre el procesamiento musical (Kaelen et al., 2015, *Psychopharmacology*)— y no constituye un registro de actividad espontánea. Promediarlo con los runs de reposo introduciría varianza inducida por estímulos auditivos estructurados, contaminando la estimación de conectividad funcional intrínseca. Por tanto, **los promedios intra-sesión se calculan únicamente sobre `run-01` y `run-03`**; el `run-02` queda excluido también de la fase de extracción (§4.1) por la misma razón.
+
+Promediar los dos runs de reposo de cada sesión mejora la relación señal-ruido de la estimación de conectividad funcional (Birn et al., 2013, *NeuroImage*). La diferencia intra-sujeto (LSD − Placebo) capitaliza el diseño cruzado (*crossover*) del estudio, controlando la variabilidad inter-individual inherente a la conectividad funcional. Los promedios grupales permiten obtener estimaciones poblacionales de los efectos del LSD sobre la conectividad. Se generan matrices para los tres pipelines (AsIs, AsIs+GSR y AsIs+aCompCor), habilitando la triangulación metodológica del efecto de la estrategia de denoising en los resultados (§sec-ds003059-triangulacion; Murphy & Fox, 2017; Ciric et al., 2017).
+
+```{python}
+#| eval: false
+#=============================================================================
+# FASE 4 — Extracción de conectividad funcional (ds003059)
+# 4.2 — Promedios de conectividad por sujeto y grupo
+#=============================================================================
+# Justificación:
+#   - Promediar los runs de reposo intra-sesión mejora la SNR de la estimación
+#     de conectividad (Birn et al., 2013, NeuroImage).
+#   - Solo se promedian run-01 y run-03 (resting state). El run-02 ("Rest2 is
+#     music"; Kaelen et al., 2015, README OpenNeuro) se excluye porque incluye
+#     estímulos auditivos estructurados que contaminan la conectividad
+#     funcional intrínseca.
+#   - La diferencia LSD − Placebo por sujeto controla la variabilidad
+#     inter-individual del diseño cruzado.
+#   - Se procesan los tres pipelines (AsIs, AsIs+GSR, AsIs+aCompCor) con la
+#     misma lógica para la triangulación de §sec-ds003059-triangulacion.
+#=============================================================================
+
+import os
+import glob
+import shutil
+import numpy as np
+import pandas as pd
+
+# ------------------------------------------------------------------------------
+# Runs incluidos en el promedio (resting state) — run-02 = música, excluido
+# ------------------------------------------------------------------------------
+RUNS_RESTING = [1, 3]
+
+# ------------------------------------------------------------------------------
+# Etiquetas del atlas combinado Schaefer 200 + Tian S2 (232 ROIs)
+# Reutiliza el CSV ya generado en
+# D:/ProfessionalProyects/PsyConn/derivatives/atlas/atlas_labels_232.csv
+# (PsiloConn §6.7). Solo se copia/normaliza al directorio de stats de ds003059.
+# ------------------------------------------------------------------------------
+STATS_DIR        = "D:/ProfessionalProyects/PsyConn/results/ds003059/stats"
+ATLAS_LABELS_SRC = "D:/ProfessionalProyects/PsyConn/derivatives/atlas/atlas_labels_232.csv"
+os.makedirs(STATS_DIR, exist_ok=True)
+
+if not os.path.exists(ATLAS_LABELS_SRC):
+    raise FileNotFoundError(
+        f"atlas_labels_232.csv no encontrado en {ATLAS_LABELS_SRC}. "
+        f"Ejecuta primero el chunk de construcción del atlas en PsiloConn §6.7."
+    )
+
+# Copia idempotente al directorio de stats — facilita acceso desde §5–§9
+atlas_labels_dst = os.path.join(STATS_DIR, "atlas_labels.csv")
+shutil.copyfile(ATLAS_LABELS_SRC, atlas_labels_dst)
+n_labels = len(pd.read_csv(atlas_labels_dst))
+print(f"Atlas: {n_labels} etiquetas (Schaefer 200 + Tian 32) "
+      f"copiadas a {atlas_labels_dst}")
+
+# ------------------------------------------------------------------------------
+# Definición de pipelines a promediar (ds003059 — triangulación §sec-...)
+# Cada entrada: (nombre, directorio base, descripción)
+# ------------------------------------------------------------------------------
+PIPELINES = [
+    ("AsIs",          "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs",
+     "Primario — replicación fiel de Carhart-Harris et al. (2016)"),
+    ("AsIs+GSR",      "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_GSR",
+     "Sensibilidad — añade GSR sobre el pipeline original (Murphy & Fox, 2017)"),
+    ("AsIs+aCompCor", "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_aCompCor",
+     "Control fisiológico — 5 PC WM + 5 PC CSF (Behzadi et al., 2007; Chai et al., 2012)"),
+]
+
+def save_csv(mat, out_path):
+    pd.DataFrame(mat).to_csv(out_path)
+
+# ------------------------------------------------------------------------------
+# Filtrado de inputs (misma lógica que PsiloConn §5.b.2):
+#   1. Excluir las propias salidas de este chunk (mean_connectome,
+#      diff_connectome) para que re-ejecuciones no se realimenten con sus
+#      propios outputs.
+#   2. Restringir a los runs declarados como resting state (RUNS_RESTING).
+# ------------------------------------------------------------------------------
+SELF_OUTPUT_TOKENS = ("mean_connectome", "diff_connectome", "plcb_connectome")
+
+def filter_inputs(file_list, runs_keep):
+    """Conserva solo los conectomas de inputs — runs en runs_keep y excluyendo
+    los archivos de salida del propio chunk (idempotencia segura).
+    """
+    keep_tags = tuple(f"run-{r:02d}" for r in runs_keep)
+    out = []
+    for f in file_list:
+        name = os.path.basename(f)
+        if any(tok in name for tok in SELF_OUTPUT_TOKENS):
+            continue
+        if not any(t in name for t in keep_tags):
+            continue
+        out.append(f)
+    return out
+
+# ------------------------------------------------------------------------------
+# Procesar cada pipeline con la misma lógica
+# ------------------------------------------------------------------------------
+# Robustez al número de runs disponible (≤ 2 con RUNS_RESTING = [1, 3]):
+#   - >1 run → promedio entre runs (mejora SNR; Birn et al., 2013)
+#   - 1 run  → se conserva la matriz única (equivalente a media de 1 elem.)
+# En ambos casos se generan los MISMOS archivos de salida con los MISMOS
+# nombres (mean_connectome, diff_connectome, group_*, all_*_connectomes),
+# garantizando compatibilidad con los chunks downstream (§5–§9).
+# Mismo patrón que PsiloConn §5.b.2.
+# ------------------------------------------------------------------------------
+for pipe_name, conn_dir, pipe_desc in PIPELINES:
+    lsd_dir  = os.path.join(conn_dir, "lsd")
+    plcb_dir = os.path.join(conn_dir, "plcb")
+
+    if not os.path.isdir(lsd_dir):
+        print(f"\n⚠ Directorio {pipe_name} no encontrado ({lsd_dir}) "
+              f"— ejecutar primero Fase 4.1")
+        continue
+
+    print(f"\n{'='*60}")
+    print(f"Promedios {pipe_name} — {pipe_desc}")
+    print(f"  Runs incluidos: {RUNS_RESTING} (run-02 = música, excluido)")
+    print(f"{'='*60}")
+
+    subjects = sorted(
+        d for d in os.listdir(lsd_dir)
+        if os.path.isdir(os.path.join(lsd_dir, d)) and d != "group"
+    )
+    print(f"Sujetos detectados: {subjects}")
+
+    group_lsd, group_plcb, group_diff = [], [], []
+
+    for subj in subjects:
+        lsd_files = filter_inputs(sorted(glob.glob(os.path.join(
+            lsd_dir,  subj, f"{subj}_*_connectome.npy"))),
+            RUNS_RESTING)
+        plcb_files = filter_inputs(sorted(glob.glob(os.path.join(
+            plcb_dir, subj, f"{subj}_*_connectome.npy"))),
+            RUNS_RESTING)
+
+        if not lsd_files or not plcb_files:
+            print(f"  Omitido {subj} ({pipe_name}): "
+                  f"LSD={len(lsd_files)}, PLCB={len(plcb_files)} runs resting")
+            continue
+
+        # Carga + (opcional) promedio entre runs. Si solo hay 1 run la matriz
+        # se conserva tal cual; el archivo se guarda con nombre
+        # 'mean_connectome' para compatibilidad downstream.
+        lsd_mats  = [np.load(f) for f in lsd_files]
+        plcb_mats = [np.load(f) for f in plcb_files]
+
+        n_lsd  = len(lsd_mats)
+        n_plcb = len(plcb_mats)
+
+        mean_lsd  = np.mean(lsd_mats,  axis=0) if n_lsd  > 1 else lsd_mats[0]
+        mean_plcb = np.mean(plcb_mats, axis=0) if n_plcb > 1 else plcb_mats[0]
+        diff      = mean_lsd - mean_plcb
+
+        lsd_tag  = (f"promedio de {n_lsd} runs"
+                    if n_lsd  > 1 else "1 run (sin promediar)")
+        plcb_tag = (f"promedio de {n_plcb} runs"
+                    if n_plcb > 1 else "1 run (sin promediar)")
+
+        subj_lsd_dir  = os.path.join(lsd_dir,  subj)
+        subj_plcb_dir = os.path.join(plcb_dir, subj)
+
+        np.save(os.path.join(subj_lsd_dir,  f"{subj}_mean_connectome.npy"), mean_lsd)
+        np.save(os.path.join(subj_plcb_dir, f"{subj}_plcb_connectome.npy"), mean_plcb)
+        np.save(os.path.join(subj_lsd_dir,  f"{subj}_diff_connectome.npy"), diff)
+
+        save_csv(mean_lsd,  os.path.join(subj_lsd_dir,  f"{subj}_mean_lsd.csv"))
+        save_csv(mean_plcb, os.path.join(subj_plcb_dir, f"{subj}_mean_plcb.csv"))
+        save_csv(diff,      os.path.join(subj_lsd_dir,  f"{subj}_diff.csv"))
+
+        print(f"  {subj}: LSD={mean_lsd.shape} ({lsd_tag}), "
+              f"PLCB={mean_plcb.shape} ({plcb_tag})")
+
+        group_lsd.append(mean_lsd)
+        group_plcb.append(mean_plcb)
+        group_diff.append(diff)
+
+    # --------------------------------------------------------------------------
+    # Promedios grupales + matrices individuales apiladas
+    # --------------------------------------------------------------------------
+    if group_lsd:
+        n = len(group_lsd)
+        group_mean_lsd  = np.mean(group_lsd,  axis=0)
+        group_mean_plcb = np.mean(group_plcb, axis=0)
+        group_mean_diff = np.mean(group_diff, axis=0)
+
+        group_out = os.path.join(conn_dir, "group")
+        os.makedirs(group_out, exist_ok=True)
+
+        np.save(os.path.join(group_out, "group_mean_connectome.npy"), group_mean_lsd)
+        np.save(os.path.join(group_out, "group_plcb_connectome.npy"), group_mean_plcb)
+        np.save(os.path.join(group_out, "group_diff_connectome.npy"), group_mean_diff)
+
+        save_csv(group_mean_lsd,  os.path.join(group_out, "group_mean_lsd.csv"))
+        save_csv(group_mean_plcb, os.path.join(group_out, "group_mean_plcb.csv"))
+        save_csv(group_mean_diff, os.path.join(group_out, "group_diff.csv"))
+
+        # Stacks individuales (n_subj, ROIs, ROIs) para tests pareados §9.1
+        np.save(os.path.join(group_out, "all_lsd_connectomes.npy"),
+                np.array(group_lsd))
+        np.save(os.path.join(group_out, "all_plcb_connectomes.npy"),
+                np.array(group_plcb))
+        np.save(os.path.join(group_out, "all_diff_connectomes.npy"),
+                np.array(group_diff))
+
+        print(f"\n✓ Promedios grupales {pipe_name}: "
+              f"n={n} sujetos, shape={group_mean_lsd.shape}")
+        print(f"  Matrices individuales apiladas: "
+              f"({n}, {group_mean_lsd.shape[0]}, {group_mean_lsd.shape[1]})")
+    else:
+        print(f"\nSin resultados grupales {pipe_name}: revisa los archivos por run.")
+
+print("\nFase 4.2 completa "
+      "(promedios runs 01+03 para AsIs + AsIs+GSR + AsIs+aCompCor).")
+```
+
+
+
+
+
+
+# 6 — Control de calidad
+
+El movimiento de cabeza durante la adquisición de fMRI constituye la principal fuente de artefacto en estudios de conectividad funcional en reposo (rs-fcMRI). Power et al. (2012, *NeuroImage*) demostraron que desplazamientos incluso submilimétricos generan correlaciones espurias pero sistemáticas: las conexiones de corto alcance se inflan artificialmente mientras que las de largo alcance se atenúan, un patrón que persiste tras la realineación volumétrica y la regresión estándar de parámetros de movimiento. Este hallazgo motivó la propuesta de dos índices de calidad frame-a-frame —*Framewise Displacement* (FD) y DVARS— y la técnica de *scrubbing* (censura temporal de volúmenes contaminados). Evaluaciones sistemáticas posteriores (Ciric et al., 2017; Parkes et al., 2018) y el debate sobre GSR (Murphy & Fox, 2017) han establecido tres benchmarks canónicos para evaluar la contaminación residual de un pipeline: (1) correlación FD/DVARS – RSFC media, (2) proporción de aristas con QC-FC significativa, y (3) dependencia de distancia de las QC-FC.
+
+::: {.callout-warning}
+## Restricciones del QA en ds003059
+
+ds003059 publica **datos derivados ya pre-procesados** (cf. §sec-nota-derivative; Carhart-Harris et al., 2016): registrados a MNI 2 mm, con corrección de movimiento (`3dvolreg`) y *scrubbing* FD > 0.4 mm aplicados, *bandpass* y *detrending* hechos, y 9 nuisance regressors regresados (6 movimiento + 3 anatómicos). El dataset **no incluye** los `_desc-confounds_timeseries.tsv` de fMRIPrep ni los parámetros de movimiento originales (cf. §sec-ds003059-denoising). Esto restringe el QA computable post hoc:
+
+| Métrica QA | Disponible en ds003059 | Justificación |
+|---|---|---|
+| **FD** y FD-derivados | **NO** | Parámetros originales de `3dvolreg` no publicados; cualquier FD recalculada sobre datos ya corregidos por movimiento es artificialmente baja (Power et al., 2014). |
+| **DVARS** | **SÍ** (post hoc) | Calculable directamente sobre la señal BOLD actual como RMS de la diferencia frame-a-frame intra-máscara cerebral. Persistido en CSV por §4.1 y reutilizado aquí. |
+| **QC-FC con FD** | **NO** | Requiere FD por sujeto. |
+| **QC-DVARS-FC** | **SÍ** | Sustituye FD por DVARS como métrica QC en el cómputo cross-subject. Convención válida en la literatura cuando FD no es accesible (Power et al., 2014, §3.3; Ciric et al., 2017 reportan ambos como QC). |
+| **Dependencia de distancia QC-FC** | **SÍ** (con DVARS) | Coordenadas Schaefer 200 + Tian S2 disponibles en §4.1. |
+| **ICC test-retest entre runs** | **SÍ** | k = 2 runs (run-01, run-03; run-02 = música) → ICC(2,1) computable, Spearman-Brown con k = 2. |
+| **Análisis HLM (high vs low movers)** | **NO** | Requiere ranking de sujetos por mean FD. |
+| **tDOF-loss** | **NO directamente** | El pipeline original consumió grados de libertad antes de publicar; el tDOF-loss reportable se limita al añadido post hoc (GSR, aCompCor PCs, DVARS-spikes). |
+
+Por tanto el QA en LSDConn cubre **2 de los 5 benchmarks de Parkes et al. (2018)** —QC-FC con DVARS y TRT (ICC)— y los reporta para los **3 pipelines** de la triangulación (§sec-ds003059-triangulacion: AsIs, AsIs+GSR, AsIs+aCompCor), permitiendo verificar si la GSR adicional reduce QC-DVARS-FC (esperado: sí, pero exacerba dependencia de distancia; Ciric et al., 2017) y si aCompCor mejora la fiabilidad test-retest sobre AsIs.
+:::
+
+Adicionalmente, dado el N moderado del dataset (15 sujetos completaron el protocolo BOLD; Carhart-Harris et al., 2016), las correlaciones cross-subject de QC-DVARS-FC tienen poder limitado comparado con los benchmarks originales (Ciric N = 393; Parkes N = 80–193). Se reportan principalmente con función **comparativa entre los 3 pipelines** —si AsIs+GSR reduce QC-DVARS-FC más que AsIs y AsIs+aCompCor, valida el efecto esperado de GSR sobre la varianza compartida con artefactos globales (Fox et al., 2009; Murphy & Fox, 2017)— no como inferencia confirmatoria sobre la calidad absoluta del denoising.
+
+El presente control de calidad implementa, dentro de estas restricciones:
+
+- **§6.1** — DVARS-RSFC y QC-DVARS-FC (cross-subject + dependencia de distancia) a través de los 3 pipelines (Power et al., 2012, 2014; Ciric et al., 2017; Parkes et al., 2018).
+- **§6.2** — Fiabilidad test-retest entre runs 01 y 03 mediante ICC(2,1) con corrección Spearman-Brown para k = 2 (Shrout & Fleiss, 1979; Cicchetti, 1994; Noble et al., 2019), reportada para los 3 pipelines y consumida por §9.1 en la corrección por atenuación.
+
+## 6.1 DVARS y QC-DVARS-FC
+
+Evaluación de la contaminación residual del pipeline mediante los benchmarks de Power et al. (2012, 2014), Ciric et al. (2017) y Parkes et al. (2018), adaptados al hecho de que **FD no es recuperable** sobre datos derivados (cf. callout-warning de §6). DVARS sustituye a FD como métrica QC en (1) la correlación QC–RSFC media por run, (2) la proporción de aristas con QC-DVARS-FC significativa cross-subject, y (3) la dependencia de distancia de las QC-DVARS-FC. Se reporta para los tres pipelines de la triangulación.
+
+```{r}
+#| eval: false
+#=============================================================================
+# FASE 6 — Control de calidad (ds003059)
+# 6.1 — DVARS y QC-DVARS-FC sobre los 3 pipelines de la triangulación
+#=============================================================================
+# Adaptación a ds003059:
+#   - FD no recuperable (parámetros originales no publicados) → omitido.
+#   - DVARS post hoc, calculado en §4.1 sobre la máscara cerebral del BOLD
+#     y persistido en CSV (idempotencia compartida entre los 3 pipelines).
+#   - QC sustituye FD por DVARS como métrica QC en (a) correlación QC–RSFC
+#     media por run, (b) QC-DVARS-FC por arista cross-subject, (c)
+#     dependencia de distancia con coordenadas Schaefer 200 + Tian S2.
+#   - Se itera sobre los 3 pipelines de §sec-ds003059-triangulacion (AsIs,
+#     AsIs+GSR, AsIs+aCompCor) — la triangulación se valida si AsIs+GSR
+#     reduce QC-DVARS-FC respecto a AsIs/AsIs+aCompCor (Fox et al., 2009;
+#     Murphy & Fox, 2017; Ciric et al., 2017).
+#
+# CAVEAT N moderado: con N = 15 sujetos × 2 sesiones, las correlaciones
+# QC-DVARS-FC cross-subject (benchmarks 2 y 3) tienen poder limitado frente
+# a Ciric (2017, N = 393) o Parkes (2018, N = 80–193). Se reportan con
+# función comparativa entre pipelines, no como inferencia confirmatoria
+# sobre la calidad absoluta del denoising.
+#=============================================================================
+
+library(tidyverse)
+
+# ============================================================================
+# 0. Configuración: ds003059 + 3 pipelines
+# ============================================================================
+ATLAS_DIR    <- "D:/ProfessionalProyects/PsyConn/derivatives/atlas"
+QA_DIR       <- "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/qa"
+RESULTS_DIR  <- "D:/ProfessionalProyects/PsyConn/results/ds003059"
+out_dir      <- file.path(RESULTS_DIR, "stats/QA")
+plot_dir     <- file.path(RESULTS_DIR, "figures/QA")
+dir.create(out_dir,  showWarnings = FALSE, recursive = TRUE)
+dir.create(plot_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Pipelines de §4.1 — se itera sobre los 3 para triangulación
+PIPELINES <- tibble::tribble(
+  ~name,            ~conn_dir,
+  "AsIs",           "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs",
+  "AsIs+GSR",       "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_GSR",
+  "AsIs+aCompCor",  "D:/ProfessionalProyects/PsyConn/derivatives/ds003059/conn/AsIs_aCompCor"
+)
+
+CONDITIONS <- c("lsd", "plcb")
+RUNS_RESTING <- c(1L, 3L)   # run-02 = música (cf. §4.2)
+
+# Umbral DVARS (z-MAD) coherente con el spike-scrub de §4.1
+DVARS_K           <- 1.5    # mediana + K·MAD → spike (Power 2014; Parkes 2018)
+QCFC_MIN_SUBJECTS <- 5L     # mínimo para correlaciones cross-subject estables
+
+# ============================================================================
+# 1. Lectura de DVARS persistidos en QA_DIR (escritos por §4.1)
+# ----------------------------------------------------------------------------
+# Estructura esperada:
+#   QA_DIR/sub-XXX/sub-XXX_ses-LSD_run-01_dvars.csv  ← (volume, dvars)
+#   QA_DIR/sub-XXX/sub-XXX_ses-LSD_run-03_dvars.csv
+#   QA_DIR/sub-XXX/sub-XXX_ses-PLCB_run-01_dvars.csv
+#   QA_DIR/sub-XXX/sub-XXX_ses-PLCB_run-03_dvars.csv
+# DVARS es independiente del pipeline (depende solo del BOLD), por lo que
+# se persiste una sola vez compartido entre los 3 pipelines.
+# ============================================================================
+DVARS_FNAME_PATTERN <- "^(sub-[^_]+)_(ses-[^_]+)_run-(\\d+)_dvars\\.csv$"
+
+read_dvars_for_subj <- function(subj) {
+  dvars_subj_dir <- file.path(QA_DIR, subj)
+  if (!dir.exists(dvars_subj_dir)) return(NULL)
+
+  files <- list.files(dvars_subj_dir, pattern = DVARS_FNAME_PATTERN,
+                      full.names = TRUE)
+  if (length(files) == 0) return(NULL)
+
+  map_dfr(files, function(f) {
+    fname <- basename(f)
+    m     <- regmatches(fname, regexec(DVARS_FNAME_PATTERN, fname))[[1]]
+    ses   <- m[3]
+    run   <- as.integer(m[4])
+
+    df <- tryCatch(read.csv(f), error = function(e) NULL)
+    if (is.null(df) || !"dvars" %in% names(df)) return(NULL)
+
+    cond <- if (ses == "ses-LSD") "lsd" else "plcb"
+
+    # Censurado por DVARS = mediana + K·MAD (mismo umbral que §4.1)
+    med <- median(df$dvars)
+    mad_sigma <- median(abs(df$dvars - med)) * 1.4826
+    thr <- med + DVARS_K * mad_sigma
+    n_total <- nrow(df)
+    n_censor <- sum(df$dvars > thr)
+
+    tibble(
+      subject       = subj,
+      condition     = cond,
+      session       = ses,
+      run           = run,
+      mean_DVARS    = mean(df$dvars),
+      median_DVARS  = med,
+      max_DVARS     = max(df$dvars),
+      n_volumes     = n_total,
+      n_censored    = n_censor,
+      pct_censored  = 100 * n_censor / n_total
+    )
+  })
+}
+
+subjects <- if (dir.exists(QA_DIR))
+  sort(setdiff(list.dirs(QA_DIR, recursive = FALSE, full.names = FALSE), ""))
+else character(0)
+
+if (length(subjects) == 0) {
+  stop("[QA] §6.1: no se encontraron CSV de DVARS en ", QA_DIR,
+       ". Ejecuta primero §4.1 para que los persista.")
+}
+
+dvars_df <- map_dfr(subjects, read_dvars_for_subj) %>%
+  filter(run %in% RUNS_RESTING)   # excluir cualquier run-02 residual
+
+write.csv(dvars_df, file.path(out_dir, "DVARS_by_run.csv"), row.names = FALSE)
+
+cat(sprintf("DVARS leído: %d runs (%d sujetos × %d condiciones × %d runs)\n",
+            nrow(dvars_df), n_distinct(dvars_df$subject),
+            n_distinct(dvars_df$condition),
+            length(RUNS_RESTING)))
+
+# Resumen por sujeto × condición
+subject_dvars <- dvars_df %>%
+  group_by(subject, condition) %>%
+  summarize(
+    mean_DVARS_session = mean(mean_DVARS, na.rm = TRUE),
+    pct_censored_avg   = mean(pct_censored, na.rm = TRUE),
+    .groups = "drop"
+  )
+write.csv(subject_dvars, file.path(out_dir, "subject_DVARS_summary.csv"),
+          row.names = FALSE)
+
+# ============================================================================
+# 2. Función auxiliar: leer matriz zcorr.csv (formato np.savetxt, sin header)
+# ============================================================================
+read_zcorr <- function(f) {
+  m <- as.matrix(read.csv(f, header = FALSE))
+  storage.mode(m) <- "numeric"
+  diag(m) <- 0
+  m
+}
+
+mean_run_rsfc <- function(f) {
+  m <- read_zcorr(f)
+  mean(m[upper.tri(m)], na.rm = TRUE)
+}
+
+# ============================================================================
+# 3. Procesar QA por pipeline — leer zcorr.csv y unir a dvars_df
+# ============================================================================
+process_pipeline <- function(pipe_name, conn_dir) {
+  cat(sprintf("\n=== Pipeline: %s ===\n", pipe_name))
+
+  dvars_pipe <- dvars_df %>%
+    rowwise() %>%
+    mutate(
+      conn_file = {
+        cond_dir <- file.path(conn_dir, condition, subject)
+        f <- file.path(cond_dir,
+                       sprintf("%s_%s_run-%02d_zcorr.csv",
+                               subject, session, run))
+        if (file.exists(f)) f else NA_character_
+      }
+    ) %>%
+    ungroup() %>%
+    mutate(mean_RSFC = sapply(conn_file, function(f) {
+      if (is.na(f)) NA_real_ else mean_run_rsfc(f)
+    }))
+
+  dvars_pipe$pipeline <- pipe_name
+  dvars_pipe_valid <- dvars_pipe %>% filter(!is.na(mean_RSFC))
+  cat(sprintf("  Runs con zcorr válido: %d/%d\n",
+              nrow(dvars_pipe_valid), nrow(dvars_pipe)))
+  dvars_pipe_valid
+}
+
+all_pipelines_df <- map2_dfr(PIPELINES$name, PIPELINES$conn_dir,
+                             process_pipeline)
+write.csv(all_pipelines_df,
+          file.path(out_dir, "DVARS_RSFC_by_run_all_pipelines.csv"),
+          row.names = FALSE)
+
+# ============================================================================
+# 4. Correlación DVARS–RSFC por pipeline (benchmark 1)
+# ----------------------------------------------------------------------------
+# Spearman como método principal (robusto a la distribución sesgada de DVARS,
+# muchos valores bajos + picos ocasionales). Pearson para comparación.
+# Discrepancia |rho - r| > 0.15 → outliers inflando la correlación lineal
+# (Parkes et al., 2018).
+# ============================================================================
+corr_global <- all_pipelines_df %>%
+  group_by(pipeline, condition) %>%
+  summarize(
+    r_DVARS_spearman = cor(mean_DVARS, mean_RSFC, method = "spearman",
+                           use = "complete.obs"),
+    r_DVARS_pearson  = cor(mean_DVARS, mean_RSFC, method = "pearson",
+                           use = "complete.obs"),
+    n_runs           = n(),
+    .groups = "drop"
+  )
+
+write.csv(corr_global,
+          file.path(out_dir, "DVARS_RSFC_correlation_global.csv"),
+          row.names = FALSE)
+
+cat("\n=== Correlación DVARS – RSFC media por pipeline × condición ===\n")
+print(as.data.frame(corr_global), row.names = FALSE)
+
+# ============================================================================
+# 5. QC-DVARS-FC por arista y dependencia de distancia (benchmarks 2 y 3)
+# ----------------------------------------------------------------------------
+# Para cada arista del conectoma, correlacionar el mean DVARS por sujeto con
+# la fuerza de esa arista a través de sujetos (dentro de cada condición).
+# Sustituye QC-FC tradicional (que requeriría FD). Convención válida cuando
+# FD no es accesible (Power et al., 2014, §3.3; Ciric et al., 2017 reportan
+# ambos como QC).
+# ============================================================================
+COORDS_FILE <- file.path(ATLAS_DIR, "Schaefer200_Tian32_coords.csv")
+roi_coords  <- if (file.exists(COORDS_FILE)) read.csv(COORDS_FILE) else NULL
+if (is.null(roi_coords))
+  warning("No se encontraron coordenadas combinadas en ", COORDS_FILE,
+          " — distance-dependence omitida.")
+
+compute_qcdvarsfc_pipeline <- function(pipe_name, conn_dir) {
+  subj_means <- all_pipelines_df %>%
+    filter(pipeline == pipe_name) %>%
+    group_by(subject, condition) %>%
+    summarize(mean_DVARS_subj = mean(mean_DVARS, na.rm = TRUE),
+              .groups = "drop")
+
+  qcfc_per_cond <- list()
+  for (cond in CONDITIONS) {
+    cond_subjs <- subj_means %>% filter(condition == cond)
+    if (nrow(cond_subjs) < QCFC_MIN_SUBJECTS) {
+      cat(sprintf("  %s | %s: solo %d sujetos (<%d), omitido QC-DVARS-FC\n",
+                  pipe_name, cond, nrow(cond_subjs), QCFC_MIN_SUBJECTS))
+      next
+    }
+
+    mats <- lapply(cond_subjs$subject, function(s) {
+      cond_dir <- file.path(conn_dir, cond, s)
+      files <- list.files(cond_dir, pattern = "_zcorr\\.csv$",
+                          full.names = TRUE)
+      if (length(files) == 0) return(NULL)
+      mat_list <- lapply(files, read_zcorr)
+      Reduce("+", mat_list) / length(mat_list)
+    })
+    valid <- !sapply(mats, is.null)
+    mats  <- mats[valid]
+    dvars_v <- cond_subjs$mean_DVARS_subj[valid]
+    if (length(mats) < QCFC_MIN_SUBJECTS) {
+      cat(sprintf("  %s | %s: solo %d sujetos con zcorr, omitido QC-DVARS-FC\n",
+                  pipe_name, cond, length(mats)))
+      next
+    }
+
+    n_roi   <- nrow(mats[[1]])
+    idx     <- which(upper.tri(matrix(0, n_roi, n_roi)), arr.ind = TRUE)
+    n_edges <- nrow(idx)
+
+    edge_vals <- t(sapply(mats, function(m) m[upper.tri(m)]))
+
+    qcfc   <- apply(edge_vals, 2,
+                    function(e) cor(dvars_v, e, use = "complete.obs"))
+    qcfc_p <- apply(edge_vals, 2, function(e) {
+      tryCatch(cor.test(dvars_v, e)$p.value, error = function(x) NA_real_)
+    })
+
+    distances <- NULL
+    rho_dist  <- NA_real_
+    if (!is.null(roi_coords) && nrow(roi_coords) >= n_roi) {
+      distances <- sqrt(
+        (roi_coords$x[idx[, 1]] - roi_coords$x[idx[, 2]])^2 +
+        (roi_coords$y[idx[, 1]] - roi_coords$y[idx[, 2]])^2 +
+        (roi_coords$z[idx[, 1]] - roi_coords$z[idx[, 2]])^2
+      )
+      rho_dist <- cor(distances, qcfc, method = "spearman",
+                      use = "complete.obs")
+    }
+
+    qcfc_per_cond[[cond]] <- list(
+      pipeline                = pipe_name,
+      condition               = cond,
+      n_subjects              = length(mats),
+      n_edges                 = n_edges,
+      pct_sig_p05             = 100 * mean(qcfc_p < 0.05, na.rm = TRUE),
+      median_abs_qcfc         = median(abs(qcfc), na.rm = TRUE),
+      distance_dependence_rho = rho_dist,
+      qcfc                    = qcfc,
+      qcfc_p                  = qcfc_p,
+      distances               = distances
+    )
+  }
+  qcfc_per_cond
+}
+
+cat("\nCalculando QC-DVARS-FC por arista para los 3 pipelines (1-2 min)...\n")
+all_qcfc <- map(transpose(PIPELINES), function(p) {
+  compute_qcdvarsfc_pipeline(p$name, p$conn_dir)
+})
+names(all_qcfc) <- PIPELINES$name
+
+# Resumen tabular
+qcfc_summary <- map_dfr(all_qcfc, function(res_pipe) {
+  map_dfr(res_pipe, function(r) {
+    if (is.null(r)) return(NULL)
+    tibble(
+      pipeline                = r$pipeline,
+      condition               = r$condition,
+      n_subjects              = r$n_subjects,
+      n_edges                 = r$n_edges,
+      pct_sig_p05             = r$pct_sig_p05,
+      median_abs_qcfc         = r$median_abs_qcfc,
+      distance_dependence_rho = r$distance_dependence_rho
+    )
+  })
+})
+
+write.csv(qcfc_summary,
+          file.path(out_dir, "QCDVARSFC_summary_all_pipelines.csv"),
+          row.names = FALSE)
+
+cat("\n=== QC-DVARS-FC y distance-dependence por pipeline ===\n")
+cat("Refs: Ciric 2017 (<5% sig = denoising eficaz);\n")
+cat("      Parkes 2018 (|rho_dist| > 0.10 = dependencia residual).\n\n")
+if (nrow(qcfc_summary) > 0) {
+  print(as.data.frame(qcfc_summary), row.names = FALSE)
+} else {
+  cat(sprintf("(QC-DVARS-FC no calculado — N por condición < %d)\n",
+              QCFC_MIN_SUBJECTS))
+}
+
+# ============================================================================
+# 6. Visualizaciones QA
+# ============================================================================
+PIPE_COLORS <- c(
+  "AsIs"          = "#3498DB",
+  "AsIs+GSR"      = "#9B59B6",
+  "AsIs+aCompCor" = "#28B463"
+)
+COND_COLORS <- c("lsd" = "#E74C3C", "plcb" = "#3498DB")
+
+# 6a. DVARS vs RSFC media por run, los 3 pipelines (faceted)
+p_dvars <- ggplot(all_pipelines_df,
+                  aes(x = mean_DVARS, y = mean_RSFC, color = condition)) +
+  geom_point(alpha = 0.6, size = 1.8) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.15, linewidth = 0.7) +
+  facet_wrap(~ pipeline, ncol = 3) +
+  theme_minimal(base_size = 11) +
+  scale_color_manual(values = COND_COLORS) +
+  labs(title = "[QA] DVARS vs mean RSFC por run, los 3 pipelines (ds003059)",
+       subtitle = "DVARS post hoc (Power 2012; Nichols 2013) | runs 01+03",
+       x = "Mean DVARS",
+       y = "Mean RSFC (Fisher z)")
+ggsave(file.path(plot_dir, "QA_DVARS_vs_RSFC_3pipelines.png"), p_dvars,
+       width = 12, height = 5, dpi = 300)
+
+# 6b. Distribución QC-DVARS-FC por pipeline
+has_any_qcfc <- any(map_lgl(all_qcfc, ~ length(.x) > 0))
+
+if (has_any_qcfc) {
+  qcfc_dist_df <- map_dfr(all_qcfc, function(res_pipe) {
+    map_dfr(res_pipe, function(r) {
+      if (is.null(r)) return(NULL)
+      tibble(qcfc = r$qcfc, condition = r$condition, pipeline = r$pipeline)
+    })
+  }) %>% filter(!is.na(qcfc))
+
+  if (nrow(qcfc_dist_df) > 0) {
+    p_qcfc_hist <- ggplot(qcfc_dist_df, aes(x = qcfc, fill = condition)) +
+      geom_histogram(bins = 80, alpha = 0.55, position = "identity") +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "grey40") +
+      facet_wrap(~ pipeline, ncol = 3, scales = "free_y") +
+      theme_minimal(base_size = 11) +
+      scale_fill_manual(values = COND_COLORS) +
+      labs(title = "[QA] Distribución QC-DVARS-FC por arista, 3 pipelines",
+           subtitle = "Ciric 2017 — referencia: <5% aristas significativas (p<.05)",
+           x = "QC-DVARS-FC (Pearson r: mean DVARS ~ edge strength)",
+           y = "N aristas")
+    ggsave(file.path(plot_dir, "QA_QCDVARSFC_distribution_3pipelines.png"),
+           p_qcfc_hist, width = 12, height = 5, dpi = 300)
+  }
+} else {
+  cat("[QA] 6b — Distribución QC-DVARS-FC omitida (sin pipelines con N suficiente).\n")
+}
+
+# 6c. Distance dependence por pipeline
+has_dist_dep <- has_any_qcfc &&
+  "distance_dependence_rho" %in% names(qcfc_summary) &&
+  any(!is.na(qcfc_summary$distance_dependence_rho))
+
+if (has_dist_dep) {
+  dist_dep_df <- map_dfr(all_qcfc, function(res_pipe) {
+    map_dfr(res_pipe, function(r) {
+      if (is.null(r) || is.null(r$distances)) return(NULL)
+      tibble(distance = r$distances, qcfc = r$qcfc,
+             condition = r$condition, pipeline = r$pipeline)
+    })
+  }) %>% filter(!is.na(qcfc), !is.na(distance))
+
+  if (nrow(dist_dep_df) > 0) {
+    p_dist <- ggplot(dist_dep_df,
+                     aes(x = distance, y = qcfc, color = condition)) +
+      geom_point(alpha = 0.02, size = 0.3) +
+      geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+      geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+      facet_wrap(~ pipeline, ncol = 3) +
+      theme_minimal(base_size = 11) +
+      scale_color_manual(values = COND_COLORS) +
+      labs(title = "[QA] Dependencia de distancia QC-DVARS-FC, 3 pipelines",
+           subtitle = "Power 2012; Ciric 2017; Parkes 2018  |  cortex+subcortex (232 ROIs)",
+           x = "Distancia euclidiana inter-ROI (mm)",
+           y = "QC-DVARS-FC (Pearson r)")
+    ggsave(file.path(plot_dir, "QA_QCDVARSFC_distance_3pipelines.png"),
+           p_dist, width = 12, height = 5, dpi = 300)
+  }
+} else {
+  cat("[QA] 6c — Dependencia de distancia QC-DVARS-FC omitida ",
+      "(sin coordenadas ROI o sin pipelines con N suficiente).\n", sep = "")
+}
+
+# 6d. Mean DVARS por sujeto y condición
+p_dvars_subj <- subject_dvars %>%
+  ggplot(aes(x = reorder(subject, mean_DVARS_session),
+             y = mean_DVARS_session, fill = condition)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6, alpha = 0.85) +
+  theme_minimal(base_size = 11) +
+  scale_fill_manual(values = COND_COLORS) +
+  labs(title = "[QA] Mean DVARS por sujeto y condición (ds003059)",
+       subtitle = "DVARS post hoc — proxy del artefacto residual tras el denoising original",
+       x = "", y = "Mean DVARS") +
+  coord_flip()
+ggsave(file.path(plot_dir, "QA_DVARS_per_subject.png"), p_dvars_subj,
+       width = 8, height = 6, dpi = 300)
+
+cat("\nOK §6.1 (ds003059, 3 pipelines, DVARS post hoc) completo — outputs en:\n")
+cat(sprintf("  Stats:   %s\n", out_dir))
+cat(sprintf("  Figures: %s\n", plot_dir))
+```
+
