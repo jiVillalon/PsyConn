@@ -58,7 +58,7 @@ derivatives/ds006072/prep/fmriprep/data/t1/sub-*/figures/
 # --- nordic ---
 derivatives/ds006072/prep/nordic/data/
 
-# --- tedana: árbol kundu y QC kundu fuera ---
+# --- tedana: árbol kundu y QC kundu ---
 derivatives/ds006072/prep/tedana/tree/kundu/
 derivatives/ds006072/prep/tedana/qc/kundu/
 
@@ -66,7 +66,7 @@ derivatives/ds006072/prep/tedana/qc/kundu/
 # (Conservar por run-*/: tedana_report.html, report.txt, tedana_call.sh,
 #  references.bib, dataset_description.json, desc-ICA_decision_tree.json,
 #  desc-ICA_status_table.tsv, desc-tedana_metrics.{tsv,json},
-#  desc-tedana_registry.json. Lo demás fuera.)
+#  desc-tedana_registry.json.)
 derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/*.nii.gz
 derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/open_rica_report.py
 derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/tedana_2026-*.tsv
@@ -82,7 +82,7 @@ derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-P
 derivatives/ds006072/prep/tedana/tree/minimal/sub-*/ses-*/BOLDREST*/run-*/desc-confounds_timeseries.tsv
 
 # ==========================================================================
-# derivatives/ds006072/conn/ — conservar solo group/, fuera mtp/ y psil/
+# derivatives/ds006072/conn/ 
 # ==========================================================================
 derivatives/ds006072/conn/*/mtp/
 derivatives/ds006072/conn/*/psil/
